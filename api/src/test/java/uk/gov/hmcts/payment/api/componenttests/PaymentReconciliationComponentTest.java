@@ -4,7 +4,6 @@ import org.joda.time.MutableDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.domain.Specifications;
 import uk.gov.hmcts.payment.api.componenttests.util.PaymentsDataUtil;
 import uk.gov.hmcts.payment.api.model.PaymentFeeLink;
 import uk.gov.hmcts.payment.api.v1.componenttests.TestUtil;
@@ -86,7 +85,7 @@ public class PaymentReconciliationComponentTest extends TestUtil {
 
 
     private static Specification findByDatesBetween(Date fromDate, Date toDate) {
-        return Specifications
+        return Specification
             .where(isBetween(fromDate, toDate));
     }
 

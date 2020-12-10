@@ -103,7 +103,7 @@ public class MaintenanceJobsControllerTest extends PaymentsDataUtil {
             .withAuthorizedService("divorce")
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .withReturnUrl("https://www.gooooogle.com");
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
     }
 
     @Test
@@ -127,7 +127,6 @@ public class MaintenanceJobsControllerTest extends PaymentsDataUtil {
         // Create Payment
 
         MvcResult result = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", serviceCallbackUrl)
             .post("/card-payments", cardPaymentRequest())
             .andExpect(status().isCreated())

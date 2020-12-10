@@ -21,4 +21,6 @@ public interface Payment2Repository extends CrudRepository<Payment, Integer>, Jp
 
     Optional<List<Payment>> findAllByDateCreatedBetween(Date fromDate, Date toDate);
 
+    Optional<List<Payment>> findByDocumentControlNumber(String documentControlNumber);
+
 }

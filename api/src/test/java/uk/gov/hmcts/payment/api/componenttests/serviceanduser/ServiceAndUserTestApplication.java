@@ -20,6 +20,10 @@ import uk.gov.hmcts.reform.auth.checker.core.SubjectResolver;
 import uk.gov.hmcts.reform.auth.checker.core.service.Service;
 import uk.gov.hmcts.reform.auth.checker.core.user.User;
 import uk.gov.hmcts.reform.auth.checker.spring.serviceanduser.ServiceAndUserDetails;
+import org.springframework.hateoas.client.LinkDiscoverer;
+import org.springframework.http.MediaType;
+import org.springframework.plugin.core.OrderAwarePluginRegistry;
+import org.springframework.plugin.core.PluginRegistry;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
@@ -93,6 +97,12 @@ public class ServiceAndUserTestApplication {
                 .addFilter(filter)
                 .authorizeRequests().anyRequest().authenticated();
         }
+    }
+
+    @Bean
+    public PluginRegistry<LinkDiscoverer, MediaType> discoverers(
+        OrderAwarePluginRegistry<LinkDiscoverer, MediaType> relProviderPluginRegistry) {
+        return relProviderPluginRegistry;
     }
 }
 

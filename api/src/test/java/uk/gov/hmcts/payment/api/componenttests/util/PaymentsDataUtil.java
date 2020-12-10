@@ -432,8 +432,6 @@ public class PaymentsDataUtil {
         PaymentFeeLink paymentFeeLink = db.create(paymentFeeLinkWith().paymentReference(reference).payments(Arrays.asList(payment)).fees(Arrays.asList(fee)));
         payment.setPaymentLink(paymentFeeLink);
 
-
-
         return payment;
     }
 
@@ -495,38 +493,47 @@ public class PaymentsDataUtil {
         });
     }
 
-    public FeePayApportion populateApportionDetails() {
+    public FeePayApportion populateApportionDetails(Payment payment) {
 
-        FeePayApportion feePayApportion = db.createApportionDetails(FeePayApportion.feePayApportionWith()
-            .apportionAmount(BigDecimal.valueOf(100))
+        FeePayApportion feePayApportion = FeePayApportion.feePayApportionWith()
+            .apportionAmount(payment.getAmount())
             .apportionType("AUTO")
-            .feeId(1)
-            .paymentId(1)
-            .feeAmount(BigDecimal.valueOf(100)));
+            .feeId(payment.getPaymentLink().getFees().get(0).getId())
+            .paymentId(payment.getId())
+            .paymentLink(payment.getPaymentLink())
+            .feeAmount(payment.getPaymentLink().getFees().get(0).getCalculatedAmount())
+            .build();
+        payment.getPaymentLink().setApportions(Collections.singletonList(feePayApportion));
         return feePayApportion;
     }
 
-    public FeePayApportion populateApportionDetailsWithCallSurplusAmount() {
+    public FeePayApportion populateApportionDetailsWithCallSurplusAmount(Payment payment) {
 
-        FeePayApportion feePayApportion = db.createApportionDetails(FeePayApportion.feePayApportionWith()
+        FeePayApportion feePayApportion = FeePayApportion.feePayApportionWith()
             .apportionAmount(BigDecimal.valueOf(100))
             .apportionType("AUTO")
-            .feeId(1)
-            .paymentId(1)
+            .feeId(payment.getPaymentLink().getFees().get(0).getId())
+            .paymentId(payment.getId())
+            .paymentLink(payment.getPaymentLink())
             .feeAmount(BigDecimal.valueOf(100))
             .callSurplusAmount(BigDecimal.valueOf(100))
-            .callSurplusAmount(BigDecimal.valueOf(100)));
+            .callSurplusAmount(BigDecimal.valueOf(100))
+            .build();
+        payment.getPaymentLink().setApportions(Collections.singletonList(feePayApportion));
         return feePayApportion;
     }
 
-    public FeePayApportion populateApportionDetailsWithDifferentFeeId() {
+    public FeePayApportion populateApportionDetailsWithDifferentFeeId(Payment payment) {
 
-        FeePayApportion feePayApportion = db.createApportionDetails(FeePayApportion.feePayApportionWith()
+        FeePayApportion feePayApportion = FeePayApportion.feePayApportionWith()
             .apportionAmount(BigDecimal.valueOf(100))
             .apportionType("AUTO")
-            .feeId(2)
-            .paymentId(1)
-            .feeAmount(BigDecimal.valueOf(100)));
+            .feeId(payment.getPaymentLink().getFees().get(0).getId())
+            .paymentId(payment.getId())
+            .paymentLink(payment.getPaymentLink())
+            .feeAmount(BigDecimal.valueOf(100))
+            .build();
+        payment.getPaymentLink().setApportions(Collections.singletonList(feePayApportion));
         return feePayApportion;
     }
 
@@ -569,7 +576,7 @@ public class PaymentsDataUtil {
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"PROBATE\",\n" +
             "  \"currency\": \"GBP\",\n" +
-            "  \"return_url\": \"https://www.gooooogle.com\",\n" +
+            "  \"return_url\": \"https://www.moneyclaims.service.gov.uk\",\n" +
             "  \"site_id\": \"AA101\",\n" +
             "  \"fees\": [\n" +
             "    {\n" +

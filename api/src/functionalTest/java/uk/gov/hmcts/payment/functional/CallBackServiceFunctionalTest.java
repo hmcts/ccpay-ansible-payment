@@ -2,12 +2,9 @@ package uk.gov.hmcts.payment.functional;
 
 import org.awaitility.Duration;
 import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.functional.config.TestConfigProperties;
 import uk.gov.hmcts.payment.functional.dsl.PaymentsTestDsl;
@@ -76,7 +73,7 @@ public class CallBackServiceFunctionalTest {
         // Step 1 : create card payment
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
-            .returnUrl("https://www.google.com")
+            .returnUrl("https://www.moneyclaims.service.gov.uk")
             .serviceCallBackUrl(serviceCallBackUrl)
             .when().createCardPayment(PaymentFixture.aCardPaymentRequest("30.99"))
             .then().created(savedPayment -> {

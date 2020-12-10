@@ -108,7 +108,7 @@ public class PaymentControllerTest extends PaymentsDataUtil {
             .withAuthorizedService("divorce")
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .withReturnUrl("https://www.gooooogle.com");
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
     }
 
     @Test
@@ -1285,8 +1285,8 @@ public class PaymentControllerTest extends PaymentsDataUtil {
     @Transactional
     public void shouldCheckAmountDueIsCalculatedFromApportionTableWhenApportionFlagToggledONForCardPayments() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
-        populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetails();
+        Payment payment = populateTelephonyPaymentToDb(paymentReference,false);
+        populateApportionDetails(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
@@ -1312,8 +1312,8 @@ public class PaymentControllerTest extends PaymentsDataUtil {
     @Transactional
     public void shouldCheckAmountDueIsCalculatedFromApportionTableWhenCallSurplusAmountIsNotNull() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
-        populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetailsWithCallSurplusAmount();
+        Payment payment = populateTelephonyPaymentToDb(paymentReference,false);
+        populateApportionDetailsWithCallSurplusAmount(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
@@ -1338,8 +1338,8 @@ public class PaymentControllerTest extends PaymentsDataUtil {
     @Transactional
     public void shouldCheckAmountDueIsCalculatedFromApportionTableWhenFeeIdIsDifferent() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
-        populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetailsWithDifferentFeeId();
+        Payment payment = populateTelephonyPaymentToDb(paymentReference,false);
+        populateApportionDetailsWithDifferentFeeId(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
@@ -1445,7 +1445,7 @@ public class PaymentControllerTest extends PaymentsDataUtil {
     public void shouldCheckAmountDueIsCalculatedFromApportionTableWhenWhenDateCreatedIsEqualToApportionDate() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
         Payment payment =populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetailsWithCallSurplusAmount();
+        populateApportionDetailsWithCallSurplusAmount(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
@@ -1467,42 +1467,13 @@ public class PaymentControllerTest extends PaymentsDataUtil {
         assertNotNull(payments);
         assertThat(payments.size()).isEqualTo(1);
     }
-
-    @Test
-    @Transactional
-    public void shouldCheckAmountDueIsCalculatedFromApportionTableWhenFeeIsNotAvailable() throws Exception {
-        String paymentReference = "RC-1519-9028-1909-1435";
-        Payment payment =populateTelephonyPaymentToDbWithoutFees(paymentReference,false);
-        populateApportionDetailsWithCallSurplusAmount();
-        String startDate = LocalDateTime.now().toString(DATE_FORMAT);
-        String endDate = LocalDateTime.now().toString(DATE_FORMAT);
-        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
-        payment.setDateCreated(parseDate("01.06.2020"));
-        restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
-            .andExpect(status().isAccepted());
-
-        restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
-            .andExpect(status().isAccepted());
-        MvcResult result1 = restActions
-            .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
-            .andExpect(status().isOk())
-            .andReturn();
-
-        PaymentsResponse response = objectMapper.readValue(result1.getResponse().getContentAsByteArray(), PaymentsResponse.class);
-        List<PaymentDto> payments = response.getPayments();
-        assertNotNull(payments);
-        assertThat(payments.size()).isEqualTo(1);
-    }
-
 
     @Test
     @Transactional
     public void shouldCheckAmountDueIsCalculatedFromApportionTableWhenWhenDateCreatedIsAfterApportionDate() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
         Payment payment =populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetailsWithCallSurplusAmount();
+        populateApportionDetailsWithCallSurplusAmount(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);

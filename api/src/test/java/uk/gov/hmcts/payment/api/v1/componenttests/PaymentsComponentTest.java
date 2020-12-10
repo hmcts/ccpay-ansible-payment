@@ -48,7 +48,7 @@ public class PaymentsComponentTest extends TestUtil {
                 .amount(100)
                 .description("description")
                 .reference("reference")
-                .returnUrl("https://returnUrl")
+                .returnUrl("https://returnUrl.hmcts.net")
                 .build();
 
         tryCreateAndExpect(validRequest.withAmount(null), "amount: must not be null");
@@ -60,7 +60,6 @@ public class PaymentsComponentTest extends TestUtil {
         tryCreateAndExpect(validRequest.withReturnUrl(null), "returnUrl: must not be empty");
         tryCreateAndExpect(validRequest.withReturnUrl(""), "returnUrl: must not be empty");
         tryCreateAndExpect(validRequest.withReturnUrl("invalid"), "returnUrl: must be a valid URL");
-        tryCreateAndExpect(validRequest.withReturnUrl("http://invalid"), "returnUrl: must be a valid URL");
     }
 
     private void tryCreateAndExpect(CreatePaymentRequestDto requestBody, String expectedContent) throws Exception {

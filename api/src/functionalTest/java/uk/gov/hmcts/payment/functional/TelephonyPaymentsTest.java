@@ -68,7 +68,7 @@ public class TelephonyPaymentsTest {
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
-            .returnUrl("https://www.google.com")
+            .returnUrl("https://www.moneyclaims.service.gov.uk")
             .when().createTelephonyPayment(paymentRecordRequest)
             .then().created(paymentDto -> {
             assertEquals("payment status is properly set", "Success", paymentDto.getStatus());
@@ -85,7 +85,7 @@ public class TelephonyPaymentsTest {
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
-            .returnUrl("https://www.goooooogle.com")
+            .returnUrl("https://www.moneyclaims.service.gov.uk")
             .when().createTelephonyPayment(paymentRecordRequest)
             .then().created(paymentDto -> {
             String referenceNumber = paymentDto.getReference();
@@ -93,7 +93,7 @@ public class TelephonyPaymentsTest {
             //update the status
             dsl.given().userToken(USER_TOKEN)
                 .s2sToken(SERVICE_TOKEN)
-                .returnUrl("https://www.goooooogle.com")
+                .returnUrl("https://www.moneyclaims.service.gov.uk")
                 .when().updatePaymentStatus(referenceNumber, status)
                 .then().noContent();
 
@@ -101,7 +101,7 @@ public class TelephonyPaymentsTest {
 
             dsl.given().userToken(USER_TOKEN)
                 .s2sToken(SERVICE_TOKEN)
-                .returnUrl("https://www.goooooogle.com")
+                .returnUrl("https://www.moneyclaims.service.gov.uk")
                 .when()
                 .enableSearch()
                 .searchPaymentsByServiceBetweenDates(paymentRecordRequest.getService(), startDateTime, endDateTime)
@@ -126,7 +126,7 @@ public class TelephonyPaymentsTest {
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
-            .returnUrl("https://www.goooooogle.com")
+            .returnUrl("https://www.moneyclaims.service.gov.uk")
             .when().createTelephonyPayment(paymentRecordRequest)
             .then().created(paymentDto -> {
             String referenceNumber = paymentDto.getReference();
@@ -134,7 +134,7 @@ public class TelephonyPaymentsTest {
             //update the status
             dsl.given().userToken(USER_TOKEN)
                 .s2sToken(SERVICE_TOKEN)
-                .returnUrl("https://www.goooooogle.com")
+                .returnUrl("https://www.moneyclaims.service.gov.uk")
                 .when().updatePaymentStatus(referenceNumber, status)
                 .then().noContent();
 
@@ -142,7 +142,7 @@ public class TelephonyPaymentsTest {
 
             dsl.given().userToken(USER_TOKEN)
                 .s2sToken(SERVICE_TOKEN)
-                .returnUrl("https://www.goooooogle.com")
+                .returnUrl("https://www.moneyclaims.service.gov.uk")
                 .when()
                 .enableSearch()
                 .searchPaymentsByServiceBetweenDates(paymentRecordRequest.getService(), startDateTime, endDateTime)
@@ -168,7 +168,7 @@ public class TelephonyPaymentsTest {
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
-            .returnUrl("https://www.goooooogle.com")
+            .returnUrl("https://www.moneyclaims.service.gov.uk")
             .when().createTelephonyPayment(paymentRecordRequest)
             .then().created(paymentDto -> {
             String referenceNumber = paymentDto.getReference();
@@ -176,14 +176,14 @@ public class TelephonyPaymentsTest {
             //update the status
             dsl.given().userToken(USER_TOKEN)
                 .s2sToken(SERVICE_TOKEN)
-                .returnUrl("https://www.goooooogle.com")
+                .returnUrl("https://www.moneyclaims.service.gov.uk")
                 .when().updatePaymentStatus(referenceNumber, status)
                 .then().noContent();
             String endDateTime = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
 
             dsl.given().userToken(USER_TOKEN)
                 .s2sToken(SERVICE_TOKEN)
-                .returnUrl("https://www.goooooogle.com")
+                .returnUrl("https://www.moneyclaims.service.gov.uk")
                 .when()
                 .enableSearch()
                 .searchPaymentsByServiceBetweenDates(paymentRecordRequest.getService(), startDateTime, endDateTime)
@@ -220,7 +220,7 @@ public class TelephonyPaymentsTest {
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
-            .returnUrl("https://www.goooooogle.com")
+            .returnUrl("https://www.moneyclaims.service.gov.uk")
             .when().createCardPayment(paymentRequest)
             .then().created(paymentDto -> {
             assertTrue(paymentDto.getReference().matches(PAYMENT_REFERENCE_REGEX));
@@ -251,7 +251,7 @@ public class TelephonyPaymentsTest {
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
-            .returnUrl("https://www.goooooogle.com")
+            .returnUrl("https://www.moneyclaims.service.gov.uk")
             .when().createCardPayment(paymentRequest)
             .then().created(paymentDto -> {
             assertTrue(paymentDto.getReference().matches(PAYMENT_REFERENCE_REGEX));

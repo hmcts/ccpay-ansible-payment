@@ -1,8 +1,9 @@
 package uk.gov.hmcts.payment.api.controllers;
 
 import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,9 +12,9 @@ import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
 import uk.gov.hmcts.payment.api.dto.mapper.PaymentGroupDtoMapper;
 import uk.gov.hmcts.payment.api.model.*;
 import uk.gov.hmcts.payment.api.service.PaymentService;
-import uk.gov.hmcts.payment.api.util.DateFormatter;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +32,8 @@ public class FeePayApportionController {
     @Autowired
     private LaunchDarklyFeatureToggler featureToggler;
 
+    private static final Logger LOG = LoggerFactory.getLogger(FeePayApportionController.class);
+
     @Autowired
     public FeePayApportionController(PaymentService<PaymentFeeLink, String> paymentService,PaymentFeeRepository paymentFeeRepository,PaymentGroupDtoMapper paymentGroupDtoMapper,LaunchDarklyFeatureToggler featureToggler) {
         this.paymentService = paymentService;
@@ -47,26 +50,33 @@ public class FeePayApportionController {
     })
     @GetMapping(value = "/payment-groups/fee-pay-apportion/{paymentreference}")
     public ResponseEntity<PaymentGroupDto> retrieveApportionDetails(@PathVariable("paymentreference") String paymentReference) {
-
+        LOG.info("Invoking new API in FeePayApportionController");
         PaymentFeeLink paymentFeeLink = paymentService.retrieve(paymentReference);
         boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature",false);
+        LOG.info("apportionFeature value in FeePayApportionController: {}", apportionFeature);
         Optional<Payment> payment = paymentFeeLink.getPayments().stream()
             .filter(p -> p.getReference().equals(paymentReference)).findAny();
-        List<PaymentFee> feeList = paymentFeeLink.getFees();
+
         if (payment.isPresent() && apportionFeature)
         {
+            LOG.info("Apportion feature is true and payment is available in FeePayApportionController");
             List<FeePayApportion> feePayApportionList = paymentService.findByPaymentId(payment.get().getId());
             if(feePayApportionList != null && !feePayApportionList.isEmpty()) {
-                feePayApportionList.stream()
-                    .forEach(feePayApportion -> {
-                        feeList.stream()
-                            .forEach(paymentFee -> {
-                                if (feePayApportion.getFeeId().equals(paymentFee.getId())) {
-                                    PaymentFee fee = paymentFeeRepository.findById(feePayApportion.getFeeId()).get();
-                                    fee.setApportionAmount(feePayApportion.getApportionAmount());
+                LOG.info("Apportion details available in FeePayApportionController");
+                List<PaymentFee> feeList = new ArrayList<>();
+                for (FeePayApportion feePayApportion : feePayApportionList)
+                {
+                    LOG.info("Inside FeePayApportion section in FeePayApportionController");
+                    Optional<PaymentFee> apportionedFee = paymentFeeRepository.findById(feePayApportion.getFeeId());
+                    if(apportionedFee.isPresent())
+                    {
+                        LOG.info("Apportioned fee is present");
+                        PaymentFee fee = apportionedFee.get();
+                        LOG.info("apportion amount value in FeePayApportionController: {}", feePayApportion.getApportionAmount());
+                        fee.setApportionAmount(feePayApportion.getApportionAmount());
+                        feeList.add(fee);
                                 }
-                            });
-                    });
+                            }
                 paymentFeeLink.setFees(feeList);
             }
 

@@ -1,7 +1,6 @@
 package uk.gov.hmcts.payment.api.model;
 
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import uk.gov.hmcts.payment.api.jpaaudit.listner.Auditable;
 import uk.gov.hmcts.payment.api.jpaaudit.listner.PaymentFeeEntityListener;
@@ -15,7 +14,6 @@ import java.util.List;
 @Entity
 @EntityListeners(PaymentFeeEntityListener.class)
 @Data
-@EqualsAndHashCode(callSuper=false)
 @Builder(builderMethodName = "feeWith")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -72,7 +70,8 @@ public class PaymentFee extends Auditable<String> {
     @Column(name = "amount_due")
     private BigDecimal amountDue;
 
-    @Column(name = "date_apportioned")
+    @ToString.Exclude
+    @Transient
     private Date dateApportioned;
 
     @Column(name = "date_created")
@@ -82,7 +81,8 @@ public class PaymentFee extends Auditable<String> {
     @Column(name = "date_updated")
     private Timestamp dateUpdated;
 
-    @ToString.Exclude
-    @Transient
-    private BigDecimal callSurplusAmount;
+    @Override
+    public int hashCode(){
+        return super.hashCode();
+    }
 }

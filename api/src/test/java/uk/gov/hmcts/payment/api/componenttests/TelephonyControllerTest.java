@@ -92,7 +92,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
 
         restActions
             .withAuthorizedService("divorce")
-            .withReturnUrl("https://www.gooooogle.com");
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
     }
 
     @Test
@@ -298,7 +298,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
             .build();
 
         MvcResult result2 = restActions
-            .withReturnUrl("https://www.google.com")
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk")
             .post("/payment-groups/" + paymentGroupDto.getPaymentGroupReference() + "/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
             .andReturn();
@@ -361,7 +361,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
             .build();
 
         MvcResult result2 = restActions
-            .withReturnUrl("https://www.google.com")
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk")
             .post("/payment-groups/" + paymentGroupDto.getPaymentGroupReference() + "/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
             .andReturn();

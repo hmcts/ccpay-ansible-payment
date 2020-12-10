@@ -22,8 +22,7 @@ public class FeePayApportionEntityListener {
         EntityManager entityManager = BeanUtil.getBean(EntityManager.class);
         entityManager.persist(PaymentAuditHistory.paymentAuditHistoryWith()
             .ccdCaseNo(target.getCcdCaseNumber())
-            .auditType(auditEventsType.getName())
-            //.auditPayload(target.getFeeId() + " | " + target.getPaymentId() + " | " + target.getApportionAmount() + " | " + target.getAllocatedAmount())
+            .auditType(auditEventsType)
             .auditPayload(target.toString())
             .auditDescription(auditEventsType.getDescription())
             .build());

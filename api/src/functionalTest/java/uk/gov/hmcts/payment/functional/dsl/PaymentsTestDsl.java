@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
-import uk.gov.hmcts.payment.api.contract.FeeDto;
-import uk.gov.hmcts.payment.api.contract.PaymentDto;
-import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
+import uk.gov.hmcts.payment.api.contract.*;
 import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.dto.*;
 import uk.gov.hmcts.payment.functional.idam.IdamService;
@@ -105,6 +102,11 @@ public class PaymentsTestDsl {
 
         public PaymentWhenDsl createTelephonyCardPayment(CardPaymentRequest cardPaymentRequest, String paymentGroupReference) {
             response = newRequest().contentType(ContentType.JSON).body(cardPaymentRequest).post("/payment-groups/{payment-group-reference}/card-payments", paymentGroupReference);
+            return this;
+        }
+
+        public PaymentWhenDsl createTelephonyPayment(TelephonyCardPaymentsRequest telephonyCardPaymentsRequest, String paymentGroupReference) {
+            response = newRequest().contentType(ContentType.JSON).body(telephonyCardPaymentsRequest).post("/payment-groups/{payment-group-reference}/telephony-card-payments", paymentGroupReference);
             return this;
         }
 

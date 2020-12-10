@@ -8,15 +8,13 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-//@EntityListeners(PaymentAllocationEntityListener.class)
 @Data
-@EqualsAndHashCode(callSuper=false)
 @Builder(builderMethodName = "paymentAllocationWith")
 @AllArgsConstructor
 @NoArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "payment_allocation")
-public class PaymentAllocation /*extends Auditable<String>*/ {
+public class PaymentAllocation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,6 +56,11 @@ public class PaymentAllocation /*extends Auditable<String>*/ {
     @JoinColumn(name = "payment_id", insertable = false, updatable = false)
     @ToString.Exclude
     private Payment payment;
+
+    @Override
+    public int hashCode(){
+        return super.hashCode();
+    }
 
 
 }

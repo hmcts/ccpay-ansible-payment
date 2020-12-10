@@ -18,7 +18,7 @@ public class SendMessageApplication {
 
     public static void main(String[] args) throws Exception{
 
-        TopicClientProxy client = new TopicClientProxy("Endpoint=sb://ccpay-servicebus-aat.servicebus.windows.net/;SharedAccessKeyName=SendAndListenSharedAccessKey;SharedAccessKey=ATfNGbCzML84hjtH8T0EoAyI1PyLvxMQ/VOd1lr6UCA=", "serviceCallbackTopic");
+        TopicClientProxy client = new TopicClientProxy("<Service-bus Connection String>", "serviceCallbackTopic");
 
         Payment payment = CardPaymentComponentTest.getPaymentsData().get(2);
 

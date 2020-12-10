@@ -1,4 +1,5 @@
 #!groovy
+import uk.gov.hmcts.contino.AppPipelineDsl
 
 properties(
     [[$class: 'GithubProjectProperty', projectUrlStr: 'https://github.com/hmcts/ccpay-payment-app.git'],
@@ -38,6 +39,11 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
     ]
 }
 
+// Vars for Kubernetes
+env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
+env.PACT_BROKER_URL = "pact-broker.platform.hmcts.net"
+env.PACT_BROKER_PORT = "443"
+env.PACT_BROKER_SCHEME = "https"
 
 withPipeline(type, product, app) {
     enableAksStagingDeployment()
@@ -48,4 +54,8 @@ withPipeline(type, product, app) {
     //installCharts()
     enableSlackNotifications('#cc-payments-tech')
     disableLegacyDeployment()
+
+    onMaster() {
+        enablePactAs([AppPipelineDsl.PactRoles.PROVIDER])
+    }
 }

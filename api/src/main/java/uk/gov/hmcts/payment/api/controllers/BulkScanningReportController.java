@@ -17,7 +17,6 @@ import uk.gov.hmcts.payment.api.model.PaymentFeeLink;
 import uk.gov.hmcts.payment.api.service.PaymentService;
 import uk.gov.hmcts.payment.api.util.ReportType;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 

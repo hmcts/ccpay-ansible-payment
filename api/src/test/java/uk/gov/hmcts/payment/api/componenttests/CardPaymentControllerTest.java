@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
-
 import uk.gov.hmcts.payment.api.componenttests.util.PaymentsDataUtil;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
@@ -98,7 +97,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             .withAuthorizedService("divorce")
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .withReturnUrl("https://www.gooooogle.com");
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
 
     }
 
@@ -120,7 +119,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
 
 
         MvcResult result = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest())
             .andExpect(status().isCreated())
@@ -145,7 +143,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     @Test
     public void createCardPaymentWithInvalidInputDataShouldReturnStatusBadRequestTest() throws Exception {
         restActions
-            .withReturnUrl("https://www.google.com")
             .post("/card-payments", cardPaymentInvalidRequestJson())
             .andExpect(status().isBadRequest());
     }
@@ -374,7 +371,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             .build();
 
         MvcResult result = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
@@ -467,7 +463,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
 
 
         MvcResult result = restActions
-            .withReturnUrl("https://www.google.com")
             .post("/card-payments", cardPaymentRequestWithCaseReference())
             .andExpect(status().isCreated())
             .andReturn();
@@ -838,7 +833,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             .build();
 
         MvcResult result = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
@@ -886,7 +880,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             .build();
 
         MvcResult result = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
@@ -934,7 +927,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             .build();
 
         MvcResult result = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
@@ -980,7 +972,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             .build();
 
         MvcResult result = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
@@ -993,6 +984,45 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
         assertEquals(new BigDecimal(10), savedfees.get(0).getAmountDue());
         assertEquals(new BigDecimal(40), savedfees.get(1).getAmountDue());
         assertEquals(new BigDecimal(60), savedfees.get(2).getAmountDue());
+    }
+
+    @Test
+    public void retrieveCardPaymentStatuses_byInvalidPaymentReferenceTest() throws Exception {
+        stubFor(get(urlPathMatching("/v1/payments/e2kkddts5215h9qqoeuth5c0v3"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody(contentsOf("gov-pay-responses/get-payment-status-response.json"))));
+
+        StatusHistory statusHistory = StatusHistory.statusHistoryWith().status("Initiated").externalStatus("created").build();
+        Payment payment = Payment.paymentWith()
+            .amount(new BigDecimal("499.99"))
+            .caseReference("Reference1")
+            .ccdCaseNumber("ccdCaseNumber1")
+            .description("Test payments statuses")
+            .serviceType("PROBATE")
+            .currency("GBP")
+            .siteId("AA01")
+            .userId(USER_ID)
+            .paymentChannel(PaymentChannel.paymentChannelWith().name("online").build())
+            .paymentMethod(PaymentMethod.paymentMethodWith().name("card").build())
+            .paymentProvider(PaymentProvider.paymentProviderWith().name("gov pay").build())
+            .paymentStatus(PaymentStatus.paymentStatusWith().name("created").build())
+            .externalReference("e2kkddts5215h9qqoeuth5c0v3")
+            .reference("RC-1519-9028-2432-9115")
+            .statusHistories(Arrays.asList(statusHistory))
+            .build();
+        PaymentFee fee = PaymentFee.feeWith().calculatedAmount(new BigDecimal("499.99")).version("1").code("X0123").build();
+
+        PaymentFeeLink paymentFeeLink = db.create(paymentFeeLinkWith().paymentReference("2018-15186162002").payments(Arrays.asList(payment)).fees(Arrays.asList(fee)));
+        payment.setPaymentLink(paymentFeeLink);
+
+        Payment savedPayment = paymentFeeLink.getPayments().get(0);
+
+        restActions
+            .get("/card-payments/" + "12345" + "/statuses")
+            .andExpect(status().isNotFound())
+            .andReturn();
     }
 
     private CardPaymentRequest cardPaymentRequest() throws Exception {
@@ -1012,7 +1042,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
                 .withBody(contentsOf("gov-pay-responses/create-payment-response.json"))));
 
         return restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest())
             .andExpect(status().isCreated())
@@ -1027,7 +1056,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             "  \"case_reference\": \"caseReference\",\n" +
             "  \"service\": \"CMC\",\n" +
             "  \"currency\": \"GBP\",\n" +
-            "  \"return_url\": \"https://www.gooooogle.com\",\n" +
+            "  \"return_url\": \"https://www.moneyclaims.service.gov.uk\",\n" +
             "  \"site_id\": \"siteId\",\n" +
             "  \"fees\": [\n" +
             "    {\n" +
@@ -1047,7 +1076,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"PROBATE\",\n" +
             "  \"currency\": \"GBP\",\n" +
-            "  \"return_url\": \"https://www.gooooogle.com\",\n" +
+            "  \"return_url\": \"https://www.moneyclaims.service.gov.uk\",\n" +
             "  \"site_id\": \"AA101\",\n" +
             "  \"fees\": [\n" +
             "    {\n" +

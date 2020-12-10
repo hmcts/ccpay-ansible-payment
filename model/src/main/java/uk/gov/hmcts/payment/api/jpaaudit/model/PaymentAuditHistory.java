@@ -28,8 +28,10 @@ public class PaymentAuditHistory {
     @Column(name = "ccd_case_no")
     private String ccdCaseNo;
 
-    @Column(name = "audit_type")
-    private String auditType;
+    //@Column(name = "audit_type")
+    @ManyToOne
+    @JoinColumn(name = "audit_type")
+    private AuditEventsType auditType;
 
     @Column(name = "audit_payload")
     private String auditPayload;

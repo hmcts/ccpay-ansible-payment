@@ -101,7 +101,7 @@ public class CardPaymentComponentTest extends TestUtil {
 
     public static List<Payment> getPaymentsData() {
         List<Payment> payments = new ArrayList<>();
-        payments.add(paymentWith().amount(BigDecimal.valueOf(10000).movePointRight(2)).reference("reference1").description("desc1").returnUrl("returnUrl1")
+        payments.add(paymentWith().amount(BigDecimal.valueOf(10000).movePointRight(2)).reference("reference1").description("desc1").returnUrl("https://www.moneyclaims.service.gov.uk")
             .paymentStatus(PaymentStatus.CREATED)
             .ccdCaseNumber("ccdCaseNo1").caseReference("caseRef1").serviceType("cmc").currency("GBP")
             .serviceCallbackUrl("http://google.com")
@@ -111,7 +111,7 @@ public class CardPaymentComponentTest extends TestUtil {
                 .status("Initiated")
                 .build()))
             .build());
-        payments.add(paymentWith().amount(BigDecimal.valueOf(20000).movePointRight(2)).reference("reference2").description("desc2").returnUrl("returnUrl2")
+        payments.add(paymentWith().amount(BigDecimal.valueOf(20000).movePointRight(2)).reference("reference2").description("desc2").returnUrl("https://www.moneyclaims.service.gov.uk")
             .paymentStatus(PaymentStatus.CREATED)
             .serviceCallbackUrl("http://google.com")
             .paymentChannel(PaymentChannel.paymentChannelWith().name("online").build())
@@ -120,7 +120,7 @@ public class CardPaymentComponentTest extends TestUtil {
                 .status("Initiated")
                 .build()))
             .ccdCaseNumber("ccdCaseNo2").caseReference("caseRef2").serviceType("divorce").currency("GBP").build());
-        payments.add(paymentWith().amount(BigDecimal.valueOf(30000).movePointRight(2)).reference("reference3").description("desc3").returnUrl("returnUrl3")
+        payments.add(paymentWith().amount(BigDecimal.valueOf(30000).movePointRight(2)).reference("reference3").description("desc3").returnUrl("https://www.moneyclaims.service.gov.uk")
             .paymentStatus(PaymentStatus.CREATED)
             .serviceCallbackUrl("http://google.com")
             .paymentChannel(PaymentChannel.paymentChannelWith().name("online").build())

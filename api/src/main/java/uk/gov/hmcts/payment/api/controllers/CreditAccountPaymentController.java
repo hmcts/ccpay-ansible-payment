@@ -7,11 +7,11 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.validator.routines.checkdigit.CheckDigitException;
-import org.ff4j.FF4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,26 +20,23 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.CreditAccountPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.dto.AccountDto;
 import uk.gov.hmcts.payment.api.dto.mapper.CreditAccountDtoMapper;
+import uk.gov.hmcts.payment.api.mapper.PBAStatusErrorMapper;
 import uk.gov.hmcts.payment.api.exception.AccountNotFoundException;
 import uk.gov.hmcts.payment.api.exception.AccountServiceUnavailableException;
+import uk.gov.hmcts.payment.api.mapper.CreditAccountPaymentRequestMapper;
 import uk.gov.hmcts.payment.api.model.*;
 import uk.gov.hmcts.payment.api.service.AccountService;
 import uk.gov.hmcts.payment.api.service.CreditAccountPaymentService;
 import uk.gov.hmcts.payment.api.service.FeePayApportionService;
-import uk.gov.hmcts.payment.api.util.AccountStatus;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.DuplicatePaymentException;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentException;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
 import uk.gov.hmcts.payment.api.validators.DuplicatePaymentValidator;
 
 import javax.validation.Valid;
-import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -50,36 +47,36 @@ public class CreditAccountPaymentController {
     private static final Logger LOG = LoggerFactory.getLogger(CreditAccountPaymentController.class);
 
     private static final String FAILED = "failed";
-    private final static String PAYMENT_CHANNEL_ONLINE = "online";
+
 
     private final CreditAccountPaymentService<PaymentFeeLink, String> creditAccountPaymentService;
     private final CreditAccountDtoMapper creditAccountDtoMapper;
     private final AccountService<AccountDto, String> accountService;
     private final DuplicatePaymentValidator paymentValidator;
-    private final FF4j ff4j;
     private final FeePayApportionService feePayApportionService;
     private final LaunchDarklyFeatureToggler featureToggler;
-    private final FeePayApportionRepository feePayApportionRepository;
-    private final PaymentFeeRepository paymentFeeRepository;
+    private final PBAStatusErrorMapper pbaStatusErrorMapper;
+    private final CreditAccountPaymentRequestMapper requestMapper;
+    private final List<String> pbaConfig1ServiceNames;
 
 
     @Autowired
     public CreditAccountPaymentController(@Qualifier("loggingCreditAccountPaymentService") CreditAccountPaymentService<PaymentFeeLink, String> creditAccountPaymentService,
                                           CreditAccountDtoMapper creditAccountDtoMapper,
                                           AccountService<AccountDto, String> accountService,
-                                          DuplicatePaymentValidator paymentValidator, FF4j ff4j,
+                                          DuplicatePaymentValidator paymentValidator,
                                           FeePayApportionService feePayApportionService,LaunchDarklyFeatureToggler featureToggler,
-                                          FeePayApportionRepository feePayApportionRepository,
-                                          PaymentFeeRepository paymentFeeRepository) {
+                                          PBAStatusErrorMapper pbaStatusErrorMapper,
+                                          CreditAccountPaymentRequestMapper requestMapper,  @Value("#{'${pba.config1.service.names}'.split(',')}") List<String> pbaConfig1ServiceNames) {
         this.creditAccountPaymentService = creditAccountPaymentService;
         this.creditAccountDtoMapper = creditAccountDtoMapper;
         this.accountService = accountService;
         this.paymentValidator = paymentValidator;
-        this.ff4j = ff4j;
         this.feePayApportionService = feePayApportionService;
         this.featureToggler = featureToggler;
-        this.feePayApportionRepository = feePayApportionRepository;
-        this.paymentFeeRepository = paymentFeeRepository;
+        this.pbaStatusErrorMapper = pbaStatusErrorMapper;
+        this.requestMapper = requestMapper;
+        this.pbaConfig1ServiceNames = pbaConfig1ServiceNames;
     }
 
     @ApiOperation(value = "Create credit account payment", notes = "Create credit account payment")
@@ -97,25 +94,17 @@ public class CreditAccountPaymentController {
     public ResponseEntity<PaymentDto> createCreditAccountPayment(@Valid @RequestBody CreditAccountPaymentRequest creditAccountPaymentRequest) throws CheckDigitException {
         String paymentGroupReference = PaymentReference.getInstance().getNext();
 
-        final Payment payment = createPaymentInstanceFromRequest(creditAccountPaymentRequest);
+        final Payment payment = requestMapper.mapPBARequest(creditAccountPaymentRequest);
 
-        List<PaymentFee> fees = creditAccountPaymentRequest.getFees().stream()
-            .map(f -> creditAccountDtoMapper.toFee(f))
-            .collect(Collectors.toList());
-
-        fees.stream().forEach(fee -> {
-            fee.setCcdCaseNumber((fee.getCcdCaseNumber() == null || fee.getCcdCaseNumber().isEmpty())
-                ? creditAccountPaymentRequest.getCcdCaseNumber()
-                : fee.getCcdCaseNumber());
-        });
+        List<PaymentFee> fees = requestMapper.mapPBAFeesFromRequest(creditAccountPaymentRequest);
 
         LOG.debug("Create credit account request for PaymentGroupRef:" + paymentGroupReference + " ,with Payment and " + fees.size() + " - Fees");
 
         LOG.info("CreditAccountPayment received for ccdCaseNumber : {} serviceType : {} pbaNumber : {} amount : {} NoOfFees : {}",
             payment.getCcdCaseNumber(), payment.getServiceType(), payment.getPbaNumber(), payment.getAmount(), fees.size());
-        if (isAccountStatusCheckRequired(creditAccountPaymentRequest.getService())) {
+        LOG.info("PBA Old Config Service Names : {}", pbaConfig1ServiceNames);
+        if (!pbaConfig1ServiceNames.contains(creditAccountPaymentRequest.getService().toString())) {
             LOG.info("Checking with Liberata for Service : {}", creditAccountPaymentRequest.getService());
-
             AccountDto accountDetails;
             try {
                 accountDetails = accountService.retrieve(creditAccountPaymentRequest.getAccountNumber());
@@ -128,7 +117,7 @@ public class CreditAccountPaymentController {
                 throw new AccountServiceUnavailableException("Unable to retrieve account information, please try again later");
             }
 
-            setPaymentStatus(creditAccountPaymentRequest, payment, accountDetails);
+            pbaStatusErrorMapper.setPaymentStatus(creditAccountPaymentRequest, payment, accountDetails);
         } else {
             LOG.info("Setting status to pending");
             payment.setPaymentStatus(PaymentStatus.paymentStatusWith().name("pending").build());
@@ -149,6 +138,7 @@ public class CreditAccountPaymentController {
         LOG.info("ApportionFeature Flag Value in CreditAccountPaymentController : {}", apportionFeature);
         if(apportionFeature) {
             Payment pbaPayment = paymentFeeLink.getPayments().get(0);
+            pbaPayment.setPaymentLink(paymentFeeLink);
             feePayApportionService.processApportion(pbaPayment);
 
             // Update Fee Amount Due as Payment Status received from PBA Payment as SUCCESS
@@ -160,59 +150,6 @@ public class CreditAccountPaymentController {
 
         LOG.info("CreditAccountPayment Response 201(CREATED) for ccdCaseNumber : {} PaymentStatus : {}", payment.getCcdCaseNumber(), payment.getPaymentStatus().getName());
         return new ResponseEntity<>(creditAccountDtoMapper.toCreateCreditAccountPaymentResponse(paymentFeeLink), HttpStatus.CREATED);
-    }
-
-    private Payment createPaymentInstanceFromRequest(@RequestBody @Valid CreditAccountPaymentRequest creditAccountPaymentRequest) {
-        return Payment.paymentWith()
-            .amount(creditAccountPaymentRequest.getAmount())
-            .description(creditAccountPaymentRequest.getDescription())
-            .ccdCaseNumber(creditAccountPaymentRequest.getCcdCaseNumber())
-            .caseReference(creditAccountPaymentRequest.getCaseReference())
-            .currency(creditAccountPaymentRequest.getCurrency().getCode())
-            .serviceType(creditAccountPaymentRequest.getService().getName())
-            .customerReference(creditAccountPaymentRequest.getCustomerReference())
-            .organisationName(creditAccountPaymentRequest.getOrganisationName())
-            .pbaNumber(creditAccountPaymentRequest.getAccountNumber())
-            .siteId(creditAccountPaymentRequest.getSiteId())
-            .paymentChannel(PaymentChannel.paymentChannelWith().name(PAYMENT_CHANNEL_ONLINE).build())
-            .build();
-    }
-
-    private void setPaymentStatus(@RequestBody @Valid CreditAccountPaymentRequest creditAccountPaymentRequest, Payment payment, AccountDto accountDetails) {
-        if (accountDetails.getStatus() == AccountStatus.ACTIVE && isAccountBalanceSufficient(accountDetails.getAvailableBalance(),
-            creditAccountPaymentRequest.getAmount())) {
-            payment.setPaymentStatus(PaymentStatus.paymentStatusWith().name("success").build());
-            LOG.info("CreditAccountPayment received for ccdCaseNumber : {} Liberata AccountStatus : {} PaymentStatus : {} - Account Balance Sufficient!!!", payment.getCcdCaseNumber(), accountDetails.getStatus(), payment.getPaymentStatus().getName());
-        } else if (accountDetails.getStatus() == AccountStatus.ACTIVE) {
-            payment.setPaymentStatus(PaymentStatus.paymentStatusWith().name(FAILED).build());
-            payment.setStatusHistories(Collections.singletonList(StatusHistory.statusHistoryWith()
-                .status(payment.getPaymentStatus().getName())
-                .errorCode("CA-E0001")
-                .message("You have insufficient funds available")
-                .message("Payment request failed. PBA account " + accountDetails.getAccountName()
-                    + " have insufficient funds available").build()));
-            LOG.info("Payment request failed. PBA account {} has insufficient funds available." +
-                    " Requested payment was {} where available balance is {}",
-                accountDetails.getAccountName(), creditAccountPaymentRequest.getAmount(),
-                accountDetails.getAvailableBalance());
-            LOG.info("CreditAccountPayment received for ccdCaseNumber : {} Liberata AccountStatus : {} PaymentStatus : {} - Account Balance InSufficient!!!", payment.getCcdCaseNumber(), accountDetails.getStatus(), payment.getPaymentStatus().getName());
-        } else if (accountDetails.getStatus() == AccountStatus.ON_HOLD) {
-            payment.setPaymentStatus(PaymentStatus.paymentStatusWith().name(FAILED).build());
-            payment.setStatusHistories(Collections.singletonList(StatusHistory.statusHistoryWith()
-                .status(payment.getPaymentStatus().getName())
-                .errorCode("CA-E0003")
-                .message("Your account is on hold")
-                .build()));
-            LOG.info("CreditAccountPayment received for ccdCaseNumber : {} Liberata AccountStatus : {} PaymentStatus : {} - Account Balance InSufficient!!!", payment.getCcdCaseNumber(), accountDetails.getStatus(), payment.getPaymentStatus().getName());
-        } else if (accountDetails.getStatus() == AccountStatus.DELETED) {
-            payment.setPaymentStatus(PaymentStatus.paymentStatusWith().name(FAILED).build());
-            payment.setStatusHistories(Collections.singletonList(StatusHistory.statusHistoryWith()
-                .status(payment.getPaymentStatus().getName())
-                .errorCode("CA-E0004")
-                .message("Your account is deleted")
-                .build()));
-            LOG.info("CreditAccountPayment received for ccdCaseNumber : {} Liberata AccountStatus : {} PaymentStatus : {} - Account Balance InSufficient!!!", payment.getCcdCaseNumber(), accountDetails.getStatus(), payment.getPaymentStatus().getName());
-        }
     }
 
     @ApiOperation(value = "Get credit account payment details by payment reference", notes = "Get payment details for supplied payment reference")
@@ -276,30 +213,9 @@ public class CreditAccountPaymentController {
         return ex.getMessage();
     }
 
-    private boolean isAccountStatusCheckRequired(Service service) {
-        final String serviceName = service.toString();
-        LOG.info("Service.FINREM.getName(): {}" + " service.toString(): {}" + " Service.FINREM.getName().equalsIgnoreCase(service.toString()): {}" +
-                " ff4j.check(\"check-liberata-account-for-all-services\"): {}" + " ff4j.check(\"credit-account-payment-liberata-check\"): {}",
-            Service.FINREM.getName(), serviceName, Service.FINREM.getName().equalsIgnoreCase(serviceName),
-            ff4j.check("check-liberata-account-for-all-services"), ff4j.check("credit-account-payment-liberata-check")
-        );
-
-        if (ff4j.check("check-liberata-account-for-all-services")) {
-            return true;
-        }
-
-        final boolean svcNameChk = Service.FINREM.getName().equalsIgnoreCase(serviceName) || Service.FPL.toString().equalsIgnoreCase(serviceName) || Service.IAC.toString().equalsIgnoreCase(serviceName);
-        return ff4j.check("credit-account-payment-liberata-check") && svcNameChk;
-    }
-
-    private boolean isAccountBalanceSufficient(BigDecimal availableBalance, BigDecimal paymentAmount) {
-        return availableBalance.compareTo(paymentAmount) >= 0;
-    }
-
     private void checkDuplication(Payment payment, List<PaymentFee> fees) {
-        if (ff4j.check("duplicate-payment-check")) {
-            paymentValidator.checkDuplication(payment, fees);
-        }
+        paymentValidator.checkDuplication(payment, fees);
+
     }
 
 }

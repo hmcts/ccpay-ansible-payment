@@ -2,7 +2,7 @@ package uk.gov.hmcts.payment.api.dto.mapper;
 
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.CreditAccountPaymentRequest;
@@ -216,12 +216,12 @@ public class CreditAccountDtoMapper {
     @SneakyThrows(NoSuchMethodException.class)
     private PaymentDto.LinkDto cancellationLink(String userId, Integer paymentId) {
         Method method = CreditAccountPaymentController.class.getMethod("cancel", String.class, Integer.class);
-        return new PaymentDto.LinkDto(ControllerLinkBuilder.linkTo(method, userId, paymentId).toString(), "POST");
+        return new PaymentDto.LinkDto(WebMvcLinkBuilder.linkTo(method, userId, paymentId).toString(), "POST");
     }
 
     @SneakyThrows(NoSuchMethodException.class)
     private PaymentDto.LinkDto retrievePaymentLink(String reference) {
         Method method = CreditAccountPaymentController.class.getMethod("retrieve", String.class);
-        return new PaymentDto.LinkDto(ControllerLinkBuilder.linkTo(method, reference).toString(), "GET");
+        return new PaymentDto.LinkDto(WebMvcLinkBuilder.linkTo(method, reference).toString(), "GET");
     }
 }

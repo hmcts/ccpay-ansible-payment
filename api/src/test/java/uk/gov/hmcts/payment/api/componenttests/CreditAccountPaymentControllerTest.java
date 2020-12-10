@@ -103,7 +103,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             .withAuthorizedService("divorce")
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .withReturnUrl("https://www.gooooogle.com");
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
 
         Mockito.reset(accountService);
     }
@@ -558,7 +558,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
         assertNotNull(paymentDto);
-        verify(accountService, times(2)).retrieve(request.getAccountNumber());
+        verify(accountService, times(1)).retrieve(request.getAccountNumber());
     }
 
     @Test
@@ -577,7 +577,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
         assertNotNull(paymentDto);
-        verify(accountService, times(0)).retrieve(request.getAccountNumber());
+        verify(accountService, times(1)).retrieve(request.getAccountNumber());
 
         request = objectMapper.readValue(creditAccountPaymentRequestJsonWithProbateJson().getBytes(), CreditAccountPaymentRequest.class);
         result = restActions
@@ -587,7 +587,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
         assertNotNull(paymentDto);
-        verify(accountService, times(0)).retrieve(request.getAccountNumber());
+        verify(accountService, times(1)).retrieve(request.getAccountNumber());
     }
 
     @Test
@@ -708,7 +708,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
         assertNotNull(paymentDto);
-        verify(accountService, times(2)).retrieve(request.getAccountNumber());
+        verify(accountService, times(1)).retrieve(request.getAccountNumber());
 
         // Retrieve payment by payment group reference
         MvcResult result3 = restActions
@@ -752,7 +752,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
         assertNotNull(paymentDto);
-        verify(accountService, times(2)).retrieve(request.getAccountNumber());
+        verify(accountService, times(1)).retrieve(request.getAccountNumber());
     }
 
     @Test
@@ -782,7 +782,63 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
         assertNotNull(paymentDto);
-        verify(accountService, times(2)).retrieve(request.getAccountNumber());
+        verify(accountService, times(1)).retrieve(request.getAccountNumber());
+    }
+
+    @Test
+    public void checkPBAPaymentsFor_Unspec_Service() throws Exception {
+
+        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithUnSpec_Json().getBytes(), CreditAccountPaymentRequest.class);
+        AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
+            new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
+        Mockito.when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
+
+        MvcResult result = restActions
+            .post("/credit-account-payments", request)
+            .andExpect(status().isCreated())
+            .andReturn();
+
+        PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
+        assertNotNull(paymentDto);
+        verify(accountService, times(1)).retrieve(request.getAccountNumber());
+
+        request = objectMapper.readValue(creditAccountPaymentRequestJsonWithProbateJson().getBytes(), CreditAccountPaymentRequest.class);
+        result = restActions
+            .post("/credit-account-payments", request)
+            .andExpect(status().isCreated())
+            .andReturn();
+
+        paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
+        assertNotNull(paymentDto);
+        verify(accountService, times(1)).retrieve(request.getAccountNumber());
+    }
+
+    @Test
+    public void checkPBAPaymentsErrorWithDifferentSiteIdFor_Unspec_Service() throws Exception {
+
+        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithDifferentSiteIdForUnSpec_Json().getBytes(), CreditAccountPaymentRequest.class);
+        AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
+            new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
+        Mockito.when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
+
+        MvcResult result = restActions
+            .post("/credit-account-payments", request)
+            .andExpect(status().isUnprocessableEntity())
+            .andReturn();
+    }
+
+    @Test
+    public void checkPBAPaymentsErrorWithNoServiceNameFor_Unspec_Service() throws Exception {
+
+        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithNoServiceNameForUnSpec_Json().getBytes(), CreditAccountPaymentRequest.class);
+        AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
+            new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
+        Mockito.when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
+
+        MvcResult result = restActions
+            .post("/credit-account-payments", request)
+            .andExpect(status().isUnprocessableEntity())
+            .andReturn();
     }
 
     @Test
@@ -1338,6 +1394,71 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             "  \"service\": \"IAC\",\n" +
             "  \"currency\": \"GBP\",\n" +
             "  \"site_id\": \"BFA1\",\n" +
+            "  \"customer_reference\": \"CUST101\",\n" +
+            "  \"organisation_name\": \"ORG101\",\n" +
+            "  \"account_number\": \"AC101010\",\n" +
+            "  \"fees\": [\n" +
+            "    {\n" +
+            "      \"calculated_amount\": 101.89,\n" +
+            "      \"code\": \"X0101\",\n" +
+            "      \"version\": \"1\"\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+    }
+
+    private String creditAccountPaymentRequestJsonWithUnSpec_Json() {
+        return "{\n" +
+            "  \"amount\": 101.89,\n" +
+            "  \"description\": \"New passport application\",\n" +
+            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"case_reference\": \"12345\",\n" +
+            "  \"service\": \"UNSPEC\",\n" +
+            "  \"currency\": \"GBP\",\n" +
+            "  \"site_id\": \"AAA7\",\n" +
+            "  \"customer_reference\": \"CUST101\",\n" +
+            "  \"organisation_name\": \"ORG101\",\n" +
+            "  \"account_number\": \"AC101010\",\n" +
+            "  \"fees\": [\n" +
+            "    {\n" +
+            "      \"calculated_amount\": 101.89,\n" +
+            "      \"code\": \"X0101\",\n" +
+            "      \"version\": \"1\"\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+    }
+
+    private String creditAccountPaymentRequestJsonWithDifferentSiteIdForUnSpec_Json() {
+        return "{\n" +
+            "  \"amount\": 101.89,\n" +
+            "  \"description\": \"New passport application\",\n" +
+            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"case_reference\": \"12345\",\n" +
+            "  \"service\": \"UNSPEC\",\n" +
+            "  \"currency\": \"GBP\",\n" +
+            "  \"site_id\": \"A000\",\n" +
+            "  \"customer_reference\": \"CUST101\",\n" +
+            "  \"organisation_name\": \"ORG101\",\n" +
+            "  \"account_number\": \"AC101010\",\n" +
+            "  \"fees\": [\n" +
+            "    {\n" +
+            "      \"calculated_amount\": 101.89,\n" +
+            "      \"code\": \"X0101\",\n" +
+            "      \"version\": \"1\"\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+    }
+
+    private String creditAccountPaymentRequestJsonWithNoServiceNameForUnSpec_Json() {
+        return "{\n" +
+            "  \"amount\": 101.89,\n" +
+            "  \"description\": \"New passport application\",\n" +
+            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"case_reference\": \"12345\",\n" +
+            "  \"currency\": \"GBP\",\n" +
+            "  \"site_id\": \"A000\",\n" +
             "  \"customer_reference\": \"CUST101\",\n" +
             "  \"organisation_name\": \"ORG101\",\n" +
             "  \"account_number\": \"AC101010\",\n" +
