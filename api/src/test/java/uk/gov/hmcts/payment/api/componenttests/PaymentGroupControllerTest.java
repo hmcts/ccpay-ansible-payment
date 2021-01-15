@@ -25,7 +25,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
-import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.*;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
 import uk.gov.hmcts.payment.api.contract.util.Service;
@@ -1548,11 +1547,11 @@ public class PaymentGroupControllerTest {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
 
         List<FeeDto> fees = new ArrayList<>();
-        fees.add(FeeDto.feeDtoWith().code("FEE0274").ccdCaseNumber(ccdCaseNumber).feeAmount(new BigDecimal(30))
+        fees.add(FeeDto.feeDtoWith().code("FEE0271").ccdCaseNumber(ccdCaseNumber).feeAmount(new BigDecimal(30))
             .volume(1).version("1").calculatedAmount(new BigDecimal(30)).build());
-        fees.add(FeeDto.feeDtoWith().code("FEE0275").ccdCaseNumber(ccdCaseNumber).feeAmount(new BigDecimal(40))
+        fees.add(FeeDto.feeDtoWith().code("FEE0272").ccdCaseNumber(ccdCaseNumber).feeAmount(new BigDecimal(40))
             .volume(1).version("1").calculatedAmount(new BigDecimal(40)).build());
-        fees.add(FeeDto.feeDtoWith().code("FEE0276").ccdCaseNumber(ccdCaseNumber).feeAmount(new BigDecimal(60))
+        fees.add(FeeDto.feeDtoWith().code("FEE0273").ccdCaseNumber(ccdCaseNumber).feeAmount(new BigDecimal(60))
             .volume(1).version("1").calculatedAmount(new BigDecimal(60)).build());
 
         PaymentGroupDto request = PaymentGroupDto.paymentGroupDtoWith()
@@ -1594,17 +1593,17 @@ public class PaymentGroupControllerTest {
         boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature",false);
         if(apportionFeature) {
             savedfees.stream()
-                .filter(fee -> fee.getCode().equalsIgnoreCase("FEE0274"))
+                .filter(fee -> fee.getCode().equalsIgnoreCase("FEE0271"))
                 .forEach(fee -> {
                     assertEquals(BigDecimal.valueOf(0).intValue(), fee.getAmountDue().intValue());
                 });
             savedfees.stream()
-                .filter(fee -> fee.getCode().equalsIgnoreCase("FEE0275"))
+                .filter(fee -> fee.getCode().equalsIgnoreCase("FEE0272"))
                 .forEach(fee -> {
                     assertEquals(BigDecimal.valueOf(0).intValue(), fee.getAmountDue().intValue());
                 });
             savedfees.stream()
-                .filter(fee -> fee.getCode().equalsIgnoreCase("FEE0276"))
+                .filter(fee -> fee.getCode().equalsIgnoreCase("FEE0273"))
                 .forEach(fee -> {
                     assertEquals(BigDecimal.valueOf(10).intValue(), fee.getAmountDue().intValue());
                 });
