@@ -18,10 +18,8 @@ import uk.gov.hmcts.payment.api.model.*;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 
 
 @Service
@@ -44,6 +42,7 @@ public class PaymentServiceImpl implements PaymentService<PaymentFeeLink, String
     private final FeePayApportionService feePayApportionService;
     private final FeePayApportionRepository feePayApportionRepository;
     private final LaunchDarklyFeatureToggler featureToggler;
+    private final PaymentFeeRepository paymentFeeRepository;
 
     @Value("${callback.payments.cutoff.time.in.minutes:2}")
     private int paymentsCutOffTime;
@@ -54,6 +53,7 @@ public class PaymentServiceImpl implements PaymentService<PaymentFeeLink, String
                               TelephonyRepository telephonyRepository, AuditRepository paymentAuditRepository,
                               FeePayApportionService feePayApportionService,
                               FeePayApportionRepository feePayApportionRepository,
+                              PaymentFeeRepository paymentFeeRepository,
                               LaunchDarklyFeatureToggler featureToggler) {
         this.paymentRepository = paymentRepository;
         this.delegatingPaymentService = delegatingPaymentService;
@@ -63,6 +63,7 @@ public class PaymentServiceImpl implements PaymentService<PaymentFeeLink, String
         this.paymentAuditRepository = paymentAuditRepository;
         this.feePayApportionService = feePayApportionService;
         this.feePayApportionRepository = feePayApportionRepository;
+        this.paymentFeeRepository = paymentFeeRepository;
         this.featureToggler = featureToggler;
     }
 
@@ -132,6 +133,31 @@ public class PaymentServiceImpl implements PaymentService<PaymentFeeLink, String
     public List<FeePayApportion> findByPaymentId(Integer paymentId)
     {
         return feePayApportionRepository.findByPaymentId(paymentId).orElse(Collections.EMPTY_LIST);
+    }
+
+    @Override
+    public void getApportionedDetails(List<PaymentFee> fees, List<FeePayApportion> feePayApportionList) {
+        LOG.info("Getting Apportionment Details!!!");
+        for (FeePayApportion feePayApportion : feePayApportionList)
+        {
+            Optional<PaymentFee> apportionedFee = paymentFeeRepository.findById(feePayApportion.getFeeId());
+            if(apportionedFee.isPresent())
+            {
+                LOG.info("Apportioned fee is present");
+                PaymentFee fee = apportionedFee.get();
+                if(feePayApportion.getApportionAmount() != null) {
+                    LOG.info("Apportioned Amount is available!!!");
+                    BigDecimal allocatedAmount = feePayApportion.getApportionAmount()
+                        .add(feePayApportion.getCallSurplusAmount() != null
+                            ? feePayApportion.getCallSurplusAmount()
+                            : BigDecimal.valueOf(0));
+                    LOG.info("Allocated amount in PaymentController: {}", allocatedAmount);
+                    fee.setAllocatedAmount(allocatedAmount);
+                    fee.setDateApportioned(feePayApportion.getDateCreated());
+                }
+                fees.add(fee);
+            }
+        }
     }
 
     private Payment findSavedPayment(@NotNull String paymentReference) {

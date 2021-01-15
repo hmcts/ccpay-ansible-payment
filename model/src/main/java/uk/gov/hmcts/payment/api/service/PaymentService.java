@@ -4,10 +4,10 @@ import uk.gov.hmcts.payment.api.dto.PaymentSearchCriteria;
 import uk.gov.hmcts.payment.api.dto.Reference;
 import uk.gov.hmcts.payment.api.model.FeePayApportion;
 import uk.gov.hmcts.payment.api.model.Payment;
+import uk.gov.hmcts.payment.api.model.PaymentFee;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 public interface PaymentService<T, ID> {
 
@@ -22,5 +22,7 @@ public interface PaymentService<T, ID> {
     List<Payment> getPayments(Date atStartOfDay, Date atEndOfDay);
 
     List<FeePayApportion> findByPaymentId(Integer paymentId);
+
+    void getApportionedDetails(List<PaymentFee> fees, List<FeePayApportion> feePayApportionList);
 
 }

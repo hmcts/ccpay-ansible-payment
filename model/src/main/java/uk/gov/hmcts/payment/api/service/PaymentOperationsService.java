@@ -5,10 +5,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.payment.api.dto.PaymentSearchCriteria;
 import uk.gov.hmcts.payment.api.dto.Reference;
-import uk.gov.hmcts.payment.api.model.FeePayApportion;
-import uk.gov.hmcts.payment.api.model.Payment;
-import uk.gov.hmcts.payment.api.model.Payment2Repository;
-import uk.gov.hmcts.payment.api.model.PaymentMethod;
+import uk.gov.hmcts.payment.api.model.*;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
@@ -54,6 +51,9 @@ public class PaymentOperationsService implements PaymentService<Payment, String>
     public List<FeePayApportion> findByPaymentId(Integer paymentId) {
         return null;
     }
+
+    @Override
+    public void getApportionedDetails(List<PaymentFee> fees, List<FeePayApportion> feePayApportionList) {}
 
     private static final Specification constructPaymentSpecification(final PaymentSearchCriteria searchCriteria) {
         return ((root, query, cb) -> constructPredicate(root, cb, searchCriteria, query));
