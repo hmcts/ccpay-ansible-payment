@@ -18,8 +18,10 @@ import uk.gov.hmcts.payment.api.model.*;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
 
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -39,8 +41,8 @@ public class PaymentServiceImpl implements PaymentService<PaymentFeeLink, String
     private final PaymentStatusRepository paymentStatusRepository;
     private final TelephonyRepository telephonyRepository;
     private final AuditRepository paymentAuditRepository;
+    private final FeePayApportionService feePayApportionService;
     private final FeePayApportionRepository feePayApportionRepository;
-    private final PaymentFeeRepository paymentFeeRepository;
     private final LaunchDarklyFeatureToggler featureToggler;
 
     @Value("${callback.payments.cutoff.time.in.minutes:2}")
@@ -50,16 +52,17 @@ public class PaymentServiceImpl implements PaymentService<PaymentFeeLink, String
     public PaymentServiceImpl(@Qualifier("loggingPaymentService") DelegatingPaymentService<PaymentFeeLink, String> delegatingPaymentService,
                               Payment2Repository paymentRepository, CallbackService callbackService, PaymentStatusRepository paymentStatusRepository,
                               TelephonyRepository telephonyRepository, AuditRepository paymentAuditRepository,
+                              FeePayApportionService feePayApportionService,
                               FeePayApportionRepository feePayApportionRepository,
-                              PaymentFeeRepository paymentFeeRepository,LaunchDarklyFeatureToggler featureToggler) {
+                              LaunchDarklyFeatureToggler featureToggler) {
         this.paymentRepository = paymentRepository;
         this.delegatingPaymentService = delegatingPaymentService;
         this.callbackService = callbackService;
         this.paymentStatusRepository = paymentStatusRepository;
         this.telephonyRepository = telephonyRepository;
         this.paymentAuditRepository = paymentAuditRepository;
+        this.feePayApportionService = feePayApportionService;
         this.feePayApportionRepository = feePayApportionRepository;
-        this.paymentFeeRepository = paymentFeeRepository;
         this.featureToggler = featureToggler;
     }
 
@@ -90,14 +93,9 @@ public class PaymentServiceImpl implements PaymentService<PaymentFeeLink, String
             boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature",false);
             LOG.info("ApportionFeature Flag Value in UserAwareDelegatingPaymentService : {}", apportionFeature);
             if(apportionFeature) {
-                if (Lists.newArrayList("failed", "cancelled", "error", "decline").contains(status)) {
-                    LOG.info("Rollback Fees already Apportioned for Payments in failed/cancelled/error status - Started");
-                    rollbackApportionedFees(payment);
-                    LOG.info("Rollback Fees already Apportioned for Payments in failed/cancelled/error status - End");
-                }
                 if(status.equalsIgnoreCase("success")) {
                     LOG.info("Update Fee Amount Due as Payment Status received from GovPAY as SUCCESS!!!");
-                    updateFeeAmountDue(payment);
+                    feePayApportionService.updateFeeAmountDue(payment);
                 }
             }
         }else {
@@ -139,51 +137,4 @@ public class PaymentServiceImpl implements PaymentService<PaymentFeeLink, String
     private Payment findSavedPayment(@NotNull String paymentReference) {
         return paymentRepository.findByReference(paymentReference).orElseThrow(PaymentNotFoundException::new);
     }
-
-    private void updateFeeAmountDue(Payment payment) {
-        Optional<List<FeePayApportion>> apportions = feePayApportionRepository.findByPaymentId(payment.getId());
-        if(apportions.isPresent()) {
-            apportions.get().stream()
-                .forEach(feePayApportion -> {
-                    PaymentFee fee = paymentFeeRepository.findById(feePayApportion.getFeeId()).get();
-                    if(feePayApportion.getCallSurplusAmount() != null) {
-                        feePayApportion.setCallSurplusAmount(feePayApportion.getCallSurplusAmount());
-                    }else {
-                        feePayApportion.setCallSurplusAmount(BigDecimal.valueOf(0));
-                    }
-                    fee.setAmountDue(fee.getAmountDue().subtract(feePayApportion.getApportionAmount()
-                        .add(feePayApportion.getCallSurplusAmount())));
-                    paymentFeeRepository.save(fee);
-                    LOG.info("Updated FeeId " + fee.getId() + " as PaymentId " + payment.getId() + " Status Changed to " + payment.getPaymentStatus().getName());
-                });
-        }
-    }
-
-    private void rollbackApportionedFees(Payment payment) {
-        Optional<List<FeePayApportion>> apportions = feePayApportionRepository.findByPaymentId(payment.getId());
-        if(apportions.isPresent()) {
-            apportions.get().stream()
-                .forEach(feePayApportion -> {
-                    PaymentFee fee = paymentFeeRepository.findById(feePayApportion.getFeeId()).get();
-                    fee.setIsFullyApportioned("N");
-                    fee.setApportionAmount(fee.getApportionAmount().subtract(feePayApportion.getApportionAmount()));
-                    // If Fee was surplus due to Payment received, the whole allocated amount to be reverted else only last Apportioned Amount to be reverted
-                    if(feePayApportion.getCallSurplusAmount() != null) {
-                        feePayApportion.setCallSurplusAmount(feePayApportion.getCallSurplusAmount());
-                    }else {
-                        feePayApportion.setCallSurplusAmount(BigDecimal.valueOf(0));
-                    }
-                    if(feePayApportion.getCallSurplusAmount().compareTo(BigDecimal.valueOf(0)) > 0) {
-                        fee.setAllocatedAmount(fee.getAllocatedAmount()
-                            .subtract(feePayApportion.getApportionAmount()
-                                .add(feePayApportion.getCallSurplusAmount())));
-                    }else {
-                        fee.setAllocatedAmount(fee.getAllocatedAmount().subtract(feePayApportion.getApportionAmount()));
-                    }
-                    paymentFeeRepository.save(fee);
-                    LOG.info("Rollback FeeId " + fee.getId() + " as PaymentId " + payment.getId() + " Status Changed to " + payment.getPaymentStatus().getName());
-                });
-        }
-    }
-
 }

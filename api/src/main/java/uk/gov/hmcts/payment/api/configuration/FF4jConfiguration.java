@@ -42,6 +42,9 @@ public class FF4jConfiguration {
     @Value("${feature.payments.cancel}")
     private boolean paymentCancel = true;
 
+    @Value("${feature.discontinued.fees}")
+    private boolean discontinuedFeesFeatureEnabled = true;
+
     @Bean
     public FF4j getFf4j() {
 
@@ -93,6 +96,12 @@ public class FF4jConfiguration {
             "Payments cancel API"
         );
 
+        Feature discontinuedFeesFeature = new Feature(
+            "discontinued-fees-feature",
+            discontinuedFeesFeatureEnabled,
+            "To enable discontinued fees FeesRegister Feature"
+        );
+
         return new FF4j()
             .createFeature(paymentSearchFeature)
             .createFeature(paymentServiceCallbackFeature)
@@ -102,7 +111,8 @@ public class FF4jConfiguration {
             .createFeature(caseRefValidationFeature)
             .createFeature(bulkScanEnablingFeature)
             .createFeature(bulkScanPayBubbleFeature)
-            .createFeature(paymentCancelFeature);
+            .createFeature(paymentCancelFeature)
+            .createFeature(discontinuedFeesFeature);
     }
 
     @Bean

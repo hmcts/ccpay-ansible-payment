@@ -22,8 +22,7 @@ public class RemissionEntityListener {
         EntityManager entityManager = BeanUtil.getBean(EntityManager.class);
         entityManager.persist(PaymentAuditHistory.paymentAuditHistoryWith()
             .ccdCaseNo(target.getCcdCaseNumber())
-            .auditType(auditEventsType.getName())
-            //.auditPayload(target.getCode() + " | " + target.getCalculatedAmount() + " | " + target.getAllocatedAmount() + " | " + target.getDateCreated())
+            .auditType(auditEventsType)
             .auditPayload(target.toString())
             .auditDescription(auditEventsType.getDescription())
             .build());

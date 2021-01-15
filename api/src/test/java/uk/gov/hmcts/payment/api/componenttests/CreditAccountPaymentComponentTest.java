@@ -70,7 +70,7 @@ public class CreditAccountPaymentComponentTest extends TestUtil {
             .amount(new BigDecimal("6000.00"))
             .reference("RC-1234-1234-1234-111" + number)
             .description("description_" + number)
-            .returnUrl("https://localhost")
+            .returnUrl("https://www.moneyclaims.service.gov.uk")
             .ccdCaseNumber("ccdCaseNo_" + number)
             .caseReference("caseRef_" + number)
             .currency("GBP")

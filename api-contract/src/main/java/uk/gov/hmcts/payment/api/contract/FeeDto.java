@@ -65,8 +65,6 @@ public class FeeDto {
 
     private BigDecimal allocatedAmount;
 
-    private String isFullyApportioned;
-
     private Date dateApportioned;
 
     private Date dateCreated;

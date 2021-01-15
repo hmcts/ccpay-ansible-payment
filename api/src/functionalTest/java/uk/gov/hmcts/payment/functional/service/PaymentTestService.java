@@ -21,7 +21,7 @@ public class PaymentTestService {
 
     public Response postcardPayment(String userToken, String serviceToken, CardPaymentRequest request) {
         return givenWithAuthHeaders(userToken, serviceToken)
-            .header("return-url", "http://localhost")
+            .header("return-url", "http://localhost.hmcts.net")
             .contentType(ContentType.JSON)
             .body(request)
             .when()

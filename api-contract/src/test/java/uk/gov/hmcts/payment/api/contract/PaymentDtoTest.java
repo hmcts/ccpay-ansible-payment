@@ -58,7 +58,6 @@ public class PaymentDtoTest {
     private String payerName;
     private BigDecimal apportionAmount;
     private BigDecimal allocatedAmount;
-    private String isFullyApportioned;
     private BigDecimal amountDue;
     private BigDecimal apportionedPayment;
     private Date dateReceiptProcessed;
@@ -80,7 +79,6 @@ public class PaymentDtoTest {
         caseReference = "12345";
         apportionAmount = new BigDecimal(1);
         allocatedAmount = new BigDecimal(1);
-        isFullyApportioned = "Y";
         DateTime currentDateTime = new DateTime();
         dateApportioned = currentDateTime.toDate();
         dateCreated = currentDateTime.toDate();
@@ -91,10 +89,10 @@ public class PaymentDtoTest {
         dateReceiptProcessed = currentDateTime.toDate();
 
         feeWithVolumeDto = new FeeDto(1, feeWithVolumeCode, feeVersion, volume, calculatedAmountForFeeWithVolume,
-            feeAmount, memoLine, naturalAccountCode, null, null, null, jurisdiction1, jurisdiction2, feeDescription,caseReference,apportionAmount,allocatedAmount,isFullyApportioned,dateApportioned,dateCreated,dateUpdated,amountDue,paymentGroupReference,apportionedPayment,dateReceiptProcessed);
+            feeAmount, memoLine, naturalAccountCode, null, null, null, jurisdiction1, jurisdiction2, feeDescription,caseReference,apportionAmount,allocatedAmount,dateApportioned,dateCreated,dateUpdated,amountDue,paymentGroupReference,apportionedPayment,dateReceiptProcessed);
 
         feeNoVolumeDto = new FeeDto(1, feeNoVolumeCode, feeVersion, volume, calculatedAmountForFeeNoVolume,
-            feeAmount, memoLine, naturalAccountCode, null, null, null, jurisdiction1, jurisdiction2, feeDescription,caseReference,apportionAmount,allocatedAmount,isFullyApportioned,dateApportioned,dateCreated,dateUpdated,amountDue,paymentGroupReference,apportionedPayment,dateReceiptProcessed);
+            feeAmount, memoLine, naturalAccountCode, null, null, null, jurisdiction1, jurisdiction2, feeDescription,caseReference,apportionAmount,allocatedAmount,dateApportioned,dateCreated,dateUpdated,amountDue,paymentGroupReference,apportionedPayment,dateReceiptProcessed);
     }
 
     @Before

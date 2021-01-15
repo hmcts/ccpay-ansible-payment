@@ -1,10 +1,6 @@
 package uk.gov.hmcts.payment.api.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -50,5 +46,15 @@ public class PaymentFeeLink {
     @JoinColumn(name = "payment_link_id", referencedColumnName = "id", nullable = false)
     @ToString.Exclude
     private List<Remission> remissions;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "payment_link_id", referencedColumnName = "id", nullable = false)
+    @ToString.Exclude
+    private List<FeePayApportion> apportions;
+
+    @Override
+    public int hashCode(){
+        return super.hashCode();
+    }
 
 }

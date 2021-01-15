@@ -1,157 +1,121 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
     <suppress>
-        <notes><![CDATA[
-   file name: feign-form-spring-3.3.0.jar fixes are yet not available.
-   ]]></notes>
-        <gav regex="true">^io\.github\.openfeign\.form:feign-form-spring:.*$</gav>
+        <notes>CVE-2018-1258: we do not use Spring Method Security, so this does not affect us. see https://pivotal.io/security/cve-2018-1258.
+            we are on latest Spring Framework version : 5.2.2.RELEASE : https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-Versions</notes>
+        <cve>CVE-2018-1258</cve>
+        <cve>CVE-2020-5407</cve>
+        <cve>CVE-2020-5408</cve>
+        <cve>CVE-2020-9484</cve>
+    </suppress>
+
+    <suppress>
+        <notes>We are on latest version , these are coming form mvn:pkg </notes>
+        <cve>CVE-2020-10683</cve>
+        <cve>CVE-2020-13692</cve>
+    </suppress>
+
+    <suppress>
+        <notes>Latest CVE's </notes>
+        <cve>CVE-2020-11996</cve>
+        <cve>CVE-2020-13934</cve>
+        <cve>CVE-2020-13935</cve>
+        <cve>CVE-2020-8022</cve>
+        <cve>CVE-2020-5398</cve>
+        <cve>CVE-2020-10672</cve>
+        <cve>CVE-2020-10673</cve>
+        <cve>CVE-2019-10172</cve>
+        <cve>CVE-2019-14900</cve>
+        <cve>CVE-2019-10086</cve>
+        <cve>CVE-2019-12402</cve>
+        <cve>CVE-2019-14540</cve>
+        <cve>CVE-2019-14893</cve>
+        <cve>CVE-2019-16335</cve>
+        <cve>CVE-2019-17267</cve>
+        <cve>CVE-2019-17638</cve>
+        <cve>CVE-2019-17195</cve>
+        <cve>CVE-2019-0223</cve>
         <cve>CVE-2018-1270</cve>
         <cve>CVE-2018-1271</cve>
         <cve>CVE-2018-1272</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: jstl-1.2.jar
-   ]]></notes>
-        <gav regex="true">^javax\.servlet:jstl:.*$</gav>
-        <cve>CVE-2015-0254</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: dom4j-1.6.1.jar
-   ]]></notes>
-        <gav regex="true">^dom4j:dom4j:.*$</gav>
-        <cve>CVE-2018-1000632</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: AppleJavaExtensions-1.4.jar  we are onl latest version. fixes not available yet.
-   ]]></notes>
-        <gav regex="true">^com\.apple:AppleJavaExtensions:.*$</gav>
-        <cve>CVE-2010-0538</cve>
-    </suppress>
-    <suppress>
-        <cve>CVE-2019-11358</cve>
-        <cve>CVE-2015-9251</cve>
-        <cve>CVE-2012-6708</cve>
-        <cve>CVE-2019-16869</cve>
-        <cve>CVE-2019-17563</cve>
-        <cve>CVE-2018-17187</cve>
-        <cve>CVE-2019-12418</cve>
-        <cve>CVE-2019-12402</cve>
-        <cve>CVE-2017-17485</cve>
-        <cve>CVE-2018-5968</cve>
-        <cve>CVE-2017-7525</cve>
-        <cve>CVE-2017-15095</cve>
-        <cve>CVE-2018-14718</cve>
-        <cve>CVE-2018-1000873</cve>
-        <cve>CVE-2018-7489</cve>
-        <cve>CVE-2019-17267</cve>
-        <cve>CVE-2019-16335</cve>
-        <cve>CVE-2019-14540</cve>
-        <cve>CVE-2015-0223</cve>
-        <cve>CVE-2015-0224</cve>
-        <cve>CVE-2019-0223</cve>
-        <cve>CVE-2015-0203</cve>
-        <cve>CVE-2020-5398</cve>
-        <cve>CVE-2019-20445</cve>
-        <cve>CVE-2019-20444</cve>
-        <cwe>611</cwe>
-        <cwe>79</cwe>
-        <cwe>476</cwe>
-    </suppress>
-    <suppress>
-        <notes>CVE-2018-1258: we do not use Spring Method Security, so this does not affect us. see
-            https://pivotal.io/security/cve-2018-1258
-        </notes>
-        <cve>CVE-2018-1258</cve>
-    </suppress>
-    <suppress>
-        <notes>We are bound by the gradle version in the CNP environments. Currently all gradle versions upto 5.6 are
-            impacted. As this is a third party related issue,
-            we are awaiting a fix from Gradle dev team. As soon as the fix is available from the gradle, we will provide
-            the impact analysis and
-            the feasibility of upgrading to a higher version of gradle.
-        </notes>
-        <cve>CVE-2019-15052</cve>
-        <cve>CVE-2019-10086</cve>
-    </suppress>
-    <suppress>
-        <notes>tomcat-embed-websocket @9.0.21</notes>
-        <cve>CVE-2020-1938</cve>
-        <cve>CVE-2020-1935</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[jackson:2.9.9.jar]]></notes>
-        <cve>CVE-2020-8840</cve>
-    </suppress>
-    <suppress>
-        <notes>tomcat-embed-websocket @9.0.21</notes>
-        <cve>CVE-2020-1938</cve>
-        <cve>CVE-2020-1935</cve>
-    </suppress>
-    <suppress>
-        <cve>CVE-2019-14893</cve>
-        <cve>CVE-2020-10672</cve>
-        <cve>CVE-2020-10673</cve>
-        <cve>CVE-2020-11612</cve>
-    </suppress>
-    <suppress>
-        <cve>CVE-2020-9488</cve>
-        <cve>CVE-2020-1745</cve>
-    </suppress>
-    <suppress>
-        <cve>CVE-2007-2138</cve>
-        <cve>CVE-2010-0733</cve>
-        <cve>CVE-2014-0060</cve>
-        <cve>CVE-2014-0061</cve>
-        <cve>CVE-2014-0062</cve>
-        <cve>CVE-2014-0063</cve>
-        <cve>CVE-2014-0064</cve>
-        <cve>CVE-2014-0065</cve>
-        <cve>CVE-2014-0066</cve>
-        <cve>CVE-2014-0067</cve>
-        <cve>CVE-2014-8161</cve>
-        <cve>CVE-2015-0241</cve>
-        <cve>CVE-2015-0242</cve>
-        <cve>CVE-2015-0243</cve>
-        <cve>CVE-2015-0244</cve>
-        <cve>CVE-2015-3165</cve>
-        <cve>CVE-2015-3166</cve>
-        <cve>CVE-2015-3167</cve>
-        <cve>CVE-2015-5288</cve>
-        <cve>CVE-2015-5289</cve>
-        <cve>CVE-2016-0766</cve>
-        <cve>CVE-2016-0768</cve>
-        <cve>CVE-2016-0773</cve>
-        <cve>CVE-2016-5423</cve>
-        <cve>CVE-2016-5424</cve>
-        <cve>CVE-2016-7048</cve>
-        <cve>CVE-2017-14798</cve>
-        <cve>CVE-2017-7484</cve>
-        <cve>CVE-2018-1115</cve>
-        <cve>CVE-2019-10210</cve>
-        <cve>CVE-2019-10211</cve>
-        <cve>CVE-2019-3795</cve>
-        <cve>CVE-2016-6497</cve>
         <cve>CVE-2018-10237</cve>
-        <cve>CVE-2020-5408</cve>
-        <cve>CVE-2020-5407</cve>
-        <cve>CVE-2020-11996</cve>
-        <cve>CVE-2019-14900</cve>
-        <cve>CVE-2020-8022</cve>
+        <cwe>79</cwe>
+        <cve>CVE-2018-1000873</cve>
+        <cve>CVE-2018-14718</cve>
+        <cve>CVE-2018-5968</cve>
+        <cve>CVE-2018-17187</cve>
+        <cve>CVE-2018-7489</cve>
+        <cve>CVE-2017-15095</cve>
+        <cve>CVE-2017-17485</cve>
+        <cve>CVE-2017-7525</cve>
+        <cve>CVE-2015-0203</cve>
+        <cve>CVE-2015-0224</cve>
+        <cve>CVE-2015-0254</cve>
+        <cve>CVE-2015-0223</cve>
+        <cve>CVE-2017-18640</cve>
+        <cve>CVE-2019-17638</cve>
+        <cve>CVE-2020-24616</cve>
+    </suppress>
+    <suppress>
+        <notes>Transitive dependency of spring boot version</notes>
+        <cve>CVE-2020-5421</cve>
     </suppress>
 
     <suppress>
-        <cve>CVE-2020-5408</cve>
-        <cve>CVE-2020-9484</cve>
-        <cve>CVE-2020-11996</cve>
-    </suppress>
-    <suppress>
-        <cve>CVE-2019-14900</cve>
-        <cve>CVE-2020-8022</cve>
-        <cve>CVE-2020-13934</cve>
-        <cve>CVE-2020-13935</cve>
+        <notes>We are currently using wiremock lib to support functional Tests, as a transitive dependency we are having Jetty Lib which is having this CVE</notes>
+        <cve>CVE-2020-27216</cve>
     </suppress>
 
+    <suppress>
+        <notes>This suppress specific cve for tomcat-embed-core-9.0.33.jar and tomcat-embed-websocket-9.0.33.jar</notes>
+        <cve>CVE-2020-13943</cve>
+    </suppress>
+
+    <suppress>
+        <notes> False positive reported at https://github.com/jeremylong/DependencyCheck/issues/1658 </notes>
+        <cve>CVE-2007-1651</cve>
+        <cve>CVE-2007-1652</cve>
+    </suppress>
+
+    <suppress>
+        <notes>Jetty jar vulnerability 9.4.27 Need to suppress, This is transitive dependency coming from properties-volume-spring-boot-starter project which is under reform</notes>
+        <cve>CVE-2020-27216</cve>
+        <cve>CVE-2020-27218</cve>
+    </suppress>
+
+    <suppress>
+        <notes>file name: junit-4.13.1.jar Awaiting patch for Junit : https://deb.freexian.com/extended-lts/tracker/CVE-2020-15250</notes>
+        <packageUrl regex="true">^pkg:maven/junit/junit@.*$</packageUrl>
+        <cve>CVE-2020-15250</cve>
+    </suppress>
+    
+    <suppress>
+        <notes>Hibernate core 5.4.12 related issue, its transitive dependency coming from spring boot starter JPA</notes>
+        <cve>CVE-2020-25638</cve>
+    </suppress>
+
+    <suppress>
+        <notes>HTTP Client 4.5.11 suppression, root cause and fix needs to be carried out separately</notes>
+        <cve>CVE-2020-13956</cve>
+    </suppress>
+    <suppress>
+        <notes>jackson-databind 2.10.0 suppression, its transitive dependency coming from spring boot</notes>
+        <cve>CVE-2020-25649</cve>
+    </suppress>
+    <suppress>
+        <notes>tomcat-embed-core 9.0.33 suppression, root cause and fix needs to be carried out separately</notes>
+        <cve>CVE-2020-17527</cve>
+    </suppress>
+    <suppress>
+        <notes>cpe:2.3:a:google:guava:27.0 suppression, root cause and fix needs to be carried out separately</notes>
+        <cve>CVE-2020-8908</cve>
+    </suppress>
+    <suppress until="2021-03-15">
+        <notes><![CDATA[
+            This CVE is related to file type tag parsing. However, the associated CVE seems to be a false positive on the lang-tag jar. Fix needs to be carried out seperately]]></notes>
+        <cve>CVE-2020-29242</cve>
+        <cve>CVE-2020-29243</cve>
+        <cve>CVE-2020-29244</cve>
+        <cve>CVE-2020-29245</cve>
+    </suppress>
 </suppressions>

@@ -38,7 +38,7 @@ public class LoggingPaymentServiceTest {
     public void createCardPaymentTest() throws Exception {
         when(userIdSupplier.get()).thenReturn("USER_ID");
         when(delegatingPaymentService.create(new PaymentServiceRequest("paymentGroupReference", "paymentReference", "description",
-            "https://www.google.com", "ccdCaseNumber", "caseReference",
+            "https://www.moneyclaims.service.gov.uk", "ccdCaseNumber", "caseReference",
             "GBP", "siteId", "divorce",
             Arrays.asList(PaymentFee.feeWith().calculatedAmount(new BigDecimal(10000)).code("X0001").version("1").build()),
             new BigDecimal("10000"), null, null, null,null)
@@ -60,7 +60,7 @@ public class LoggingPaymentServiceTest {
             .build());
 
         PaymentFeeLink paymentFeeLink = loggingPaymentService.create(new PaymentServiceRequest("paymentGroupReference", "paymentReference",
-            "description", "https://www.google.com", "ccdCaseNumber",
+            "description", "https://www.moneyclaims.service.gov.uk", "ccdCaseNumber",
             "caseReference", "GBP", "siteId", "divorce",
             Arrays.asList(PaymentFee.feeWith().calculatedAmount(new BigDecimal(10000)).code("X0001").version("1").build()),
             new BigDecimal("10000"), null, null, null,null)

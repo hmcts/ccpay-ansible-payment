@@ -13,7 +13,6 @@ import java.util.Date;
 @Entity
 @EntityListeners(RemissionEntityListener.class)
 @Data
-@EqualsAndHashCode(callSuper=false)
 @Builder(builderMethodName = "remissionWith")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -70,4 +69,8 @@ public class Remission extends Auditable<String> {
     @JoinColumn(name = "fee_id", insertable = false, updatable = false)
     private PaymentFee fee;
 
+    @Override
+    public int hashCode(){
+        return super.hashCode();
+    }
 }

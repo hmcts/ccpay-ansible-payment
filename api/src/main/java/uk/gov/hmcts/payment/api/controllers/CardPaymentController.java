@@ -4,6 +4,7 @@ import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.checkdigit.CheckDigitException;
 import org.ff4j.FF4j;
+import org.owasp.encoder.Encode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentException;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
 
 import javax.validation.Valid;
+import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -85,7 +87,8 @@ public class CardPaymentController {
     public ResponseEntity<PaymentDto> createCardPayment(
         @RequestHeader(value = "return-url") String returnURL,
         @RequestHeader(value = "service-callback-url", required = false) String serviceCallbackUrl,
-        @Valid @RequestBody CardPaymentRequest request) throws CheckDigitException {
+        @Valid @RequestBody CardPaymentRequest request) throws CheckDigitException, URISyntaxException {
+
         String paymentGroupReference = PaymentReference.getInstance().getNext();
 
         if (StringUtils.isEmpty(request.getChannel()) || StringUtils.isEmpty(request.getProvider())) {
@@ -108,7 +111,7 @@ public class CardPaymentController {
 
         PaymentServiceRequest paymentServiceRequest = PaymentServiceRequest.paymentServiceRequestWith()
             .paymentGroupReference(paymentGroupReference)
-            .description(request.getDescription())
+            .description(Encode.forHtml(request.getDescription()))
             .returnUrl(returnURL)
             .ccdCaseNumber(request.getCcdCaseNumber())
             .caseReference(request.getCaseReference())
@@ -176,10 +179,11 @@ public class CardPaymentController {
         PaymentFeeLink paymentFeeLink = delegatingPaymentService.retrieve(paymentReference);
         Optional<Payment> payment = paymentFeeLink.getPayments().stream()
             .filter(p -> p.getReference().equals(paymentReference)).findAny();
-        if(payment.isPresent()) {
-            return paymentDtoMapper.toPaymentStatusesDto(payment.get());
+        Payment payment1 = null;
+        if (payment.isPresent()) {
+            payment1 = payment.get();
         }
-       return null;
+            return paymentDtoMapper.toPaymentStatusesDto(payment1);
     }
 
     @ApiOperation(value = "Cancel payment for supplied payment reference", notes = "Cancel payment for supplied payment reference")

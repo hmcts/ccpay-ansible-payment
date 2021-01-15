@@ -32,8 +32,7 @@ public class PaymentEntityListener {
         EntityManager entityManager = BeanUtil.getBean(EntityManager.class);
         entityManager.persist(PaymentAuditHistory.paymentAuditHistoryWith()
             .ccdCaseNo(target.getCcdCaseNumber())
-            .auditType(auditEventsType.getName())
-            //.auditPayload(target.getReference() + " | " + target.getAmount() + " | " + target.getPaymentStatus() + " | " + target.getDateCreated())
+            .auditType(auditEventsType)
             .auditPayload(target.toString())
             .auditDescription(auditEventsType.getDescription())
             .build());

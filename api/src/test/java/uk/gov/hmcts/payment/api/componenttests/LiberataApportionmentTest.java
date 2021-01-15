@@ -23,7 +23,6 @@ import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
 import uk.gov.hmcts.payment.api.model.FeePayApportion;
 import uk.gov.hmcts.payment.api.model.Payment;
-import uk.gov.hmcts.payment.api.model.PaymentFeeLink;
 import uk.gov.hmcts.payment.api.servicebus.CallbackServiceImpl;
 import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.ServiceResolverBackdoor;
 import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.UserResolverBackdoor;
@@ -219,8 +218,8 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
     @Transactional
     public void shouldCheckAmountDueIsCalculatedFromApportionTableWhenApportionFlagToggledONForCardPayments() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
-        populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetails();
+        Payment payment = populateTelephonyPaymentToDb(paymentReference,false);
+        populateApportionDetails(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
@@ -246,8 +245,8 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
     @Transactional
     public void shouldCheckAmountDueIsCalculatedFromApportionTableWhenCallSurplusAmountIsNotNull() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
-        populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetailsWithCallSurplusAmount();
+        Payment payment = populateTelephonyPaymentToDb(paymentReference,false);
+        populateApportionDetailsWithCallSurplusAmount(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
@@ -268,12 +267,39 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         assertNotNull(payments);
         assertThat(payments.size()).isEqualTo(1);
     }
+
+    @Test
+    @Transactional
+    public void shouldCheckAmountDueIsCalculatedFromApportionTableWithoutApportionDetails() throws Exception {
+        String paymentReference = "RC-1519-9028-1909-1435";
+        populateTelephonyPaymentToDb(paymentReference,false);
+        String startDate = LocalDateTime.now().toString(DATE_FORMAT);
+        String endDate = LocalDateTime.now().toString(DATE_FORMAT);
+        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
+        restActions
+            .post("/api/ff4j/store/features/payment-search/enable")
+            .andExpect(status().isAccepted());
+
+        restActions
+            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .andExpect(status().isAccepted());
+        MvcResult result1 = restActions
+            .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
+            .andExpect(status().isOk())
+            .andReturn();
+
+        PaymentsResponse response = objectMapper.readValue(result1.getResponse().getContentAsByteArray(), PaymentsResponse.class);
+        List<PaymentDto> payments = response.getPayments();
+        assertNotNull(payments);
+        assertThat(payments.size()).isEqualTo(1);
+    }
+
     @Test
     @Transactional
     public void shouldCheckAmountDueIsCalculatedFromApportionTableWhenFeeIdIsDifferent() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
-        populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetailsWithDifferentFeeId();
+        Payment payment = populateTelephonyPaymentToDb(paymentReference,false);
+        populateApportionDetailsWithDifferentFeeId(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
@@ -300,21 +326,8 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
     @Transactional
     public void shouldCheckAmountDueIsCalculatedFromApportionTableWhenApportionFlagToggledOFFForCardPayments() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
-        Payment payment =populateTelephonyPaymentToDb(paymentReference,false);
-        PaymentFeeLink paymentFeeLink= payment.getPaymentLink();
-        List<PaymentFeeLink> paymentFeeLinkList = new ArrayList<>();
-        paymentFeeLinkList.add(paymentFeeLink);
-        List<FeePayApportion> feePayApportionList = new ArrayList<>();
-        FeePayApportion feePayApportion = FeePayApportion.feePayApportionWith()
-            .id(1)
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionType("AUTO")
-            .feeId(1)
-            .feeAmount(BigDecimal.valueOf(100))
-            .isFullyApportioned("Y")
-            .build();
-        feePayApportionList.add(feePayApportion);
+        Payment payment = populateTelephonyPaymentToDb(paymentReference,false);
+        populateApportionDetails(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(false);
@@ -351,7 +364,6 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
             .apportionType("AUTO")
             .feeId(1)
             .feeAmount(BigDecimal.valueOf(100))
-            .isFullyApportioned("Y")
             .build();
         feePayApportionList.add(feePayApportion);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
@@ -381,7 +393,7 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
     public void shouldCheckAmountDueIsCalculatedFromApportionTableWhenWhenDateCreatedIsEqualToApportionDate() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
         Payment payment =populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetailsWithCallSurplusAmount();
+        populateApportionDetailsWithCallSurplusAmount(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
@@ -403,42 +415,13 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         assertNotNull(payments);
         assertThat(payments.size()).isEqualTo(1);
     }
-
-    @Test
-    @Transactional
-    public void shouldCheckAmountDueIsCalculatedFromApportionTableWhenFeeIsNotAvailable() throws Exception {
-        String paymentReference = "RC-1519-9028-1909-1435";
-        Payment payment =populateTelephonyPaymentToDbWithoutFees(paymentReference,false);
-        populateApportionDetailsWithCallSurplusAmount();
-        String startDate = LocalDateTime.now().toString(DATE_FORMAT);
-        String endDate = LocalDateTime.now().toString(DATE_FORMAT);
-        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
-        payment.setDateCreated(parseDate("01.06.2020"));
-        restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
-            .andExpect(status().isAccepted());
-
-        restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
-            .andExpect(status().isAccepted());
-        MvcResult result1 = restActions
-            .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
-            .andExpect(status().isOk())
-            .andReturn();
-
-        PaymentsResponse response = objectMapper.readValue(result1.getResponse().getContentAsByteArray(), PaymentsResponse.class);
-        List<PaymentDto> payments = response.getPayments();
-        assertNotNull(payments);
-        assertThat(payments.size()).isEqualTo(1);
-    }
-
 
     @Test
     @Transactional
     public void shouldCheckAmountDueIsCalculatedFromApportionTableWhenWhenDateCreatedIsAfterApportionDate() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
         Payment payment =populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetailsWithCallSurplusAmount();
+        populateApportionDetailsWithCallSurplusAmount(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
@@ -465,7 +448,7 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
     @Transactional
     public void shouldCheckApportionWhenPaymentChannelIsDigitalBar() throws Exception {
         Payment payment =populateBarCashPaymentToDbForApportionment("1");
-        populateApportionDetailsWithCallSurplusAmount();
+        populateApportionDetailsWithCallSurplusAmount(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
@@ -493,7 +476,7 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
     public void shouldCheckApportionWhenPaymentChannelIsNull() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
         Payment payment =populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetailsWithCallSurplusAmount();
+        populateApportionDetailsWithCallSurplusAmount(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
@@ -522,7 +505,7 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
     public void shouldCheckApportionWhenPaymentChannelIsNullAndApportionmentFlagIsFalse() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
         Payment payment =populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetailsWithCallSurplusAmount();
+        populateApportionDetailsWithCallSurplusAmount(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(false);
@@ -551,7 +534,7 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
     public void shouldCheckApportionWhenPaymentChannelIsNullAndApportionmentFlagIsFalseAndHistoricalCase() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
         Payment payment =populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetailsWithCallSurplusAmount();
+        populateApportionDetailsWithCallSurplusAmount(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(false);
@@ -580,7 +563,7 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
     public void shouldCheckApportionWhenPaymentChannelIsNullAndApportionmentFlagIsTrueAndHistoricalCase() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
         Payment payment =populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetailsWithCallSurplusAmount();
+        populateApportionDetailsWithCallSurplusAmount(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
@@ -636,7 +619,7 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
     public void shouldCheckApportionWhenPaymentChannelIsTelephonyAndFeeIdIsDifferent() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
         Payment payment =populateTelephonyPaymentToDb(paymentReference,false);
-        populateApportionDetailsWithDifferentFeeId();
+        populateApportionDetailsWithDifferentFeeId(payment);
         String startDate = LocalDateTime.now().toString(DATE_FORMAT);
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);

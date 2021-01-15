@@ -10,8 +10,11 @@ services:
         - no_proxy
     image: hmctspublic.azurecr.io/payment/api
     environment:
-      - auth.provider.service.client.baseUrl=http://service-auth-provider-api:8080/
-      - auth.idam.client.baseUrl=https://idam-test.dev.ccidam.reform.hmcts.net
+      - auth.provider.service.client.baseUrl=http://service-auth-provider-api:8489
+      - auth.idam.client.baseUrl=http://idam-api:5000
+      - idam.s2s-auth.totp_secret=AAAAAAAAAAAAAAAB
+      - idam.s2s-auth.microservice=payment_app
+      - idam.s2s-auth.url=http://service-auth-provider-api:8489
       - CARD_PAYMENTS_REPORT_SCHEDULER_ENABLED=true
       - CARD_PAYMENTS_EMAIL_FROM=no-reply@reform.hmcts.net
       - CARD_PAYMENTS_EMAIL_TO=pepito@grillo.com
@@ -24,9 +27,9 @@ services:
       - BAR_PAYMENTS_EMAIL_SUBJECT=Docker Env Bar Payments Reconciliation Report
       - FEATURE_PAYMENTS_SEARCH=true
       - FEES_REGISTER_URL=https://ccfr-fees-api:8080
-      - GOV_PAY_AUTH_KEY_CMC=la0ohpqa9er1bub2hddieeesc6sabbbqn4smkkve7s9ailn3n9d3hbnhc3
-      - GOV_PAY_AUTH_KEY_DIVORCE_FRONTEND=la0ohpqa9er1bub2hddieeesc6sabbbqn4smkkve7s9ailn3n9d3hbnhc3
-      - GOV_PAY_AUTH_KEY_PROBATE_FRONTEND=la0ohpqa9er1bub2hddieeesc6sabbbqn4smkkve7s9ailn3n9d3hbnhc3
+      - GOV_PAY_AUTH_KEY_CMC=dummy_value_1
+      - GOV_PAY_AUTH_KEY_DIVORCE_FRONTEND=dummy_value_2
+      - GOV_PAY_AUTH_KEY_PROBATE_FRONTEND=dummy_value_3
       - GOV_PAY_OPERATIONAL_SERVICES=ccd_gw
       - GOV_PAY_URL=https://publicapi.payments.service.gov.uk/v1/payments
       - payments.report.file.location=.
@@ -66,16 +69,16 @@ services:
       - SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST=*
       - SPRING_MAIL_PORT=25
       - SPRING_MAIL_HOST=mta.reform.hmcts.net
-      - TRUSTED_S2S_SERVICE_NAMES=cmc,probate_frontend,divorce_frontend,ccd_gw,bar_api,api_gw,finrem_payment_service,ccpay_bubble,jui_webapp,xui_webapp,fpl_case_service,iac
+      - TRUSTED_S2S_SERVICE_NAMES=cmc,probate_frontend,divorce_frontend,divorce,payment_app,ccd_gw,bar_api,api_gw,finrem_payment_service,ccpay_bubble,jui_webapp,xui_webapp,fpl_case_service,iac
       - PAYBUBBLE_HOME_URL=https://ccpay-bubble-frontend-aat.service.core-compute-aat.internal
       - PCI_PAL_CALLBACK_URL=https://core-api-mgmt-aat.azure-api.net/telephony-api/telephony/callback
       - ASB_CONNECTION_STRING=some-azure-service-bus-connection-string
+      - azure.application-insights.instrumentation-key=dummy
     ports:
-     - 8080:8080
+      - 8083:8080
     depends_on:
-     - payments-database
-     - service-auth-provider-api
-     - ccfr-fees-api
+      - payments-database
+      - ccfr-fees-api
 
   payments-database:
     container_name: payments-database
@@ -91,31 +94,106 @@ services:
   service-auth-provider-api:
     image: hmctspublic.azurecr.io/rpe/service-auth-provider
     environment:
-      - auth.provider.service.server.jwtKey=wThK0f0/lh3FlxFcL4xUWDMI5C1J9KyQBgXV4wseh1e5J1uYJIjvTvArHxQDrYoHJ23xFxjHkOnvNbR5dXRoxA==
-      - auth.provider.service.server.microserviceKeys.divorce=AAAAAAAAAAAAAAAA
-      - auth.provider.service.testing-support.enabled=true
+      - microserviceKeys_divorce=AAAAAAAAAAAAAAAA
+      - microserviceKeys_payment_app=AAAAAAAAAAAAAAAB
     ports:
-      - 8085:8080
+      - 8085:8489
 
   ccfr-fees-api:
     image: hmctspublic.azurecr.io/fees-register/api
     container_name: ccfr-fees-api
     environment:
-    - SPRING_DATASOURCE_URL=jdbc:postgresql://ccfr-fees-database:5432/fees_register
-    - SPRING_DATASOURCE_USERNAME=fees_register
-    - SPRING_DATASOURCE_PASSWORD=fees_register
-    - AUTH_IDAM_CLIENT_BASEURL=https://idam-test.dev.ccidam.reform.hmcts.net
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ccfr-fees-database:5432/fees_register
+      - SPRING_DATASOURCE_USERNAME=fees_register
+      - SPRING_DATASOURCE_PASSWORD=fees_register
+      - AUTH_IDAM_CLIENT_BASEURL=https://idam-test.dev.ccidam.reform.hmcts.net
     ports:
-    - 8182:8080
+      - 8182:8080
     depends_on:
-    - ccfr-fees-database
+      - ccfr-fees-database
 
   ccfr-fees-database:
     container_name: ccfr-fees-database
     image: postgres:11-alpine
     environment:
-    - POSTGRES_USER=fees_register
-    - POSTGRES_PASSWORD=fees_register
-    - POSTGRES_DB=fees_register
+      - POSTGRES_USER=fees_register
+      - POSTGRES_PASSWORD=fees_register
+      - POSTGRES_DB=fees_register
     ports:
     - 5182:5432
+  fr-am:
+    image: hmctsprivate.azurecr.io/idam/idam-fr-am:latest
+    hostname: localam
+    depends_on:
+      - shared-db
+    ports:
+      - 8080:8080
+      - 1389:1389
+  fr-idm:
+    image: hmctsprivate.azurecr.io/idam/idam-fr-idm:latest
+    hostname: localidm
+    depends_on:
+      - fr-am
+      - shared-db
+    ports:
+      - 18080:18080
+      - 9010:9010
+  shared-db:
+    image: hmctsprivate.azurecr.io/idam/shared-db:latest
+    ports:
+      - 5432:5432
+  smtp-server:
+    image: mailhog/mailhog
+    ports:
+      - 1025:1025
+      - 8025:8025
+  idam-api:
+    image: hmctspublic.azurecr.io/idam/api:stable
+    depends_on:
+      - fr-am
+      - shared-db
+    ports:
+      - 5000:5000
+    tmpfs: /opt/app/es
+    environment:
+      - JAVA_OPTS=-Xms128m -Xms512m
+      - IDAMHEALTHCHECK_AM_ENABLED=false
+      - IDAMHEALTHCHECK_IDM_ENABLED=false
+      - STRATEGIC_ADMIN_URL=http://idam-web-admin:8082
+      - STRATEGIC_WEBPUBLIC_URL=http://idam-web-public:9002
+      - SPRING_PROFILES_ACTIVE=local
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://shared-db:5432/openidm?currentSchema=fridam
+      - SPRING_DATASOURCE_USERNAME=openidm
+      - SPRING_DATASOURCE_PASSWORD=openidm
+      - SECURITY_OAUTH2_CLIENT_CLIENTSECRET=password
+      - SECURITY_OAUTH2_CLIENT_PRE_ESTABLISHED_REDIRECT_URI=http://idam-web-public:9002/login
+      - SECURITY_OAUTH2_CLIENT_REGISTERED_REDIRECT_URI=http://idam-web-public:9002/login
+      - IDAM_SPI_FORGEROCK_AM_ROOT=http://fr-am:8080/openam
+      - IDAM_SPI_FORGEROCK_AM_TOPLEVELHOST=fr-am
+      - IDAM_SPI_FORGEROCK_AM_USERNAME=amadmin
+      - IDAM_SPI_FORGEROCK_AM_PASSWORD=Pa55word11
+      - IDAM_SPI_FORGEROCK_AM_JWKSURIFOROAUTH2CLIENTS=http://fr-am:8080/openam/oauth2/hmcts/connect/jwk_uri
+      - IDAM_SPI_FORGEROCK_IDM_ROOT=http://fr-idm:18080/openidm
+      - IDAM_SPI_FORGEROCK_IDM_USERNAME=openidm-admin
+      - IDAM_SPI_FORGEROCK_IDM_PASSWORD=openidm-admin
+      - IDAM_SPI_FORGEROCK_IDM_PIN_DEFAULTPASSWORD=BlaBlaBlackSh33p
+      - APPSETTING_NODE_PATH=/opt/app
+  idam-web-public:
+    image: hmctspublic.azurecr.io/idam/web-public:stable
+    depends_on:
+      - idam-api
+    ports:
+      - 9002:8080
+    environment:
+      - JAVA_OPTS=-Xms128m -Xms512m
+      - STRATEGIC_SERVICE_URL=http://idam-api:5000
+  idam-web-admin:
+    image: hmctspublic.azurecr.io/idam/web-admin:stable
+    depends_on:
+      - idam-api
+    ports:
+      - 8082:8080
+    environment:
+      - JAVA_OPTS=-Xms128m -Xms512m
+      - STRATEGIC_SERVICE_URL=http://idam-api:5000
+      - STRATEGIC_PUBLIC_URL=http://idam-web-public:9002

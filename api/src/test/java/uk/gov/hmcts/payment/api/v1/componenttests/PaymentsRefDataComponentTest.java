@@ -46,7 +46,7 @@ public class PaymentsRefDataComponentTest extends PaymentsComponentTest {
             .andExpect(status().isOk())
             .andExpect(body().asListOf(PaymentProvider.class, paymentProviders -> {
                 assertThat(paymentProviders).anySatisfy(paymentProvider -> {
-                   assertThat(paymentProvider.getName()).isEqualTo("GovPay");
+                    assertThat(paymentProvider.getName()).isEqualTo("GovPay");
                 });
             }));
     }
@@ -59,7 +59,7 @@ public class PaymentsRefDataComponentTest extends PaymentsComponentTest {
             .andExpect(status().isOk())
             .andExpect(body().asListOf(PaymentStatus.class, paymentStatuses -> {
                 assertThat(paymentStatuses).anySatisfy(paymentStatus -> {
-                   assertThat(paymentStatus.getName()).isEqualTo("Pending");
+                    assertThat(paymentStatus.getName()).isEqualTo("Pending");
                 });
             }));
     }

@@ -43,6 +43,7 @@ public class UserAwareDelegatingPaymentServiceTest {
 
     private FeePayApportionRepository feePayApportionRepository = mock(FeePayApportionRepository.class);
     private PaymentFeeRepository paymentFeeRepository = mock(PaymentFeeRepository.class);
+    private FeePayApportionService feePayApportionService = mock(FeePayApportionService.class);
     private LaunchDarklyFeatureToggler featureToggler = mock(LaunchDarklyFeatureToggler.class);
 
     private final static String PAYMENT_CHANNEL_TELEPHONY = "telephony";
@@ -53,7 +54,7 @@ public class UserAwareDelegatingPaymentServiceTest {
         userAwareDelegatingPaymentService = new UserAwareDelegatingPaymentService(userIdSupplier,
             paymentFeeLinkRepository, delegateGovPay, delegatePciPal, paymentChannelRepository, paymentMethodRepository,
             paymentProviderRepository, paymentStatusRepository, paymentRespository, referenceUtil, govPayAuthUtil,
-            serviceIdSupplier, auditRepository, callbackService, feePayApportionRepository, paymentFeeRepository, featureToggler);
+            serviceIdSupplier, auditRepository, callbackService, feePayApportionRepository, paymentFeeRepository, feePayApportionService, featureToggler);
     }
 
     //calls PCI_PAL service when telephony and pci pal

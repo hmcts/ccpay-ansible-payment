@@ -7,7 +7,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +22,6 @@ import uk.gov.hmcts.payment.api.dto.mapper.PaymentDtoMapper;
 import uk.gov.hmcts.payment.api.model.*;
 import uk.gov.hmcts.payment.api.service.CallbackService;
 import uk.gov.hmcts.payment.api.service.PaymentService;
-import uk.gov.hmcts.payment.api.util.DateFormatter;
 import uk.gov.hmcts.payment.api.util.DateUtil;
 import uk.gov.hmcts.payment.api.util.PaymentMethodType;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentException;
@@ -49,20 +47,16 @@ public class PaymentController {
     private final PaymentValidator validator;
     private final FF4j ff4j;
     private final DateTimeFormatter formatter;
-    private final DateFormatter dateFormatter;
     private final PaymentFeeRepository paymentFeeRepository;
 
     @Autowired
     private LaunchDarklyFeatureToggler featureToggler;
 
-    @Value("${apportion.live.date}")
-    private String apportionLiveDate;
-
     @Autowired
     public PaymentController(PaymentService<PaymentFeeLink, String> paymentService,
                              PaymentStatusRepository paymentStatusRepository, CallbackService callbackService,
                              PaymentDtoMapper paymentDtoMapper, PaymentValidator paymentValidator, FF4j ff4j,
-                             DateUtil dateUtil,DateFormatter dateFormatter,PaymentFeeRepository paymentFeeRepository) {
+                             DateUtil dateUtil,PaymentFeeRepository paymentFeeRepository) {
         this.paymentService = paymentService;
         this.callbackService = callbackService;
         this.paymentStatusRepository = paymentStatusRepository;
@@ -70,7 +64,6 @@ public class PaymentController {
         this.validator = paymentValidator;
         this.ff4j = ff4j;
         this.formatter = dateUtil.getIsoDateTimeFormatter();
-        this.dateFormatter = dateFormatter;
         this.paymentFeeRepository = paymentFeeRepository;
     }
 
@@ -184,10 +177,11 @@ public class PaymentController {
         PaymentFeeLink paymentFeeLink = paymentService.retrieve(paymentReference);
         Optional<Payment> payment = paymentFeeLink.getPayments().stream()
             .filter(p -> p.getReference().equals(paymentReference)).findAny();
-        if(payment.isPresent()) {
-            return paymentDtoMapper.toGetPaymentResponseDtos(payment.get());
-        }
-        return null;
+            Payment payment1 = null;
+            if (payment.isPresent()) {
+                payment1 = payment.get();
+            }
+            return paymentDtoMapper.toGetPaymentResponseDtos(payment1);
     }
 
     private Optional<Payment> getPaymentByReference(String reference) {
@@ -208,32 +202,47 @@ public class PaymentController {
             //Apportion logic added for pulling allocation amount
             boolean apportionCheck = payment.getPaymentChannel() != null
                 && !payment.getPaymentChannel().getName().equalsIgnoreCase(Service.DIGITAL_BAR.getName());
+            LOG.info("Apportion check value in liberata API: {}", apportionCheck);
             List<PaymentFee> fees = paymentFeeLink.getFees();
-            if ((apportionCheck && apportionFeature && (payment.getDateCreated().after(dateFormatter.parseDate(apportionLiveDate))
-                    || payment.getDateCreated().equals(dateFormatter.parseDate(apportionLiveDate))))) {
+            boolean isPaymentAfterApportionment = false;
+            if (apportionCheck && apportionFeature) {
+                LOG.info("Apportion check and feature passed");
                 final List<FeePayApportion> feePayApportionList = paymentService.findByPaymentId(payment.getId());
-                fees = new ArrayList<>();
-                getApportionedDetails(fees, feePayApportionList);
+                if(feePayApportionList != null && !feePayApportionList.isEmpty()) {
+                    LOG.info("Apportion details available in PaymentController");
+                    fees = new ArrayList<>();
+                    getApportionedDetails(fees, feePayApportionList);
+                    isPaymentAfterApportionment = true;
+                }
             }
             //End of Apportion logic
-            final PaymentDto paymentDto = paymentDtoMapper.toReconciliationResponseDtoForLibereta(payment, paymentReference, fees,ff4j);
+            final PaymentDto paymentDto = paymentDtoMapper.toReconciliationResponseDtoForLibereta(payment, paymentReference, fees,ff4j,isPaymentAfterApportionment);
             paymentDtos.add(paymentDto);
         }
     }
 
     private void getApportionedDetails(List<PaymentFee> fees, List<FeePayApportion> feePayApportionList) {
+        LOG.info("Getting Apportionment Details!!!");
         for (FeePayApportion feePayApportion : feePayApportionList)
         {
             Optional<PaymentFee> apportionedFee = paymentFeeRepository.findById(feePayApportion.getFeeId());
             if(apportionedFee.isPresent())
             {
+                LOG.info("Apportioned fee is present");
                 PaymentFee fee = apportionedFee.get();
-                BigDecimal allocatedAmount = feePayApportion.getApportionAmount().add(feePayApportion.getCallSurplusAmount() != null ? feePayApportion.getCallSurplusAmount() : BigDecimal.valueOf(0));
-                fee.setAllocatedAmount(allocatedAmount);
-                fee.setDateApportioned(feePayApportion.getDateCreated());
+                if(feePayApportion.getApportionAmount() != null) {
+                    LOG.info("Apportioned Amount is available!!!");
+                    BigDecimal allocatedAmount = feePayApportion.getApportionAmount()
+                        .add(feePayApportion.getCallSurplusAmount() != null
+                            ? feePayApportion.getCallSurplusAmount()
+                            : BigDecimal.valueOf(0));
+                    LOG.info("Allocated amount in PaymentController: {}", allocatedAmount);
+                    fee.setAllocatedAmount(allocatedAmount);
+                    fee.setDateApportioned(feePayApportion.getDateCreated());
+                }
                 fees.add(fee);
             }
-    }
+        }
     }
 
     private List<Payment> getFilteredListBasedOnBulkScanToggleFeature(PaymentFeeLink paymentFeeLink) {

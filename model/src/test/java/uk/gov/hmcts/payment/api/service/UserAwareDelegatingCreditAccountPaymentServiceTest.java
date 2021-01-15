@@ -165,7 +165,7 @@ public class UserAwareDelegatingCreditAccountPaymentServiceTest {
             .amount(new BigDecimal("6000.00"))
             .reference(reference)
             .description("description_" + number)
-            .returnUrl("https://localhost")
+            .returnUrl("https://www.moneyclaims.service.gov.uk")
             .ccdCaseNumber("ccdCaseNo_" + number)
             .caseReference("caseRef_" + number)
             .currency("GBP")

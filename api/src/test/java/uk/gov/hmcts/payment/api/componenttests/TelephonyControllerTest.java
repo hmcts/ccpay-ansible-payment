@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.payment.api.componenttests.util.PaymentsDataUtil;
+import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
@@ -41,8 +42,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.MOCK;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -78,6 +78,9 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    private LaunchDarklyFeatureToggler featureToggler;
+
     protected CustomResultMatcher body() {
         return new CustomResultMatcher(objectMapper);
     }
@@ -89,7 +92,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
 
         restActions
             .withAuthorizedService("divorce")
-            .withReturnUrl("https://www.gooooogle.com");
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
     }
 
     @Test
@@ -267,6 +270,9 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
     @Test
     public void updateTelephonyPaymentStatusWithSuccess_Apportionment() throws Exception {
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
+
+        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
+
         PaymentGroupDto request = PaymentGroupDto.paymentGroupDtoWith()
             .fees( Arrays.asList(getNewFee(ccdCaseNumber)))
             .build();
@@ -292,7 +298,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
             .build();
 
         MvcResult result2 = restActions
-            .withReturnUrl("https://www.google.com")
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk")
             .post("/payment-groups/" + paymentGroupDto.getPaymentGroupReference() + "/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
             .andReturn();
@@ -321,14 +327,15 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
 
         List<PaymentFee> fees = savedPaymentGroup.getFees();
 
-        assertEquals(BigDecimal.valueOf(101.99), fees.get(0).getAllocatedAmount());
         assertThat(BigDecimal.valueOf(0.00).equals(fees.get(0).getAmountDue()));
-        assertEquals("Y", fees.get(0).getIsFullyApportioned());
     }
 
     @Test
     public void updateTelephonyPaymentStatusWithFailed_Apportionment() throws Exception {
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
+
+        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
+
         PaymentGroupDto request = PaymentGroupDto.paymentGroupDtoWith()
             .fees( Arrays.asList(getNewFee(ccdCaseNumber)))
             .build();
@@ -354,7 +361,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
             .build();
 
         MvcResult result2 = restActions
-            .withReturnUrl("https://www.google.com")
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk")
             .post("/payment-groups/" + paymentGroupDto.getPaymentGroupReference() + "/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
             .andReturn();
@@ -382,9 +389,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
 
         List<PaymentFee> fees = savedPaymentGroup.getFees();
 
-        assertThat(BigDecimal.valueOf(0.00).equals(fees.get(0).getAllocatedAmount()));
-        //assertThat(BigDecimal.valueOf(101.99).equals(fees.get(0).getAmountDue()));
-        assertEquals("N", fees.get(0).getIsFullyApportioned());
+        assertThat(BigDecimal.valueOf(101.99).equals(fees.get(0).getAmountDue()));
 
     }
 

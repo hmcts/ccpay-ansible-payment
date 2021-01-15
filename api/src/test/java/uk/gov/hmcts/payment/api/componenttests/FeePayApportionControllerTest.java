@@ -1,12 +1,12 @@
 package uk.gov.hmcts.payment.api.componenttests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,23 +21,14 @@ import uk.gov.hmcts.payment.api.componenttests.util.PaymentsDataUtil;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.controllers.FeePayApportionController;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
-import uk.gov.hmcts.payment.api.model.*;
+import uk.gov.hmcts.payment.api.model.Payment;
+import uk.gov.hmcts.payment.api.model.PaymentFeeLink;
 import uk.gov.hmcts.payment.api.service.PaymentService;
-import uk.gov.hmcts.payment.api.servicebus.CallbackServiceImpl;
 import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.ServiceResolverBackdoor;
 import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.UserResolverBackdoor;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.CustomResultMatcher;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.RestActions;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
-
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -47,15 +38,18 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
-import static uk.gov.hmcts.payment.api.model.PaymentFee.feeWith;
-import static uk.gov.hmcts.payment.api.model.PaymentFeeLink.paymentFeeLinkWith;
-import static org.mockito.ArgumentMatchers.anyString;
 
 @RunWith(SpringRunner.class)
-@ActiveProfiles({"local", "componenttest", "mockcallbackservice"})
+@ActiveProfiles({"local", "componenttest"})
 @SpringBootTest(webEnvironment = MOCK)
 @Transactional
 public class FeePayApportionControllerTest extends PaymentsDataUtil {
+
+    @ClassRule
+    public static WireMockClassRule wireMockRule = new WireMockClassRule(9190);
+
+    @Rule
+    public WireMockClassRule instanceRule = wireMockRule;
 
     @Autowired
     private ConfigurableListableBeanFactory configurableListableBeanFactory;
@@ -69,7 +63,7 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     @Autowired
     protected UserResolverBackdoor userRequestAuthorizer;
 
-    @InjectMocks
+    @Autowired
     private FeePayApportionController feePayApportionController;
 
     @Autowired
@@ -82,7 +76,7 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Autowired
     private PaymentService<PaymentFeeLink, String> paymentService;
 
     @MockBean
@@ -107,21 +101,10 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
 
     @Test
     @Transactional
-    public void retrieveApportionDetailsWithReferenceWhenDateCreatedIsAfterApportionDate() throws Exception {
+    public void retrieveApportionDetailsWithReferenceForCardPayments() throws Exception {
         Payment payment = populateCardPaymentToDb("1");
-        List<FeePayApportion> feePayApportionList = new ArrayList<>();
-        FeePayApportion feePayApportion = FeePayApportion.feePayApportionWith()
-            .id(1)
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionType("AUTO")
-            .feeId(1)
-            .feeAmount(BigDecimal.valueOf(100))
-            .isFullyApportioned("Y")
-            .build();
-        feePayApportionList.add(feePayApportion);
-        when(paymentService.retrieve(payment.getReference())).thenReturn(payment.getPaymentLink());
-        when(paymentService.findByPaymentId(payment.getId())).thenReturn(feePayApportionList);
+        populateApportionDetails(payment);
+        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         MvcResult result = restActions
             .get("/payment-groups/fee-pay-apportion/" + payment.getReference())
             .andExpect(status().isOk())
@@ -133,51 +116,10 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     }
 
     @Test
-    @Transactional
-    public void retrieveApportionDetailsWithReferenceWhenDateCreatedIsAfterApportionDateWithoutFees() throws Exception {
-        String paymentReference = "RC-1519-9028-1909-1435";
-        Payment payment =populateTelephonyPaymentToDbWithoutFees(paymentReference,false);
-        List<FeePayApportion> feePayApportionList = new ArrayList<>();
-        FeePayApportion feePayApportion = FeePayApportion.feePayApportionWith()
-            .id(1)
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionType("AUTO")
-            .feeId(1)
-            .feeAmount(BigDecimal.valueOf(100))
-            .isFullyApportioned("Y")
-            .build();
-        feePayApportionList.add(feePayApportion);
-        when(paymentService.retrieve(payment.getReference())).thenReturn(payment.getPaymentLink());
-        when(paymentService.findByPaymentId(payment.getId())).thenReturn(feePayApportionList);
-        MvcResult result = restActions
-            .get("/payment-groups/fee-pay-apportion/" + payment.getReference())
-            .andExpect(status().isOk())
-            .andReturn();
-
-        PaymentGroupDto paymentGroupDto = objectMapper.readValue(result.getResponse().getContentAsString(), PaymentGroupDto.class);
-        assertNotNull(paymentGroupDto);
-        assertThat(paymentGroupDto.getPayments().get(0).getReference()).isEqualTo(payment.getReference());
-    }
-
-    @Test
-    @Transactional
-    public void retrieveApportionDetailsWithReferenceWhenDateCreatedIsEqualToApportionDate() throws Exception {
+    public void retrieveApportionDetailsWithReferenceNumber() throws Exception {
         Payment payment = populateCardPaymentToDb("1");
-        List<FeePayApportion> feePayApportionList = new ArrayList<>();
-        FeePayApportion feePayApportion = FeePayApportion.feePayApportionWith()
-            .id(1)
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionType("AUTO")
-            .feeId(1)
-            .feeAmount(BigDecimal.valueOf(100))
-            .isFullyApportioned("Y")
-            .build();
-        feePayApportionList.add(feePayApportion);
-        when(paymentService.retrieve(payment.getReference())).thenReturn(payment.getPaymentLink());
-        when(paymentService.findByPaymentId(payment.getId())).thenReturn(feePayApportionList);
-        payment.setDateCreated(parseDate("01.06.2020"));
+        populateApportionDetails(payment);
+        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         MvcResult result = restActions
             .get("/payment-groups/fee-pay-apportion/" + payment.getReference())
             .andExpect(status().isOk())
@@ -189,50 +131,10 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     }
 
     @Test
-    @Transactional
-    public void retrieveApportionDetailsWithReferenceWhenDateCreatedIsBeforeApportionDate() throws Exception {
-        Payment payment = populateCardPaymentToDb("1");
-        List<FeePayApportion> feePayApportionList = new ArrayList<>();
-        FeePayApportion feePayApportion = FeePayApportion.feePayApportionWith()
-            .id(1)
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionType("AUTO")
-            .feeId(1)
-            .feeAmount(BigDecimal.valueOf(100))
-            .isFullyApportioned("Y")
-            .build();
-        feePayApportionList.add(feePayApportion);
-        when(paymentService.retrieve(payment.getReference())).thenReturn(payment.getPaymentLink());
-        when(paymentService.findByPaymentId(payment.getId())).thenReturn(feePayApportionList);
-        payment.setDateCreated(parseDate("01.05.2020"));
-        MvcResult result = restActions
-            .get("/payment-groups/fee-pay-apportion/" + payment.getReference())
-            .andExpect(status().isOk())
-            .andReturn();
-
-        PaymentGroupDto paymentGroupDto = objectMapper.readValue(result.getResponse().getContentAsString(), PaymentGroupDto.class);
-        assertNotNull(paymentGroupDto);
-        assertThat(paymentGroupDto.getPayments().get(0).getReference()).isEqualTo(payment.getReference());
-    }
-
-    @Test
-    @Transactional
     public void retrieveApportionDetailsWithReferenceWhenFeeIdIsDifferent() throws Exception {
         Payment payment = populateCardPaymentToDb("1");
-        List<FeePayApportion> feePayApportionList = new ArrayList<>();
-        FeePayApportion feePayApportion = FeePayApportion.feePayApportionWith()
-            .id(1)
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionType("AUTO")
-            .feeId(4)
-            .feeAmount(BigDecimal.valueOf(100))
-            .isFullyApportioned("Y")
-            .build();
-        feePayApportionList.add(feePayApportion);
-        when(paymentService.retrieve(payment.getReference())).thenReturn(payment.getPaymentLink());
-        when(paymentService.findByPaymentId(payment.getId())).thenReturn(feePayApportionList);
+        populateApportionDetails(payment);
+        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         MvcResult result = restActions
             .get("/payment-groups/fee-pay-apportion/" + payment.getReference())
             .andExpect(status().isOk())
@@ -244,22 +146,10 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     }
 
     @Test
-    @Transactional
     public void retrieveApportionDetailsWithReferenceWhenFeeIdIsSame() throws Exception {
         Payment payment = populateCardPaymentToDb("1");
-        List<FeePayApportion> feePayApportionList = new ArrayList<>();
-        FeePayApportion feePayApportion = FeePayApportion.feePayApportionWith()
-            .id(1)
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionType("AUTO")
-            .feeId(1)
-            .feeAmount(BigDecimal.valueOf(100))
-            .isFullyApportioned("Y")
-            .build();
-        feePayApportionList.add(feePayApportion);
-        when(paymentService.retrieve(payment.getReference())).thenReturn(payment.getPaymentLink());
-        when(paymentService.findByPaymentId(payment.getId())).thenReturn(feePayApportionList);
+        populateApportionDetails(payment);
+        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(false);
         MvcResult result = restActions
             .get("/payment-groups/fee-pay-apportion/" + payment.getReference())
             .andExpect(status().isOk())
@@ -271,30 +161,14 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     }
 
     @Test
-    @Transactional
     public void retrunEmptyListWhenPaymentIsNotPresent() throws Exception {
         Payment payment = populateCardPaymentToDb("1");
-        List<FeePayApportion> feePayApportionList = new ArrayList<>();
-        FeePayApportion feePayApportion = FeePayApportion.feePayApportionWith()
-            .id(1)
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionAmount(BigDecimal.valueOf(100))
-            .apportionType("AUTO")
-            .feeId(1)
-            .feeAmount(BigDecimal.valueOf(100))
-            .isFullyApportioned("Y")
-            .build();
-        feePayApportionList.add(feePayApportion);
-        when(paymentService.retrieve(anyString())).thenReturn(payment.getPaymentLink());
-        when(paymentService.findByPaymentId(payment.getId())).thenReturn(feePayApportionList);
+        populateApportionDetails(payment);
+        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(false);
         MvcResult result = restActions
             .get("/payment-groups/fee-pay-apportion/" + "123")
-            .andExpect(status().isOk())
+            .andExpect(status().isNotFound())
             .andReturn();
-
-        PaymentGroupDto paymentGroupDto = objectMapper.readValue(result.getResponse().getContentAsString(), PaymentGroupDto.class);
-        assertNotNull(paymentGroupDto);
-        assertThat(paymentGroupDto.getPayments().get(0).getReference()).isEqualTo(payment.getReference());
     }
 
     @Test
@@ -304,12 +178,19 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
         assertEquals(errorMessage, feePayApportionController.notFound(ex));
     }
 
+    @Test
+    public void retrieveApportionDetailsWithReference() throws Exception {
+        Payment payment = populateCardPaymentToDb("1");
+        populateApportionDetails(payment);
+        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
+        MvcResult result = restActions
+            .get("/payment-groups/fee-pay-apportion/" + payment.getReference())
+            .andExpect(status().isOk())
+            .andReturn();
 
-    private Date parseDate(String date) {
-        try {
-            return new SimpleDateFormat("dd.MM.yyyy").parse(date);
-        } catch (ParseException e) {
-            return null;
-        }
+        PaymentGroupDto paymentGroupDto = objectMapper.readValue(result.getResponse().getContentAsString(), PaymentGroupDto.class);
+        assertNotNull(paymentGroupDto);
+        assertThat(paymentGroupDto.getPayments().get(0).getReference()).isEqualTo(payment.getReference());
     }
+
 }

@@ -52,7 +52,7 @@ public class GovPayDelegatingPaymentServiceTest {
         when(serviceIdSupplier.get()).thenReturn("divorce");
         String key = govPayKeyRepository.getKey("divorce");
 
-        CreatePaymentRequest createPaymentRequest = new CreatePaymentRequest(10000, "reference", "description", "https://www.google.com","language");
+        CreatePaymentRequest createPaymentRequest = new CreatePaymentRequest(10000, "reference", "description", "https://www.moneyclaims.service.gov.uk","language");
         when(govPayClient.createPayment("divorce-gov-pay-key", createPaymentRequest)).thenReturn(GovPayPayment.govPaymentWith()
             .amount(10000)
             .state(new State("created", false, null, null))
@@ -60,12 +60,12 @@ public class GovPayDelegatingPaymentServiceTest {
             .reference("reference")
             .paymentId("paymentId")
             .paymentProvider("sandbox")
-            .returnUrl("https://www.google.com")
+            .returnUrl("https://www.moneyclaims.service.gov.uk")
             .build());
 
         GovPayPayment govPayPayment = govPayCardPaymentService.create(
             new PaymentServiceRequest("paymentGroupReference", "reference", "description",
-                "https://www.google.com", "ccdCaseNumer", "caseReference",
+                "https://www.moneyclaims.service.gov.uk", "ccdCaseNumer", "caseReference",
                 "GBP", "siteId", "divorce",
                 Collections.singletonList(PaymentFee.feeWith().calculatedAmount(new BigDecimal("10000")).code("feeCode")
                     .version("1")
@@ -86,7 +86,7 @@ public class GovPayDelegatingPaymentServiceTest {
             .description("description")
             .reference("RC-1518-9479-8089-4415")
             .paymentId("ia2mv22nl5o880rct0vqfa7k76")
-            .returnUrl("https://www.google.com")
+            .returnUrl("https://www.moneyclaims.service.gov.uk")
             .build());
 
         GovPayPayment govPayPayment = govPayCardPaymentService.retrieve("RC-1518-9479-8089-4415");
@@ -114,7 +114,7 @@ public class GovPayDelegatingPaymentServiceTest {
             .description("description")
             .reference(govPayReference)
             .paymentId(paymentId)
-            .returnUrl("https://www.google.com")
+            .returnUrl("https://www.moneyclaims.service.gov.uk")
             .build());
 
         GovPayPayment govPayPayment = govPayCardPaymentService.retrieve(govPayReference, paymentTargetService);

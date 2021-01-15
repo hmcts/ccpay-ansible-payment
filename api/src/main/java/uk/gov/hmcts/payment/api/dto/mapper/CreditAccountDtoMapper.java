@@ -1,8 +1,10 @@
 package uk.gov.hmcts.payment.api.dto.mapper;
 
 import lombok.SneakyThrows;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.CreditAccountPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
@@ -17,11 +19,15 @@ import uk.gov.hmcts.payment.api.model.StatusHistory;
 import uk.gov.hmcts.payment.api.util.PayStatusToPayHubStatus;
 
 import java.lang.reflect.Method;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 public class CreditAccountDtoMapper {
+
+    @Autowired
+    private LaunchDarklyFeatureToggler featureToggler;
 
     public PaymentDto toCreateCreditAccountPaymentResponse(PaymentFeeLink paymentFeeLink) {
         Payment payment = paymentFeeLink.getPayments().get(0);
@@ -182,12 +188,9 @@ public class CreditAccountDtoMapper {
         return fees.stream().map(this::toFeeDto).collect(Collectors.toList());
     }
 
-
-    public List<PaymentFee> toFees(List<FeeDto> feeDtos) {
-        return feeDtos.stream().map(this::toFee).collect(Collectors.toList());
-    }
-
     public PaymentFee toFee(FeeDto feeDto) {
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature",false);
         return PaymentFee.feeWith()
             .calculatedAmount(feeDto.getCalculatedAmount())
             .code(feeDto.getCode())
@@ -196,6 +199,7 @@ public class CreditAccountDtoMapper {
             .ccdCaseNumber(feeDto.getCcdCaseNumber())
             .feeAmount(feeDto.getFeeAmount())
             .netAmount(feeDto.getNetAmount())
+            .dateCreated(apportionFeature ? timestamp: null)
             .build();
     }
 
@@ -212,12 +216,12 @@ public class CreditAccountDtoMapper {
     @SneakyThrows(NoSuchMethodException.class)
     private PaymentDto.LinkDto cancellationLink(String userId, Integer paymentId) {
         Method method = CreditAccountPaymentController.class.getMethod("cancel", String.class, Integer.class);
-        return new PaymentDto.LinkDto(ControllerLinkBuilder.linkTo(method, userId, paymentId).toString(), "POST");
+        return new PaymentDto.LinkDto(WebMvcLinkBuilder.linkTo(method, userId, paymentId).toString(), "POST");
     }
 
     @SneakyThrows(NoSuchMethodException.class)
     private PaymentDto.LinkDto retrievePaymentLink(String reference) {
         Method method = CreditAccountPaymentController.class.getMethod("retrieve", String.class);
-        return new PaymentDto.LinkDto(ControllerLinkBuilder.linkTo(method, reference).toString(), "GET");
+        return new PaymentDto.LinkDto(WebMvcLinkBuilder.linkTo(method, reference).toString(), "GET");
     }
 }

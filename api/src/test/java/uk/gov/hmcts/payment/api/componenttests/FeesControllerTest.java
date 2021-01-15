@@ -72,7 +72,7 @@ public class FeesControllerTest {
             .withAuthorizedService("divorce")
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .withReturnUrl("https://www.gooooogle.com");
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
 
         List<Site> serviceReturn = Arrays.asList(Site.siteWith()
                 .sopReference("sop")

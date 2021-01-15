@@ -1,12 +1,13 @@
 package uk.gov.hmcts.payment.api.v1.model;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Optional;
 import org.junit.Test;
 import uk.gov.hmcts.payment.api.external.client.dto.GovPayPayment;
 import uk.gov.hmcts.payment.api.external.client.dto.Link;
 import uk.gov.hmcts.payment.api.external.client.dto.State;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -37,11 +38,11 @@ public class UserAwareDelegatingPaymentServiceTest {
 
     @Test
     public void checkCreateWiring() {
-        when(govPayPaymentService.create(100, "reference", "description", "returnUrl","language")).thenReturn(VALID_GOV_PAYMENT_RESPONSE);
+        when(govPayPaymentService.create(100, "reference", "description", "https://www.moneyclaims.service.gov.uk","language")).thenReturn(VALID_GOV_PAYMENT_RESPONSE);
         when(paymentRepository.save(PaymentOld.paymentWith().govPayId(VALID_GOV_PAYMENT_RESPONSE.getPaymentId()).userId(USER_ID).build()))
                 .thenReturn(PaymentOld.paymentWith().id(999).govPayId(VALID_GOV_PAYMENT_RESPONSE.getPaymentId()).build());
 
-        PaymentOld paymentOld = paymentService.create(100, "reference", "description", "returnUrl","language");
+        PaymentOld paymentOld = paymentService.create(100, "reference", "description", "https://www.moneyclaims.service.gov.uk","language");
         assertThat(paymentOld).isEqualTo(mapToPayment(999, VALID_GOV_PAYMENT_RESPONSE.getPaymentId(), VALID_GOV_PAYMENT_RESPONSE));
     }
 

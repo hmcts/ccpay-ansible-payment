@@ -7,7 +7,8 @@ public enum Service {
     FINREM("Finrem"),
     DIGITAL_BAR("Digital Bar"),
     FPL("Family Public Law"),
-    IAC("Immigration and Asylum Appeals");
+    IAC("Immigration and Asylum Appeals"),
+    UNSPEC("Unspecified Claim");
 
     private String name;
 

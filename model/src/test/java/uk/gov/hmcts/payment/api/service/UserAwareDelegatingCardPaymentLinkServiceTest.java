@@ -47,12 +47,13 @@ public class UserAwareDelegatingCardPaymentLinkServiceTest {
 
     private FeePayApportionRepository feePayApportionRepository = mock(FeePayApportionRepository.class);
     private PaymentFeeRepository paymentFeeRepository = mock(PaymentFeeRepository.class);
+    private FeePayApportionService feePayApportionService = mock(FeePayApportionService.class);
     private LaunchDarklyFeatureToggler featureToggler = mock(LaunchDarklyFeatureToggler.class);
 
     private UserAwareDelegatingPaymentService cardPaymentService = new UserAwareDelegatingPaymentService(() -> USER_ID, paymentFeeLinkRepository,
         govPayDelegatingPaymentService, pciPalDelegatingPaymentService, paymentChannelRepository, paymentMethodRepository, paymentProviderRepository,
         paymentStatusRepository, paymentRespository, referenceUtil, govPayAuthUtil, serviceIdSupplier, auditRepository, callbackService,
-        feePayApportionRepository, paymentFeeRepository, featureToggler);
+        feePayApportionRepository, paymentFeeRepository, feePayApportionService, featureToggler);
 
     @Test
     public void testRetrieveWhenServiceCallbackUrlIsDefinedCallbackServiceIsInvoked() throws Exception {

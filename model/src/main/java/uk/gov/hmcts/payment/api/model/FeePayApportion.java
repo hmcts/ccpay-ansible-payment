@@ -27,6 +27,10 @@ public class FeePayApportion extends Auditable<String> {
     @Column(name = "fee_id")
     private Integer feeId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_link_id", insertable = false, updatable = false)
+    private PaymentFeeLink paymentLink;
+
     @Column(name = "fee_amount")
     private BigDecimal feeAmount;
 
@@ -36,22 +40,8 @@ public class FeePayApportion extends Auditable<String> {
     @Column(name = "apportion_amount")
     private BigDecimal apportionAmount;
 
-    @Column(name = "allocated_amount")
-    private BigDecimal allocatedAmount;
-
     @Column(name = "apportion_type")
     private String apportionType;
-
-    @ToString.Exclude
-    @Column(name = "is_fully_apportioned")
-    private String isFullyApportioned;
-
-    @ToString.Exclude
-    @Column(name = "curr_apportion_amount")
-    private BigDecimal currApportionAmount;
-
-    @Column(name = "call_short_fall_amount")
-    private BigDecimal callShortFallAmount;
 
     @Column(name = "call_surplus_amount")
     private BigDecimal callSurplusAmount;
@@ -67,4 +57,13 @@ public class FeePayApportion extends Auditable<String> {
     @CreationTimestamp
     @Column(name = "date_created", nullable = false)
     private Date dateCreated;
+
+    @CreationTimestamp
+    @Column(name = "date_updated", nullable = false)
+    private Date dateUpdated;
+
+    @Override
+    public int hashCode(){
+        return super.hashCode();
+    }
 }

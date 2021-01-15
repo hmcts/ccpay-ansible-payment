@@ -4,17 +4,17 @@ import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
 import uk.gov.hmcts.payment.api.dto.mapper.PaymentGroupDtoMapper;
 import uk.gov.hmcts.payment.api.model.*;
 import uk.gov.hmcts.payment.api.service.PaymentService;
-import uk.gov.hmcts.payment.api.util.DateFormatter;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,26 +23,23 @@ import java.util.Optional;
 @SwaggerDefinition(tags = {@Tag(name = "FeePayApportionController", description = "FeePayApportion REST API")})
 public class FeePayApportionController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CardPaymentController.class);
-
     private final PaymentService<PaymentFeeLink, String> paymentService;
 
     private final PaymentFeeRepository paymentFeeRepository;
 
     private final PaymentGroupDtoMapper paymentGroupDtoMapper;
 
-    private final DateFormatter dateFormatter;
+    @Autowired
+    private LaunchDarklyFeatureToggler featureToggler;
 
-
-    @Value("${apportion.live.date}")
-    private String apportionLiveDate;
+    private static final Logger LOG = LoggerFactory.getLogger(FeePayApportionController.class);
 
     @Autowired
-    public FeePayApportionController(PaymentService<PaymentFeeLink, String> paymentService,PaymentFeeRepository paymentFeeRepository,PaymentGroupDtoMapper paymentGroupDtoMapper,DateFormatter dateFormatter) {
+    public FeePayApportionController(PaymentService<PaymentFeeLink, String> paymentService,PaymentFeeRepository paymentFeeRepository,PaymentGroupDtoMapper paymentGroupDtoMapper,LaunchDarklyFeatureToggler featureToggler) {
         this.paymentService = paymentService;
         this.paymentFeeRepository = paymentFeeRepository;
         this.paymentGroupDtoMapper = paymentGroupDtoMapper;
-        this.dateFormatter = dateFormatter;
+        this.featureToggler = featureToggler;
     }
 
     @ApiOperation(value = "Get apportion details by payment reference", notes = "Get apportion details for supplied payment reference")
@@ -53,33 +50,36 @@ public class FeePayApportionController {
     })
     @GetMapping(value = "/payment-groups/fee-pay-apportion/{paymentreference}")
     public ResponseEntity<PaymentGroupDto> retrieveApportionDetails(@PathVariable("paymentreference") String paymentReference) {
-
-        LOG.info("Apportionment Details to be retrieved by Payment Reference");
+        LOG.info("Invoking new API in FeePayApportionController");
         PaymentFeeLink paymentFeeLink = paymentService.retrieve(paymentReference);
-
+        boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature",false);
+        LOG.info("apportionFeature value in FeePayApportionController: {}", apportionFeature);
         Optional<Payment> payment = paymentFeeLink.getPayments().stream()
             .filter(p -> p.getReference().equals(paymentReference)).findAny();
-        List<PaymentFee> feeList = paymentFeeLink.getFees();
-        if ((payment.isPresent() && (payment.get().getDateCreated().after(dateFormatter.parseDate(apportionLiveDate)) ||
-            payment.get().getDateCreated().equals(dateFormatter.parseDate(apportionLiveDate)))))
+
+        if (payment.isPresent() && apportionFeature)
         {
-                List<FeePayApportion> feePayApportionList = paymentService.findByPaymentId(payment.get().getId());
-                if(feePayApportionList.isEmpty()) {
-                    LOG.info("Apportionment Empty for Payment Reference!!!");
-                } else {
-                    LOG.info("Count Apportionment for Payment Reference : {}", feePayApportionList.size());
-                    feePayApportionList.stream()
-                        .forEach(feePayApportion -> {
-                            feeList.stream()
-                                .forEach(paymentFee -> {
-                                    if (feePayApportion.getFeeId().equals(paymentFee.getId())) {
-                                        PaymentFee fee = paymentFeeRepository.findById(feePayApportion.getFeeId()).get();
-                                        fee.setApportionAmount(feePayApportion.getApportionAmount());
-                                    }
-                                });
-                        });
-                    paymentFeeLink.setFees(feeList);
-                }
+            LOG.info("Apportion feature is true and payment is available in FeePayApportionController");
+            List<FeePayApportion> feePayApportionList = paymentService.findByPaymentId(payment.get().getId());
+            if(feePayApportionList != null && !feePayApportionList.isEmpty()) {
+                LOG.info("Apportion details available in FeePayApportionController");
+                List<PaymentFee> feeList = new ArrayList<>();
+                for (FeePayApportion feePayApportion : feePayApportionList)
+                {
+                    LOG.info("Inside FeePayApportion section in FeePayApportionController");
+                    Optional<PaymentFee> apportionedFee = paymentFeeRepository.findById(feePayApportion.getFeeId());
+                    if(apportionedFee.isPresent())
+                    {
+                        LOG.info("Apportioned fee is present");
+                        PaymentFee fee = apportionedFee.get();
+                        LOG.info("apportion amount value in FeePayApportionController: {}", feePayApportion.getApportionAmount());
+                        fee.setApportionAmount(feePayApportion.getApportionAmount());
+                        feeList.add(fee);
+                                }
+                            }
+                paymentFeeLink.setFees(feeList);
+            }
+
     }
         return new ResponseEntity<>(paymentGroupDtoMapper.toPaymentGroupDto(paymentFeeLink), HttpStatus.OK);
     }

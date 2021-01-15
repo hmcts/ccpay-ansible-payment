@@ -93,7 +93,9 @@ public class CaseControllerTest extends PaymentsDataUtil {
 
         restActions
             .withAuthorizedService("divorce")
-            .withReturnUrl("https://www.gooooogle.com");
+            .withAuthorizedUser(USER_ID)
+            .withUserId(USER_ID)
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
 
         List<Site> serviceReturn = Arrays.asList(Site.siteWith()
                 .sopReference("sop")
@@ -137,6 +139,7 @@ public class CaseControllerTest extends PaymentsDataUtil {
 
         assertThat(payment.getReference()).isNotBlank();
         assertThat(payment.getAmount()).isPositive();
+
         assertThat(payment.getDateCreated()).isNotNull();
         assertThat(payment.getCustomerReference()).isNotBlank();
 
@@ -206,7 +209,10 @@ public class CaseControllerTest extends PaymentsDataUtil {
             .post("/api/ff4j/store/features/payment-search/enable")
             .andExpect(status().isAccepted());
 
-        assertThat(restActions
+        MockMvc mvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
+        RestActions restActions_Citizen = new RestActions(mvc, serviceRequestAuthorizer, userRequestAuthorizer, objectMapper);
+
+        assertThat(restActions_Citizen
             .withAuthorizedUser(UserResolverBackdoor.CITIZEN_ID)
             .withUserId(UserResolverBackdoor.CITIZEN_ID)
             .get("/cases/ccdCaseNumber1/payments")
@@ -325,7 +331,6 @@ public class CaseControllerTest extends PaymentsDataUtil {
         FeeDto feeDto = paymentGroupDto1.getFees().get(0);
 
         assertThat(paymentGroups.getPaymentGroups().size()).isEqualTo(2);
-        assertThat(feeDto.getIsFullyApportioned()).isEqualTo("Y");
         assertThat(feeDto.getApportionAmount()).isEqualTo(new BigDecimal("99.99"));
         assertThat(feeDto.getAllocatedAmount()).isEqualTo(new BigDecimal("99.99"));
 
@@ -432,7 +437,6 @@ public class CaseControllerTest extends PaymentsDataUtil {
             .build();
 
         MvcResult result1 = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
@@ -537,7 +541,6 @@ public class CaseControllerTest extends PaymentsDataUtil {
             .build();
 
         MvcResult result1 = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())

@@ -15,6 +15,7 @@ import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
 import uk.gov.hmcts.payment.api.contract.util.Service;
+import uk.gov.hmcts.payment.functional.config.LaunchDarklyFeature;
 import uk.gov.hmcts.payment.functional.config.TestConfigProperties;
 import uk.gov.hmcts.payment.functional.dsl.PaymentsTestDsl;
 import uk.gov.hmcts.payment.functional.fixture.PaymentFixture;
@@ -50,6 +51,8 @@ public class PBAPaymentFunctionalTest {
     private IdamService idamService;
     @Autowired
     private S2sTokenService s2sTokenService;
+    @Autowired
+    private LaunchDarklyFeature featureToggler;
 
     private static String USER_TOKEN;
     private static String USER_TOKEN_PAYMENT;
@@ -71,10 +74,10 @@ public class PBAPaymentFunctionalTest {
     }
 
     @Test
-    public void makeAndRetrievePbaPaymentsByCMC() {
+    public void makeAndRetrievePbaPaymentsByProbate() {
         // create a PBA payment
         String accountNumber = "PBA234" + RandomUtils.nextInt();
-        CreditAccountPaymentRequest accountPaymentRequest = PaymentFixture.aPbaPaymentRequest("90.00", Service.CMC);
+        CreditAccountPaymentRequest accountPaymentRequest = PaymentFixture.aPbaPaymentRequest("90.00", Service.PROBATE);
         accountPaymentRequest.setAccountNumber(accountNumber);
         paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest)
             .then()
@@ -91,7 +94,7 @@ public class PBAPaymentFunctionalTest {
     }
 
     @Test
-    public void makeAndRetrievePBAPaymentByCMCTestShouldReturnAutoApportionedFees() {
+    public void makeAndRetrievePBAPaymentByProbateTestShouldReturnAutoApportionedFees() {
         final String[] reference = new String[1];
 
         String ccdCaseNumber = "1111-CC12-" + RandomUtils.nextInt();
@@ -112,7 +115,7 @@ public class PBAPaymentFunctionalTest {
             .description("New passport application")
             .caseReference("aCaseReference")
             .ccdCaseNumber(ccdCaseNumber)
-            .service(Service.CMC)
+            .service(Service.PROBATE)
             .currency(CurrencyCode.GBP)
             .siteId("AA101")
             .customerReference("CUST101")
@@ -139,37 +142,35 @@ public class PBAPaymentFunctionalTest {
             .s2sToken(SERVICE_TOKEN)
             .when().getPaymentGroups(paymentsResponse.getPayments().get(0).getCcdCaseNumber())
             .then().getPaymentGroups((paymentGroupsResponse -> {
-            //Assertions.assertThat(paymentGroupsResponse.getPaymentGroups().size()).isEqualTo(1);
             paymentGroupsResponse.getPaymentGroups().stream()
                 .filter(paymentGroupDto -> paymentGroupDto.getPayments().get(0).getReference()
                     .equalsIgnoreCase(paymentsResponse.getPayments().get(0).getReference()))
                 .forEach(paymentGroupDto -> {
-                    paymentGroupDto.getFees().stream()
-                        .filter(fee -> fee.getCode().equalsIgnoreCase("FEE0271"))
-                        .forEach(fee -> {
-                            assertEquals(BigDecimal.valueOf(20).intValue(), fee.getAllocatedAmount().intValue());
-                            assertEquals("Y", fee.getIsFullyApportioned());
-                        });
-                    paymentGroupDto.getFees().stream()
-                        .filter(fee -> fee.getCode().equalsIgnoreCase("FEE0272"))
-                        .forEach(fee -> {
-                            assertEquals(BigDecimal.valueOf(40).intValue(), fee.getAllocatedAmount().intValue());
-                            assertEquals("Y", fee.getIsFullyApportioned());
-                        });
-                    paymentGroupDto.getFees().stream()
-                        .filter(fee -> fee.getCode().equalsIgnoreCase("FEE0273"))
-                        .forEach(fee -> {
-                            assertEquals(BigDecimal.valueOf(60).intValue(), fee.getAllocatedAmount().intValue());
-                            assertEquals("Y", fee.getIsFullyApportioned());
-                        });
+
+                    boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature",false);
+                    if(apportionFeature) {
+                        paymentGroupDto.getFees().stream()
+                            .filter(fee -> fee.getCode().equalsIgnoreCase("FEE0271"))
+                            .forEach(fee -> {
+                                assertEquals(BigDecimal.valueOf(0).intValue(), fee.getAmountDue().intValue());
+                            });
+                        paymentGroupDto.getFees().stream()
+                            .filter(fee -> fee.getCode().equalsIgnoreCase("FEE0272"))
+                            .forEach(fee -> {
+                                assertEquals(BigDecimal.valueOf(0).intValue(), fee.getAmountDue().intValue());
+                            });
+                        paymentGroupDto.getFees().stream()
+                            .filter(fee -> fee.getCode().equalsIgnoreCase("FEE0273"))
+                            .forEach(fee -> {
+                                assertEquals(BigDecimal.valueOf(0).intValue(), fee.getAmountDue().intValue());
+                            });
+                    }
                 });
         }));
     }
 
-    //@Test
-    public void makeAndRetrievePbaPaymentByFinremLiberataCheckOn() {
-        System.out.println("Service.FINREM.getName(): " + Service.FINREM.getName());
-        System.out.println("testProps.existingAccountNumber: " + testProps.existingAccountNumber);
+    @Test
+    public void makeAndRetrievePbaPaymentByFinrem() {
 
         String startDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT);
 
@@ -191,9 +192,75 @@ public class PBAPaymentFunctionalTest {
     }
 
     @Test
+    public void makeAndRetrievePbaPaymentByUnspecService() {
+
+        String startDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT);
+
+        CreditAccountPaymentRequest accountPaymentRequest = PaymentFixture.aPbaPaymentRequestForUnspec("90.00", Service.UNSPEC);
+        accountPaymentRequest.setAccountNumber(testProps.existingAccountNumber);
+        paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest)
+            .then()
+            .statusCode(CREATED.value())
+            .body("status", equalTo("Success"));
+
+        String endDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
+
+        dsl.given().userToken(USER_TOKEN)
+            .s2sToken(SERVICE_TOKEN)
+            .when().searchPaymentsByServiceBetweenDates(Service.UNSPEC, startDate, endDate)
+            .then().getPayments((paymentsResponse -> {
+            Assertions.assertThat(paymentsResponse.getPayments().size()).isEqualTo(1);
+        }));
+    }
+
+    @Test
+    public void makeAndRetrievePbaPaymentByIACService() {
+
+        String startDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT);
+
+        CreditAccountPaymentRequest accountPaymentRequest = PaymentFixture.aPbaPaymentRequestForIAC("90.00", Service.IAC);
+        accountPaymentRequest.setAccountNumber(testProps.existingAccountNumber);
+        paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest)
+            .then()
+            .statusCode(CREATED.value())
+            .body("status", equalTo("Success"));
+
+        String endDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
+
+        dsl.given().userToken(USER_TOKEN)
+            .s2sToken(SERVICE_TOKEN)
+            .when().searchPaymentsByServiceBetweenDates(Service.IAC, startDate, endDate)
+            .then().getPayments((paymentsResponse -> {
+            Assertions.assertThat(paymentsResponse.getPayments().size()).isEqualTo(1);
+        }));
+    }
+
+    @Test
+    public void makeAndRetrievePbaPaymentByFPLService() {
+
+        String startDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT);
+
+        CreditAccountPaymentRequest accountPaymentRequest = PaymentFixture.aPbaPaymentRequestForFPL("90.00", Service.FPL);
+        accountPaymentRequest.setAccountNumber(testProps.existingAccountNumber);
+        paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest)
+            .then()
+            .statusCode(CREATED.value())
+            .body("status", equalTo("Success"));
+
+        String endDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
+
+        dsl.given().userToken(USER_TOKEN)
+            .s2sToken(SERVICE_TOKEN)
+            .when().searchPaymentsByServiceBetweenDates(Service.FPL, startDate, endDate)
+            .then().getPayments((paymentsResponse -> {
+            Assertions.assertThat(paymentsResponse.getPayments().size()).isEqualTo(1);
+        }));
+    }
+
+    @Test
     public void shouldRejectDuplicatePayment() {
         String accountNumber = "PBA333" + RandomUtils.nextInt();
-        CreditAccountPaymentRequest accountPaymentRequest = PaymentFixture.aPbaPaymentRequest("550.50", Service.CMC);
+        CreditAccountPaymentRequest accountPaymentRequest = PaymentFixture.aPbaPaymentRequest("550.50", Service.PROBATE);
         accountPaymentRequest.setAccountNumber(accountNumber);
         // when & then
         paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest)

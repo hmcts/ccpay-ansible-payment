@@ -9,4 +9,6 @@ public interface FeePayApportionService<T, ID> {
 
     void processApportion(Payment payment);
 
+    void updateFeeAmountDue(Payment payment);
+
 }

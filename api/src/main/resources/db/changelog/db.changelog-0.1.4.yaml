@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 1554989041418-10
+      id: 1554989041418-25
       author: ayan
       changes:
         - createTable:
@@ -14,10 +14,19 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
+                  constraints:
+                    nullable: false
                   name: payment_id
                   type: INT
               - column:
+                  constraints:
+                    nullable: false
                   name: fee_id
+                  type: INT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: payment_link_id
                   type: INT
               - column:
                   name: fee_amount
@@ -29,23 +38,11 @@ databaseChangeLog:
                   name: apportion_amount
                   type: numeric(19, 2)
               - column:
-                  name: allocated_amount
-                  type: numeric(19, 2)
-              - column:
-                  name: curr_apportion_amount
-                  type: numeric(19, 2)
-              - column:
                   name: ccd_case_number
                   type: varchar(255)
               - column:
-                  name: is_fully_apportioned
-                  type: varchar(10)
-              - column:
                   name: apportion_type
                   type: varchar(10)
-              - column:
-                  name: call_short_fall_amount
-                  type: numeric(19, 2)
               - column:
                   name: call_surplus_amount
                   type: numeric(19, 2)
@@ -55,24 +52,35 @@ databaseChangeLog:
               - column:
                   name: date_created
                   type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: date_updated
+                  type: TIMESTAMP WITHOUT TIME ZONE
   - changeSet:
-      id: 1554989041418-11
+      id: 1554989041418-30
+      author: ayan
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: payment_link_id
+            baseTableName: fee_pay_apportion
+            constraintName: FK_3c04152jyub2e59dll71122
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: payment_fee_link
+  - changeSet:
+      id: 1554989046143-21
       author: ayan
       failOnError: true
       changes:
         - sql:
             splitStatements:
             sql: >
-              ALTER TABLE fee ADD COLUMN apportion_amount numeric(19, 2);
-              ALTER TABLE fee ADD COLUMN allocated_amount numeric(19, 2);
               ALTER TABLE fee ADD COLUMN amount_due numeric(19, 2);
-              ALTER TABLE fee ADD COLUMN is_fully_apportioned varchar(10);
-              ALTER TABLE fee ADD COLUMN date_apportioned TIMESTAMP WITHOUT TIME ZONE;
               ALTER TABLE fee ADD COLUMN date_created TIMESTAMP(3) WITHOUT TIME ZONE;
               ALTER TABLE fee ADD COLUMN date_updated TIMESTAMP(3) WITHOUT TIME ZONE;
 
   - changeSet:
-      id: 1554989041418-12
+      id: 1554989041418-22
       author: ayan
       changes:
         - createTable:
@@ -95,10 +103,12 @@ databaseChangeLog:
                   ('payment_created', 'Valid payment received and recorded successfully'),
                   ('payment_updated', 'Payment updated successfully'),
                   ('fee_created', 'Valid fee received and recorded successfully'),
+                  ('fee_updated', 'Fee updated successfully'),
+                  ('fee_removed', 'Fee removed successfully'),
                   ('remission_applied', 'Valid remission received and applied to fee successfully'),
                   ('payment_apportioned', 'Valid payment received and fee apportioned successfully');
   - changeSet:
-      id: 1554989041418-13
+      id: 1554989041418-23
       author: ayan
       changes:
         - createTable:
@@ -129,3 +139,34 @@ databaseChangeLog:
               - column:
                   name: date_updated
                   type: TIMESTAMP WITHOUT TIME ZONE
+  - changeSet:
+      id: 1554989041418-29
+      author: ayan
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: audit_type
+            baseTableName: payment_audit_history
+            constraintName: FK_boc1od01im5po7i8e5b7890
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: name
+            referencedTableName: audit_events_type
+
+# Apportionment DB Model Rollback Scripts
+#  - changeSet:
+#      id: 1554989041418-24
+#      author: ayan
+#      failOnError: true
+#      changes:
+#        - sql:
+#            splitStatements:
+#            sql: >
+#              ALTER TABLE payment_audit_history DROP CONSTRAINT "FK_boc1od01im5po7i8e5b7890";
+#              ALTER TABLE fee_pay_apportion DROP CONSTRAINT "FK_3c04152jyub2e59dll71122";
+#              DROP TABLE fee_pay_apportion;
+#              DROP TABLE audit_events_type;
+#              DROP TABLE payment_audit_history;
+#              ALTER TABLE fee DROP COLUMN amount_due;
+#              ALTER TABLE fee DROP COLUMN date_created;
+#              ALTER TABLE fee DROP COLUMN date_updated;
+

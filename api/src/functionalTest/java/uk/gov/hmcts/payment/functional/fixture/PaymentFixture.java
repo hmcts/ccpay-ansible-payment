@@ -58,6 +58,75 @@ public class PaymentFixture {
             .build();
     }
 
+    public static CreditAccountPaymentRequest aPbaPaymentRequestForUnspec(String amountString, Service service) {
+        String ccdCaseNumber = "1111-CC12-" + RandomUtils.nextInt();
+        return CreditAccountPaymentRequest.createCreditAccountPaymentRequestDtoWith()
+            .amount(new BigDecimal(amountString))
+            .description("New passport application")
+            .ccdCaseNumber(ccdCaseNumber)
+            .caseReference("aCaseReference")
+            .service(service)
+            .currency(CurrencyCode.GBP)
+            .siteId("AAA7")
+            .customerReference("CUST101")
+            .organisationName("ORG101")
+            .accountNumber("PBA0082848")
+            .fees(Lists.newArrayList(
+                FeeDto.feeDtoWith()
+                    .calculatedAmount(new BigDecimal(amountString))
+                    .code("FEE0001")
+                    .version("1")
+                    .build())
+            )
+            .build();
+    }
+
+    public static CreditAccountPaymentRequest aPbaPaymentRequestForIAC(String amountString, Service service) {
+        String ccdCaseNumber = "1111-CC12-" + RandomUtils.nextInt();
+        return CreditAccountPaymentRequest.createCreditAccountPaymentRequestDtoWith()
+            .amount(new BigDecimal(amountString))
+            .description("New passport application")
+            .ccdCaseNumber(ccdCaseNumber)
+            .caseReference("aCaseReference")
+            .service(service)
+            .currency(CurrencyCode.GBP)
+            .siteId("BFA1")
+            .customerReference("CUST101")
+            .organisationName("ORG101")
+            .accountNumber("PBA0082848")
+            .fees(Lists.newArrayList(
+                FeeDto.feeDtoWith()
+                    .calculatedAmount(new BigDecimal(amountString))
+                    .code("FEE0001")
+                    .version("1")
+                    .build())
+            )
+            .build();
+    }
+
+    public static CreditAccountPaymentRequest aPbaPaymentRequestForFPL(String amountString, Service service) {
+        String ccdCaseNumber = "1111-CC12-" + RandomUtils.nextInt();
+        return CreditAccountPaymentRequest.createCreditAccountPaymentRequestDtoWith()
+            .amount(new BigDecimal(amountString))
+            .description("New passport application")
+            .ccdCaseNumber(ccdCaseNumber)
+            .caseReference("aCaseReference")
+            .service(service)
+            .currency(CurrencyCode.GBP)
+            .siteId("ABA3")
+            .customerReference("CUST101")
+            .organisationName("ORG101")
+            .accountNumber("PBA0082848")
+            .fees(Lists.newArrayList(
+                FeeDto.feeDtoWith()
+                    .calculatedAmount(new BigDecimal(amountString))
+                    .code("FEE0001")
+                    .version("1")
+                    .build())
+            )
+            .build();
+    }
+
     public static PaymentRecordRequest aBarPaymentRequest(String amountString) {
         return  PaymentRecordRequest.createPaymentRecordRequestDtoWith()
             .amount(new BigDecimal(amountString))

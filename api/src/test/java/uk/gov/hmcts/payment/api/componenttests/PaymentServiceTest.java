@@ -73,7 +73,7 @@ public class PaymentServiceTest extends TestUtil {
 
     @Test
     public void testSearchAllPaymentBetweenDatesShouldPass() throws Exception {
-        Payment payment = paymentWith().amount(BigDecimal.valueOf(10000).movePointRight(2)).reference("reference1").description("desc1").returnUrl("returnUrl1")
+        Payment payment = paymentWith().amount(BigDecimal.valueOf(10000).movePointRight(2)).reference("reference1").description("desc1").returnUrl("https://www.moneyclaims.service.gov.uk")
             .ccdCaseNumber("ccdCaseNo1").caseReference("caseRef1").serviceType("cmc").currency("GBP")
             .statusHistories(Arrays.asList(StatusHistory.statusHistoryWith()
                 .externalStatus("created")

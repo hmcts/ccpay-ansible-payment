@@ -1,10 +1,10 @@
 provider "azurerm" {
-  version = "1.22.1"
+  features {}
 }
 
 locals {
 
-  vaultName = "${var.core_product}-${var.env}"
+  vaultName = join("-", [var.core_product, var.env])
 
   s2sUrl = "http://rpe-service-auth-provider-${var.env}.service.core-compute-${var.env}.internal"
 
@@ -18,65 +18,69 @@ locals {
 
 data "azurerm_key_vault" "payment_key_vault" {
   name = "${local.vaultName}"
-  resource_group_name = "${var.core_product}-${var.env}"
+  resource_group_name = join("-", [var.core_product, var.env])
 }
 
 data "azurerm_key_vault_secret" "gov_pay_keys_cmc" {
   name = "gov-pay-keys-cmc"
-  key_vault_id = "${data.azurerm_key_vault.payment_key_vault.id}"
+  key_vault_id = data.azurerm_key_vault.payment_key_vault.id
 }
 
 //created seperate kv for cmc claim store and copied claim store value
 resource "azurerm_key_vault_secret" "gov-pay-keys-cmc-claim-store" {
   name = "gov-pay-keys-cmc-claim-store"
-  value = "${data.azurerm_key_vault_secret.gov_pay_keys_cmc.value}"
-  key_vault_id = "${data.azurerm_key_vault.payment_key_vault.id}"
+  value = data.azurerm_key_vault_secret.gov_pay_keys_cmc.value
+  key_vault_id = data.azurerm_key_vault.payment_key_vault.id
 }
 
 
-module "payment-database" {
+module "payment-database-v11" {
   source = "git@github.com:hmcts/cnp-module-postgres?ref=master"
-  product = "${var.product}-postgres-db"
-  location = "${var.location}"
-  env = "${var.env}"
-  postgresql_user = "${var.postgresql_user}"
-  database_name = "${var.database_name}"
-  sku_name = "GP_Gen5_2"
+  product = var.product
+  component = var.component
+  name = join("-", [var.product, "postgres-db-v11"])
+  location = var.location
+  env = var.env
+  postgresql_user = var.postgresql_user
+  database_name = var.database_name
+  sku_name = var.sku_name
+  sku_capacity = var.sku_capacity
   sku_tier = "GeneralPurpose"
-  common_tags = "${var.common_tags}"
-  subscription = "${var.subscription}"
+  common_tags = var.common_tags
+  subscription = var.subscription
+  postgresql_version = var.postgresql_version
 }
 
 # Populate Vault with DB info
 
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
-  name      = "${var.component}-POSTGRES-USER"
-  value     = "${module.payment-database.user_name}"
-  key_vault_id = "${data.azurerm_key_vault.payment_key_vault.id}"
+  name      = join("-", [var.component, "POSTGRES-USER"])
+  value     = module.payment-database-v11.user_name
+  key_vault_id = data.azurerm_key_vault.payment_key_vault.id
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
-  name      = "${var.component}-POSTGRES-PASS"
-  value     = "${module.payment-database.postgresql_password}"
-  key_vault_id = "${data.azurerm_key_vault.payment_key_vault.id}"
+  name      = join("-", [var.component, "POSTGRES-PASS"])
+  value     = module.payment-database-v11.postgresql_password
+  key_vault_id = data.azurerm_key_vault.payment_key_vault.id
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
-  name      = "${var.component}-POSTGRES-HOST"
-  value     = "${module.payment-database.host_name}"
-  key_vault_id = "${data.azurerm_key_vault.payment_key_vault.id}"
+  name      = join("-", [var.component, "POSTGRES-HOST"])
+  value     = module.payment-database-v11.host_name
+  key_vault_id = data.azurerm_key_vault.payment_key_vault.id
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
-  name      = "${var.component}-POSTGRES-PORT"
-  value     = "${module.payment-database.postgresql_listen_port}"
-  key_vault_id = "${data.azurerm_key_vault.payment_key_vault.id}"
+  name      = join("-", [var.component, "POSTGRES-PORT"])
+  value     = module.payment-database-v11.postgresql_listen_port
+  key_vault_id = data.azurerm_key_vault.payment_key_vault.id
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
-  name      = "${var.component}-POSTGRES-DATABASE"
-  value     = "${module.payment-database.postgresql_database}"
-  key_vault_id = "${data.azurerm_key_vault.payment_key_vault.id}"
+  name      = join("-", [var.component, "POSTGRES-DATABASE"])
+  value     = module.payment-database-v11.postgresql_database
+  key_vault_id = data.azurerm_key_vault.payment_key_vault.id
 }
 
 
@@ -84,18 +88,18 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 
 data "azurerm_key_vault_secret" "s2s_client_secret" {
   name = "gateway-s2s-client-secret"
-  key_vault_id = "${data.azurerm_key_vault.payment_key_vault.id}"
+  key_vault_id = data.azurerm_key_vault.payment_key_vault.id
 }
 
 data "azurerm_key_vault_secret" "s2s_client_id" {
   name = "gateway-s2s-client-id"
-  key_vault_id = "${data.azurerm_key_vault.payment_key_vault.id}"
+  key_vault_id = data.azurerm_key_vault.payment_key_vault.id
 }
 
 data "template_file" "policy_template" {
   template = "${file("${path.module}/template/api-policy.xml")}"
 
-  vars {
+  vars = {
     allowed_certificate_thumbprints = "${local.thumbprints_in_quotes_str}"
     s2s_client_id = "${data.azurerm_key_vault_secret.s2s_client_id.value}"
     s2s_client_secret = "${data.azurerm_key_vault_secret.s2s_client_secret.value}"
@@ -108,19 +112,19 @@ data "template_file" "api_template" {
 }
 
 resource "azurerm_template_deployment" "telephony_api" {
-  template_body       = "${data.template_file.api_template.rendered}"
+  template_body       = data.template_file.api_template.rendered
   name                = "telephony-api-${var.env}"
   deployment_mode     = "Incremental"
   resource_group_name = "core-infra-${var.env}"
-  count               = "${var.env != "preview" ? 1: 0}"
+  count               = var.env != "preview" ? 1: 0
 
   parameters = {
     apiManagementServiceName  = "core-api-mgmt-${var.env}"
     apiName                   = "telephony-api"
     apiProductName            = "telephony"
     serviceUrl                = "http://payment-api-${var.env}.service.core-compute-${var.env}.internal"
-    apiBasePath               = "${local.api_base_path}"
-    policy                    = "${data.template_file.policy_template.rendered}"
+    apiBasePath               = local.api_base_path
+    policy                    = data.template_file.policy_template.rendered
   }
 }
 
