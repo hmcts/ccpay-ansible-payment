@@ -789,7 +789,6 @@ public class PaymentGroupControllerTest {
         PaymentDto paymentsResponse = objectMapper.readValue(result4.getResponse().getContentAsString(), PaymentDto.class);
 
         assertNotNull(paymentsResponse);
-
         assertEquals("Initiated", paymentsResponse.getStatus());
         assertEquals(cardPaymentRequest.getAmount(), paymentsResponse.getAmount());
         assertTrue(paymentsResponse.getReference().matches(PAYMENT_REFERENCE_REGEX));
