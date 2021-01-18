@@ -112,7 +112,7 @@ public class ReplayCreditAccountPaymentController {
                             createPBAPayments(replayCreditAccountPaymentDTO);
                         }
                     } catch (Exception exception) {
-                        LOG.info("REPLAY_CREDIT_ACCOUNT_PAYMENT ERROR: PBA Payment not found for reference =" + replayCreditAccountPaymentDTO.getExistingPaymentReference());
+                        LOG.info("REPLAY_CREDIT_ACCOUNT_PAYMENT ERROR: PBA Payment not found for reference = {}" , replayCreditAccountPaymentDTO.getExistingPaymentReference());
                     }
                 });
 
