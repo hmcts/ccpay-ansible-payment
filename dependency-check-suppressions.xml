@@ -105,7 +105,7 @@
         <cve>CVE-2020-8908</cve>
     </suppress>
 
-    <suppress until="2021-01-20">
+    <suppress>
         <notes><![CDATA[
             This CVE is related to file type tag parsing. However, the associated CVE seems to be a false positive on the lang-tag jar.
         ]]></notes>

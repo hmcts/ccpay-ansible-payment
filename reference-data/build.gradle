@@ -8,6 +8,5 @@ dependencies {
     testCompile(group: 'org.springframework.boot', name: 'spring-boot-starter-test') {
         exclude(module: 'commons-logging')
     }
-
-    testCompile group: 'org.testcontainers', name: 'postgresql', version: '1.9.1'
+    testCompile group: 'org.testcontainers', name: 'postgresql', version: '1.15.1'
 }
