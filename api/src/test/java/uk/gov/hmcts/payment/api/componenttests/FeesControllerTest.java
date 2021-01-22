@@ -91,13 +91,7 @@ public class FeesControllerTest {
         when(securityUtils.getUserInfo()).thenReturn(getUserInfoBasedOnUID_Roles("UID123","payments"));
         restActions
             .withAuthorizedService("divorce")
-<<<<<<< HEAD
             .withReturnUrl("https://www.gooooogle.com");
-=======
-            .withAuthorizedUser(USER_ID)
-            .withUserId(USER_ID)
-            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
->>>>>>> master
 
         List<Site> serviceReturn = Arrays.asList(Site.siteWith()
                 .sopReference("sop")

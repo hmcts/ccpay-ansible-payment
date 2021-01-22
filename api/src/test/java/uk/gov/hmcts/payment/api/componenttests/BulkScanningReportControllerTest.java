@@ -89,13 +89,8 @@ public class BulkScanningReportControllerTest extends PaymentsDataUtil{
         this.restActions = new RestActions(mvc, objectMapper);
         restActions
             .withAuthorizedService("divorce")
-<<<<<<< HEAD
             .withReturnUrl("https://www.gooooogle.com");
-=======
-            .withAuthorizedUser(USER_ID)
-            .withUserId(USER_ID)
-            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
->>>>>>> master
+
     }
 
     @Test

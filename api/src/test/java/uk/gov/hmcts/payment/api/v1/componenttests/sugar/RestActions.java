@@ -1,10 +1,8 @@
 package uk.gov.hmcts.payment.api.v1.componenttests.sugar;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-<<<<<<< HEAD
 import org.springframework.util.MultiValueMap;
-=======
->>>>>>> master
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -12,12 +10,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.UUID;
+;
 
-<<<<<<< HEAD
-import java.util.UUID;
-
-=======
->>>>>>> master
 import static org.springframework.http.MediaType.*;
 
 public class RestActions {

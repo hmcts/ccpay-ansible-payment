@@ -24,12 +24,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.payment.api.componenttests.util.PaymentsDataUtil;
-<<<<<<< HEAD
 import uk.gov.hmcts.payment.api.configuration.SecurityUtils;
 import uk.gov.hmcts.payment.api.configuration.security.ServiceAndUserAuthFilter;
 import uk.gov.hmcts.payment.api.configuration.security.ServicePaymentFilter;
-=======
->>>>>>> master
+
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
@@ -107,13 +105,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
 
     @MockBean
     private LaunchDarklyFeatureToggler featureToggler;
-<<<<<<< HEAD
-=======
 
-    protected CustomResultMatcher body() {
-        return new CustomResultMatcher(objectMapper);
-    }
->>>>>>> master
 
     @Before
     public void setup() {

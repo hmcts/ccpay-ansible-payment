@@ -58,12 +58,6 @@ public class PaymentApiApplication {
     }
 
     @Bean
-    public PluginRegistry<LinkDiscoverer, MediaType> discoverers(
-        OrderAwarePluginRegistry<LinkDiscoverer, MediaType> relProviderPluginRegistry) {
-        return relProviderPluginRegistry;
-    }
-
-    @Bean
     public CacheManager cacheManager() {
         SimpleCacheManager cacheManager = new SimpleCacheManager();
         cacheManager.setCaches(Arrays.asList(
@@ -80,12 +74,10 @@ public class PaymentApiApplication {
         return cacheManager;
     }
 
-<<<<<<< HEAD
-=======
+
     @Bean
     public PluginRegistry<LinkDiscoverer, MediaType> discoverers(
         OrderAwarePluginRegistry<LinkDiscoverer, MediaType> relProviderPluginRegistry) {
         return relProviderPluginRegistry;
     }
->>>>>>> master
 }

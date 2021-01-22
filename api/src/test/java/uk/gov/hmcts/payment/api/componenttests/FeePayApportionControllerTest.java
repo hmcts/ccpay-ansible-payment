@@ -24,11 +24,6 @@ import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
 import uk.gov.hmcts.payment.api.model.Payment;
 import uk.gov.hmcts.payment.api.model.PaymentFeeLink;
 import uk.gov.hmcts.payment.api.service.PaymentService;
-<<<<<<< HEAD
-=======
-import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.ServiceResolverBackdoor;
-import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.UserResolverBackdoor;
->>>>>>> master
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.CustomResultMatcher;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.RestActions;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
@@ -61,24 +56,10 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     private WebApplicationContext webApplicationContext;
 
     @Autowired
-<<<<<<< HEAD
-=======
-    protected ServiceResolverBackdoor serviceRequestAuthorizer;
-
-    @Autowired
-    protected UserResolverBackdoor userRequestAuthorizer;
-
-    @Autowired
->>>>>>> master
     private FeePayApportionController feePayApportionController;
 
     @Autowired
     protected PaymentDbBackdoor db;
-
-<<<<<<< HEAD
-=======
-    private static final String USER_ID = UserResolverBackdoor.AUTHENTICATED_USER_ID;
->>>>>>> master
 
     RestActions restActions;
 
@@ -99,19 +80,10 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     @Before
     public void setup() {
         MockMvc mvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
-<<<<<<< HEAD
         this.restActions = new RestActions(mvc, objectMapper);
 
         restActions
             .withAuthorizedService("divorce")
-=======
-        this.restActions = new RestActions(mvc, serviceRequestAuthorizer, userRequestAuthorizer, objectMapper);
-
-        restActions
-            .withAuthorizedService("divorce")
-            .withAuthorizedUser(USER_ID)
-            .withUserId(USER_ID)
->>>>>>> master
             .withReturnUrl("https://www.gooooogle.com");
     }
 

@@ -43,14 +43,8 @@ public class PaymentsComponentTest extends TestUtil {
 
     @Before
     public void setup() {
-<<<<<<< HEAD
         MockMvc mvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
         this.restActions = new RestActions(mvc, objectMapper);
-=======
-        restActions
-            .withAuthorizedService("divorce")
-            .withAuthorizedUser(USER_ID);
->>>>>>> master
 
     }
 

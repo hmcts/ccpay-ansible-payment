@@ -24,11 +24,6 @@ import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
 import uk.gov.hmcts.payment.api.model.FeePayApportion;
 import uk.gov.hmcts.payment.api.model.Payment;
 import uk.gov.hmcts.payment.api.servicebus.CallbackServiceImpl;
-<<<<<<< HEAD
-=======
-import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.ServiceResolverBackdoor;
-import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.UserResolverBackdoor;
->>>>>>> master
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.CustomResultMatcher;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.RestActions;
 
@@ -57,27 +52,14 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
     private ConfigurableListableBeanFactory configurableListableBeanFactory;
 
     @Autowired
+
     private WebApplicationContext webApplicationContext;
 
-<<<<<<< HEAD
-=======
-    @Autowired
-    protected ServiceResolverBackdoor serviceRequestAuthorizer;
-
-    @Autowired
-    protected UserResolverBackdoor userRequestAuthorizer;
-
->>>>>>> master
     @MockBean
     protected CallbackServiceImpl callbackServiceImplMock;
 
     @Autowired
     protected PaymentDbBackdoor db;
-
-<<<<<<< HEAD
-=======
-    private static final String USER_ID = UserResolverBackdoor.AUTHENTICATED_USER_ID;
->>>>>>> master
 
     RestActions restActions;
 
@@ -102,19 +84,10 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
     @Before
     public void setup() {
         MockMvc mvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
-<<<<<<< HEAD
         this.restActions = new RestActions(mvc, objectMapper);
 
         restActions
             .withAuthorizedService("divorce")
-=======
-        this.restActions = new RestActions(mvc, serviceRequestAuthorizer, userRequestAuthorizer, objectMapper);
-
-        restActions
-            .withAuthorizedService("divorce")
-            .withAuthorizedUser(USER_ID)
-            .withUserId(USER_ID)
->>>>>>> master
             .withReturnUrl("https://www.gooooogle.com");
     }
 
