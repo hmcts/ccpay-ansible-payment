@@ -59,7 +59,11 @@ def versions = [
         sonarPitest : '0.5',
         lombok      : '1.18.12',
         pact_version: '4.1.7',
+<<<<<<< HEAD
         reformS2sClient : '3.1.1'
+=======
+        reformS2sClient    : '3.1.1'
+>>>>>>> master
 ]
 
 def javaLoggingVersion = '5.1.1'
@@ -73,14 +77,17 @@ dependencies {
   compile group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: javaLoggingVersion
   compile group: 'uk.gov.hmcts.reform', name: 'logging-spring', version: javaLoggingVersion
   compile group: 'uk.gov.hmcts.reform.auth', name: 'auth-checker-lib', version: '2.1.3'
+<<<<<<< HEAD
   compile (group: 'uk.gov.hmcts.reform', name: 'http-proxy-spring-boot-autoconfigure', version:'2.0.0')
+=======
+  compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: versions.reformS2sClient
+>>>>>>> master
   compile group: 'org.springframework.boot', name: 'spring-boot-autoconfigure'
   compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: versions.reformS2sClient
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-security'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator',version: '2.3.6.RELEASE'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.1.2.RELEASE'
-  compile group: 'org.springframework.hateoas', name: 'spring-hateoas', version:'0.25.1.RELEASE'
   compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.9'
   compile group: 'net.logstash.logback', name: 'logstash-logback-encoder', version:'5.0'
   compile group: 'org.apache.httpcomponents', name: 'httpclient', version:'4.5.11'
@@ -91,6 +98,7 @@ dependencies {
   compile group: 'com.microsoft.azure', name: 'azure-servicebus-spring-boot-starter', version: '2.1.6'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-cache'
   compile group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '2.7.0'
+<<<<<<< HEAD
 
     // Start of OpenId Connect.
 
@@ -112,6 +120,8 @@ dependencies {
     }
     // End of OpenId Connect.
 
+=======
+>>>>>>> master
     implementation "io.github.openfeign:feign-httpclient:10.7.0"
     compile group: 'io.github.openfeign', name: 'feign-core', version: '10.7.0'
     compile group: 'org.springframework.cloud', name: 'spring-cloud-openfeign-core', version: '2.2.1.RELEASE'
@@ -126,12 +136,20 @@ dependencies {
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
     compile group: 'org.springframework.retry', name: 'spring-retry'
+<<<<<<< HEAD
     compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version:'2.2.1.RELEASE'
     compile group: 'uk.gov.hmcts.reform.fees-register', name: 'fees-register-api-contract', version: '2.3.0'
     compile group: 'uk.gov.hmcts.reform.fees-register', name: 'fees-register-model', version: '2.3.0'
     compile group: 'com.netflix.feign', name: 'feign-jackson', version: '8.18.0'
     compile group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version: '0.0.5'
     compile group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version:'0.0.4'
+=======
+    compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.1.RELEASE'
+    compile group: 'uk.gov.hmcts.reform.fees-register', name: 'fees-register-api-contract', version: '2.3.0'
+    compile group: 'uk.gov.hmcts.reform.fees-register', name: 'fees-register-model', version: '2.3.0'
+    compile group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version: '0.0.4'
+    //Added this for spring boot upgrade as swagger was not working with the latest version.
+>>>>>>> master
     compile group: 'org.springframework.plugin', name: 'spring-plugin-core', version: '1.2.0.RELEASE'
     compile(group: 'org.springframework.hateoas', name: 'spring-hateoas', version: '1.0.4.RELEASE') {
         exclude(module: 'spring-plugin-core')

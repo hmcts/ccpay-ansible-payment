@@ -81,12 +81,9 @@ allprojects {
             mavenBom 'org.apache.logging.log4j:log4j-bom:2.13.3'
         }
         dependencies {
-            // solves CVE-2019-12086
-            // remove once spring manager incorporates this changes
             dependencySet(
                     group: 'com.fasterxml.jackson.core',
                     version: '2.10.0'
-                    //version: dependencyManagement.importedProperties['jackson.version'] solves CVE-2019-12086
             ) {
                 entry 'jackson-core'
                 entry 'jackson-databind'
@@ -221,7 +218,6 @@ sonarqube {
         property "sonar.host.url", "https://sonar.reform.hmcts.net/"
         property "sonar.dynamicAnalysis", "reuseReports"
         property "sonar.java.coveragePlugin", "jacoco"
-        property "sonar.jacoco.reportPaths", "${project.buildDir}/jacoco/test.exec"
         property "sonar.dependencyCheck.reportPath", "${project.buildDir}/reports/dependency-check-report.xml"
         property "sonar.coverage.jacoco.xmlReportPaths", "${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml"
         property "sonar.exclusions", sonarExclusions.join(", ")

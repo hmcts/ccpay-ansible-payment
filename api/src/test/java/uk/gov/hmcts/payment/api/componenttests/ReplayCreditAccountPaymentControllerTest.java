@@ -34,6 +34,11 @@ import uk.gov.hmcts.payment.api.model.Payment;
 import uk.gov.hmcts.payment.api.model.Payment2Repository;
 import uk.gov.hmcts.payment.api.service.AccountService;
 import uk.gov.hmcts.payment.api.util.AccountStatus;
+<<<<<<< HEAD
+=======
+import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.ServiceResolverBackdoor;
+import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.UserResolverBackdoor;
+>>>>>>> master
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.CustomResultMatcher;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.RestActions;
 
@@ -68,6 +73,15 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
     private WebApplicationContext webApplicationContext;
 
     @Autowired
+<<<<<<< HEAD
+=======
+    protected ServiceResolverBackdoor serviceRequestAuthorizer;
+
+    @Autowired
+    protected UserResolverBackdoor userRequestAuthorizer;
+
+    @Autowired
+>>>>>>> master
     protected PaymentDbBackdoor db;
 
     @Autowired
@@ -76,6 +90,11 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Autowired
     protected AccountService<AccountDto, String> accountService;
 
+<<<<<<< HEAD
+=======
+    private static final String USER_ID = UserResolverBackdoor.AUTHENTICATED_USER_ID;
+
+>>>>>>> master
     RestActions restActions;
 
     @Autowired
@@ -91,10 +110,19 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Before
     public void setup() {
         MockMvc mvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
+<<<<<<< HEAD
         this.restActions = new RestActions(mvc,objectMapper);
 
         restActions
             .withAuthorizedService("divorce")
+=======
+        this.restActions = new RestActions(mvc, serviceRequestAuthorizer, userRequestAuthorizer, objectMapper);
+
+        restActions
+            .withAuthorizedService("divorce")
+            .withAuthorizedUser(USER_ID)
+            .withUserId(USER_ID)
+>>>>>>> master
             .withReturnUrl("https://www.moneyclaims.service.gov.uk");
 
         Mockito.reset(accountService);

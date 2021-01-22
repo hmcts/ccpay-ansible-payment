@@ -115,7 +115,9 @@ public class CaseControllerTest extends PaymentsDataUtil {
         when(securityUtils.getUserInfo()).thenReturn(getUserInfoBasedOnUID_Roles("UID123","payments"));
         restActions
             .withAuthorizedService("divorce")
-            .withReturnUrl("https://www.gooooogle.com");
+            .withAuthorizedUser(USER_ID)
+            .withUserId(USER_ID)
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
 
         List<Site> serviceReturn = Arrays.asList(Site.siteWith()
                 .sopReference("sop")
@@ -226,7 +228,16 @@ public class CaseControllerTest extends PaymentsDataUtil {
             .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
+<<<<<<< HEAD
         assertThat(restActions
+=======
+        MockMvc mvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
+        RestActions restActions_Citizen = new RestActions(mvc, serviceRequestAuthorizer, userRequestAuthorizer, objectMapper);
+
+        assertThat(restActions_Citizen
+            .withAuthorizedUser(UserResolverBackdoor.CITIZEN_ID)
+            .withUserId(UserResolverBackdoor.CITIZEN_ID)
+>>>>>>> master
             .get("/cases/ccdCaseNumber1/payments")
             .andExpect(status().isOk())
             .andReturn()).isNotNull();
@@ -305,7 +316,10 @@ public class CaseControllerTest extends PaymentsDataUtil {
 
     @Test
     @Transactional
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void getAllPaymentGroupsHavingFeesAndPaymentsWithCcdCaseNumberShouldReturnRequiredFieldsWithApportionmentDetails() throws Exception {
 
         populateCardPaymentToDbWithApportionmentDetails("1");
@@ -328,6 +342,11 @@ public class CaseControllerTest extends PaymentsDataUtil {
             .andReturn();
 
         MvcResult result = restActions
+<<<<<<< HEAD
+=======
+            .withAuthorizedUser(USER_ID)
+            .withUserId(USER_ID)
+>>>>>>> master
             .get("/cases/ccdCaseNumber1/paymentgroups")
             .andExpect(status().isOk())
             .andReturn();
@@ -443,7 +462,6 @@ public class CaseControllerTest extends PaymentsDataUtil {
             .build();
 
         MvcResult result1 = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
@@ -547,7 +565,6 @@ public class CaseControllerTest extends PaymentsDataUtil {
             .build();
 
         MvcResult result1 = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())

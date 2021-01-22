@@ -14,10 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+<<<<<<< HEAD
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.test.context.support.WithMockUser;
+=======
+>>>>>>> master
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,9 +29,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.payment.api.componenttests.util.PaymentsDataUtil;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
+<<<<<<< HEAD
 import uk.gov.hmcts.payment.api.configuration.SecurityUtils;
 import uk.gov.hmcts.payment.api.configuration.security.ServiceAndUserAuthFilter;
 import uk.gov.hmcts.payment.api.configuration.security.ServicePaymentFilter;
+=======
+>>>>>>> master
 import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
@@ -116,7 +122,13 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
         when(securityUtils.getUserInfo()).thenReturn(getUserInfoBasedOnUID_Roles("UID123","payments"));
         restActions
             .withAuthorizedService("divorce")
+<<<<<<< HEAD
             .withReturnUrl("https://www.gooooogle.com");
+=======
+            .withAuthorizedUser(USER_ID)
+            .withUserId(USER_ID)
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
+>>>>>>> master
 
     }
 
@@ -139,7 +151,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
 
 
         MvcResult result = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest())
             .andExpect(status().isCreated())
@@ -165,7 +176,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     @WithMockUser(authorities = "payments")
     public void createCardPaymentWithInvalidInputDataShouldReturnStatusBadRequestTest() throws Exception {
         restActions
-            .withReturnUrl("https://www.google.com")
             .post("/card-payments", cardPaymentInvalidRequestJson())
             .andExpect(status().isBadRequest());
     }
@@ -400,7 +410,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             .build();
 
         MvcResult result = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
@@ -496,7 +505,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
 
 
         MvcResult result = restActions
-            .withReturnUrl("https://www.google.com")
             .post("/card-payments", cardPaymentRequestWithCaseReference())
             .andExpect(status().isCreated())
             .andReturn();
@@ -847,7 +855,10 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void createCardPaymentWithMultipleFee_ExactPayment() throws Exception {
 
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
@@ -895,7 +906,10 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void createCardPaymentWithMultipleFee_ShortfallPayment() throws Exception {
 
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
@@ -943,7 +957,10 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void createCardPaymentWithMultipleFee_SurplusPayment() throws Exception {
 
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
@@ -991,7 +1008,10 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void createCardPaymentWithMultipleFee_SurplusPayment_When_Apportion_Flag_Is_On() throws Exception {
 
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
@@ -1037,7 +1057,10 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void retrieveCardPaymentStatuses_byInvalidPaymentReferenceTest() throws Exception {
         stubFor(get(urlPathMatching("/v1/payments/e2kkddts5215h9qqoeuth5c0v3"))
             .willReturn(aResponse()
@@ -1054,6 +1077,10 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             .serviceType("PROBATE")
             .currency("GBP")
             .siteId("AA01")
+<<<<<<< HEAD
+=======
+            .userId(USER_ID)
+>>>>>>> master
             .paymentChannel(PaymentChannel.paymentChannelWith().name("online").build())
             .paymentMethod(PaymentMethod.paymentMethodWith().name("card").build())
             .paymentProvider(PaymentProvider.paymentProviderWith().name("gov pay").build())
@@ -1070,7 +1097,10 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
         Payment savedPayment = paymentFeeLink.getPayments().get(0);
 
         restActions
+<<<<<<< HEAD
             .withReturnUrl("https://www.google.com")
+=======
+>>>>>>> master
             .get("/card-payments/" + "12345" + "/statuses")
             .andExpect(status().isNotFound())
             .andReturn();
@@ -1093,7 +1123,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
                 .withBody(contentsOf("gov-pay-responses/create-payment-response.json"))));
 
         return restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest())
             .andExpect(status().isCreated())
@@ -1108,7 +1137,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             "  \"case_reference\": \"caseReference\",\n" +
             "  \"service\": \"CMC\",\n" +
             "  \"currency\": \"GBP\",\n" +
-            "  \"return_url\": \"https://www.gooooogle.com\",\n" +
+            "  \"return_url\": \"https://www.moneyclaims.service.gov.uk\",\n" +
             "  \"site_id\": \"siteId\",\n" +
             "  \"fees\": [\n" +
             "    {\n" +
@@ -1128,7 +1157,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"PROBATE\",\n" +
             "  \"currency\": \"GBP\",\n" +
-            "  \"return_url\": \"https://www.gooooogle.com\",\n" +
+            "  \"return_url\": \"https://www.moneyclaims.service.gov.uk\",\n" +
             "  \"site_id\": \"AA101\",\n" +
             "  \"fees\": [\n" +
             "    {\n" +

@@ -107,7 +107,13 @@ public class GovPayComponentMockTest {
 
         restActions
             .withAuthorizedService("divorce")
+<<<<<<< HEAD
             .withReturnUrl("https://www.gooooogle.com");
+=======
+            .withAuthorizedUser(USER_ID)
+            .withUserId(USER_ID)
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
+>>>>>>> master
 
         restTemplate = new RestTemplate();
         mockServer = MockRestServiceServer.bindTo(restTemplate).build();

@@ -8,8 +8,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
+<<<<<<< HEAD
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.beans.factory.annotation.Qualifier;
+=======
+>>>>>>> master
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,10 +20,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+<<<<<<< HEAD
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.test.context.support.WithMockUser;
+=======
+>>>>>>> master
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,9 +36,12 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
+<<<<<<< HEAD
 import uk.gov.hmcts.payment.api.configuration.SecurityUtils;
 import uk.gov.hmcts.payment.api.configuration.security.ServiceAndUserAuthFilter;
 import uk.gov.hmcts.payment.api.configuration.security.ServicePaymentFilter;
+=======
+>>>>>>> master
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
@@ -51,7 +60,10 @@ import uk.gov.hmcts.payment.api.v1.componenttests.sugar.CustomResultMatcher;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.RestActions;
 import uk.gov.hmcts.payment.referencedata.model.Site;
 import uk.gov.hmcts.payment.referencedata.service.SiteService;
+<<<<<<< HEAD
 import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
+=======
+>>>>>>> master
 import uk.gov.hmcts.reform.authorisation.ServiceAuthorisationApi;
 import uk.gov.hmcts.reform.authorisation.ServiceAuthorisationHealthApi;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
@@ -146,7 +158,13 @@ public class PaymentGroupControllerTest {
         when(securityUtils.getUserInfo()).thenReturn(getUserInfoBasedOnUID_Roles("UID123","payments"));
         restActions
             .withAuthorizedService("divorce")
+<<<<<<< HEAD
             .withReturnUrl("https://www.gooooogle.com");
+=======
+            .withAuthorizedUser(USER_ID)
+            .withUserId(USER_ID)
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
+>>>>>>> master
 
         List<Site> serviceReturn = Arrays.asList(Site.siteWith()
                 .sopReference("sop")
@@ -175,7 +193,6 @@ public class PaymentGroupControllerTest {
         CardPaymentRequest cardPaymentRequest = getCardPaymentRequest();
 
         MvcResult result1 = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
@@ -213,13 +230,15 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @Transactional
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void retrievePaymentsAndFeesByPaymentGroupReferenceTest() throws Exception {
         CardPaymentRequest cardPaymentRequest = getCardPaymentRequest();
 
         MvcResult result1 = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
@@ -243,7 +262,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void retrievePaymentsAndFeesByPaymentGroupReferenceWithApportionmentDetails() throws Exception {
         CardPaymentRequest cardPaymentRequest = getCardPaymentRequest();
 
@@ -273,7 +295,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void retrievePaymentsRemissionsAndFeesWithInvalidPaymentGroupReferenceShouldFailTest() throws Exception {
         restActions
             .get("/payment-groups/1011-10000000001")
@@ -312,7 +337,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void addNewFeewithPaymentGroupWhenApportionFlagIsOn() throws Exception {
         PaymentGroupDto request = PaymentGroupDto.paymentGroupDtoWith()
             .fees( Arrays.asList(getNewFee()))
@@ -343,7 +371,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void addNewFeewithNoPaymentGroupNegativeTest() throws Exception {
         PaymentGroupDto request = PaymentGroupDto.paymentGroupDtoWith()
             .fees( Arrays.asList(getInvalidFee()))
@@ -568,7 +599,6 @@ public class PaymentGroupControllerTest {
             .build();
 
         MvcResult result1 = restActions
-            .withReturnUrl("https://www.google.com")
             .withHeader("service-callback-url", "http://payments.com")
             .post("/card-payments", cardPaymentRequest)
             .andExpect(status().isCreated())
@@ -682,7 +712,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void addNewPaymenttoExistingPaymentGroupWhenServiceTypeIsFinrem() throws Exception {
         PaymentGroupDto paymentGroupDto = addNewPaymentToExistingPaymentGroup();
 
@@ -756,7 +789,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void addNewPaymenttoExistingPaymentGroupWhenServiceTypeIsDivorce() throws Exception {
         PaymentGroupDto paymentGroupDto = addNewPaymentToExistingPaymentGroup();
 
@@ -798,7 +834,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void addNewPaymenttoExistingPaymentGroupWhenServiceTypeIsProbate() throws Exception {
         PaymentGroupDto paymentGroupDto = addNewPaymentToExistingPaymentGroup();
 
@@ -840,7 +879,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void addNewPaymenttoExistingPaymentGroupWhenServiceTypeIsCMC() throws Exception {
         PaymentGroupDto paymentGroupDto = addNewPaymentToExistingPaymentGroup();
 
@@ -882,7 +924,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void shouldThrowPaymentExceptionWhilePassingUnsupportedServiceType() throws Exception {
         PaymentGroupDto paymentGroupDto = addNewPaymentToExistingPaymentGroup();
 
@@ -906,6 +951,31 @@ public class PaymentGroupControllerTest {
             .andExpect(status().isBadRequest())
             .andReturn();
 
+<<<<<<< HEAD
+=======
+    }
+
+    @Test
+    public void addNewPaymenttoExistingPaymentGroupTestWhenChannelAndProviderIsEmpty() throws Exception {
+        PaymentGroupDto paymentGroupDto = addNewPaymentToExistingPaymentGroup();
+
+
+        BigDecimal amount = new BigDecimal("200");
+
+        CardPaymentRequest cardPaymentRequest = CardPaymentRequest.createCardPaymentRequestDtoWith()
+            .amount(amount)
+            .currency(CurrencyCode.GBP)
+            .description("Test cross field validation")
+            .service(Service.DIVORCE)
+            .siteId("AA07")
+            .ccdCaseNumber("2154-2343-5634-2357")
+            .build();
+
+        MvcResult result3 = restActions
+            .post("/payment-groups/" + paymentGroupDto.getPaymentGroupReference() + "/card-payments", cardPaymentRequest)
+            .andExpect(status().isBadRequest())
+            .andReturn();
+>>>>>>> master
     }
 
     @Test
@@ -1136,7 +1206,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void testValidBulkScanPaymentForStrategic() throws Exception{
         when(this.restTemplatePaymentGroup.exchange(anyString(),
             eq(HttpMethod.PATCH),
@@ -1178,7 +1251,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void testValidAndDuplicateTransferredBulkScanPayments() throws Exception{
         when(featureToggler.getBooleanValue("prod-strategic-fix",false)).thenReturn(true);
         MvcResult result2 = restActions
@@ -1198,7 +1274,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void testUnidentifiedBulkScanPayments() throws Exception{
         when(featureToggler.getBooleanValue("prod-strategic-fix",false)).thenReturn(true);
         MvcResult result2 = restActions
@@ -1212,7 +1291,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void testBulkScanPaymentHandlingClientErrorExceptions() throws Exception{
         PaymentGroupDto request = PaymentGroupDto.paymentGroupDtoWith()
             .fees( Arrays.asList(getNewFee()))
@@ -1249,7 +1331,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void testToggleOffFeatureStrategicFix() throws Exception{
         PaymentGroupDto request = PaymentGroupDto.paymentGroupDtoWith()
             .fees( Arrays.asList(getNewFee()))
@@ -1315,7 +1400,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void shouldThrowErrorWhenInvalidSiteId() throws Exception{
         PaymentGroupDto request = PaymentGroupDto.paymentGroupDtoWith()
             .fees( Arrays.asList(getNewFee()))
@@ -1550,7 +1638,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void createBulkScanPaymentWithMultipleFee_ExactPayment() throws Exception {
 
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
@@ -1607,7 +1698,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void createBulkScanPaymentWithMultipleFee_ShortfallPayment() throws Exception {
 
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
@@ -1679,7 +1773,10 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+<<<<<<< HEAD
     @WithMockUser(authorities = "payments")
+=======
+>>>>>>> master
     public void createBulkScanPaymentWithMultipleFee_SurplusPayment() throws Exception {
 
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();

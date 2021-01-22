@@ -61,6 +61,11 @@ import static uk.gov.hmcts.payment.api.configuration.security.ServiceAndUserAuth
 @AutoConfigureMockMvc
 public class RemissionControllerTest {
 
+<<<<<<< HEAD
+=======
+    private static final String USER_ID = UserResolverBackdoor.CITIZEN_ID;
+
+>>>>>>> master
     private final static String REMISSION_REFERENCE_REGEX = "^[RM-]{3}(\\w{4}-){3}(\\w{4})";
 
     private RestActions restActions;
@@ -108,8 +113,15 @@ public class RemissionControllerTest {
 
         restActions
             .withAuthorizedService("divorce")
+<<<<<<< HEAD
             .withReturnUrl("https://www.gooooogle.com");
         when(securityUtils.getUserInfo()).thenReturn(getUserInfoBasedOnUID_Roles("UID123","payments"));
+=======
+            .withAuthorizedUser(USER_ID)
+            .withUserId(USER_ID)
+            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
+
+>>>>>>> master
         List<Site> serviceReturn = Arrays.asList(Site.siteWith()
                 .sopReference("sop")
                 .siteId("AA99")

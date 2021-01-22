@@ -43,19 +43,25 @@ public class PaymentsComponentTest extends TestUtil {
 
     @Before
     public void setup() {
+<<<<<<< HEAD
         MockMvc mvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
         this.restActions = new RestActions(mvc, objectMapper);
+=======
+        restActions
+            .withAuthorizedService("divorce")
+            .withAuthorizedUser(USER_ID);
+>>>>>>> master
 
     }
 
     @Test
     public void createPaymentValidationRules() throws Exception {
         CreatePaymentRequestDto validRequest = createPaymentRequestDtoWith()
-                .amount(100)
-                .description("description")
-                .reference("reference")
-                .returnUrl("https://returnUrl")
-                .build();
+            .amount(100)
+            .description("description")
+            .reference("reference")
+            .returnUrl("https://returnUrl.hmcts.net")
+            .build();
 
         tryCreateAndExpect(validRequest.withAmount(null), "amount: must not be null");
         tryCreateAndExpect(validRequest.withAmount(0), "amount: must be greater than or equal to 1");
@@ -66,7 +72,6 @@ public class PaymentsComponentTest extends TestUtil {
         tryCreateAndExpect(validRequest.withReturnUrl(null), "returnUrl: must not be empty");
         tryCreateAndExpect(validRequest.withReturnUrl(""), "returnUrl: must not be empty");
         tryCreateAndExpect(validRequest.withReturnUrl("invalid"), "returnUrl: must be a valid URL");
-        tryCreateAndExpect(validRequest.withReturnUrl("http://invalid"), "returnUrl: must be a valid URL");
     }
 
     private void tryCreateAndExpect(CreatePaymentRequestDto requestBody, String expectedContent) throws Exception {
