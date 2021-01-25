@@ -118,6 +118,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void updateTelephonyPaymentStatusWithSuccess() throws Exception {
         String rawFormData = "orderCurrency=&orderAmount=488.50&orderReference=RC-1519-9028-1909-1435&ppAccountID=1210&" +
             "transactionResult=SUCCESS&transactionAuthCode=test123&transactionID=3045021106&transactionResponseMsg=&" +
@@ -148,6 +149,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void updateTelephonyPaymentStatus_recordinDBAndRaiseStatusCallbackEvent() throws Exception {
         String rawFormData = "orderCurrency=&orderAmount=488.50&orderReference=RC-1519-9028-1909-1435&ppAccountID=1210&" +
             "transactionResult=DECLINE&transactionAuthCode=test123&transactionID=3045021106&transactionResponseMsg=&" +
@@ -168,6 +170,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void updateTelephonyPaymentStatus_throw404IfPaymentNotFound() throws Exception {
         String rawFormData = "orderCurrency=&orderAmount=488.50&orderReference=RC-invalid-reference&ppAccountID=1210&" +
             "transactionResult=SUCCESS&transactionAuthCode=test123&transactionID=3045021106&transactionResponseMsg=&" +
@@ -221,6 +224,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void updateTelephonyPaymentStatus_throw400IfBadRequest() throws Exception {
         String rawFormData = "orderReference=RC-invalid-reference&ppAccountID=1210&" +
             "transactionResult=SUCCESS&transactionAuthCode=test123&transactionID=3045021106&transactionResponseMsg=&" +
@@ -238,6 +242,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void updateTelephonyPaymentStatus_ShouldNotBeUpdatedWithDuplicateReq() throws Exception {
         String rawFormData = "orderCurrency=&orderAmount=488.50&orderReference=RC-1519-9028-1909-1435&ppAccountID=1210&" +
             "transactionResult=SUCCESS&transactionAuthCode=test123&transactionID=3045021106&transactionResponseMsg=&" +
@@ -290,6 +295,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void updateTelephonyPaymentStatusWithSuccess_Apportionment() throws Exception {
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
 
@@ -353,6 +359,7 @@ public class TelephonyControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void updateTelephonyPaymentStatusWithFailed_Apportionment() throws Exception {
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
 

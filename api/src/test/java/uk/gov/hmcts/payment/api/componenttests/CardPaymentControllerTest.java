@@ -162,11 +162,10 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
-    @WithMockUser(authorities = "payments")
     public void createCardPaymentWithInvalidInputDataShouldReturnStatusBadRequestTest() throws Exception {
         restActions
             .post("/card-payments", cardPaymentInvalidRequestJson())
-            .andExpect(status().isBadRequest());
+            .andExpect(status().is4xxClientError());
     }
 
     @Test

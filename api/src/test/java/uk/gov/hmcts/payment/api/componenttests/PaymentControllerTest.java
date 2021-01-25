@@ -216,6 +216,7 @@ public class PaymentControllerTest extends PaymentsDataUtil {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = "payments")
     public void updateCaseReference_forGivenPaymentReferenceWithoutCaseReference() throws Exception {
         //Create a payment in remissionDbBackdoor
         Payment payment = Payment.paymentWith()
@@ -238,7 +239,7 @@ public class PaymentControllerTest extends PaymentsDataUtil {
         Payment savedPayment = paymentFeeLink.getPayments().get(0);
 
         MvcResult result1 = restActions.
-            get(format("/credit-account-payments/RC-1519-9028-1909-3890"))
+            get("/credit-account-payments/RC-1519-9028-1909-3890")
             .andExpect(status().isOk())
             .andReturn();
 
@@ -1205,11 +1206,11 @@ public class PaymentControllerTest extends PaymentsDataUtil {
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
 
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
 
         MvcResult result1 = restActions
@@ -1235,7 +1236,7 @@ public class PaymentControllerTest extends PaymentsDataUtil {
 
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -1259,11 +1260,11 @@ public class PaymentControllerTest extends PaymentsDataUtil {
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -1285,11 +1286,11 @@ public class PaymentControllerTest extends PaymentsDataUtil {
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -1326,11 +1327,11 @@ public class PaymentControllerTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(false);
 
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -1345,6 +1346,7 @@ public class PaymentControllerTest extends PaymentsDataUtil {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = "payments")
     public void shouldCheckAmountDueIsCalculatedFromApportionTableWhenWhenDateCreatedIsBeforeApportionDate() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
         Payment payment =populateTelephonyPaymentToDb(paymentReference,false);
@@ -1364,11 +1366,11 @@ public class PaymentControllerTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         payment.setDateCreated(parseDate("01.05.2020"));
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -1392,11 +1394,11 @@ public class PaymentControllerTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         payment.setDateCreated(parseDate("01.06.2020"));
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -1420,11 +1422,11 @@ public class PaymentControllerTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         payment.setDateCreated(parseDate("05.06.2020"));
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -1475,11 +1477,11 @@ public class PaymentControllerTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(false);
 
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
 
         MvcResult result1 = restActions
@@ -1503,11 +1505,11 @@ public class PaymentControllerTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
 
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
 
         MvcResult result1 = restActions
@@ -1531,11 +1533,11 @@ public class PaymentControllerTest extends PaymentsDataUtil {
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -1632,6 +1634,7 @@ public class PaymentControllerTest extends PaymentsDataUtil {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = "payments")
     public void retrievePaymentByReferenceWithApportionmentDetails() throws Exception {
         Payment payment = populateCardPaymentToDbWithApportionmentDetails("1");
 

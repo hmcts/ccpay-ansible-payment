@@ -1279,6 +1279,7 @@ public class PaymentGroupControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void testBulkScanPaymentHandlingConnectionException() throws Exception{
         PaymentGroupDto request = PaymentGroupDto.paymentGroupDtoWith()
             .fees( Arrays.asList(getNewFee()))

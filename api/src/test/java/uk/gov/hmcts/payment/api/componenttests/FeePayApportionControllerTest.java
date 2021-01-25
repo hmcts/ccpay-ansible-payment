@@ -7,10 +7,12 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.payment.api.componenttests.util.PaymentsDataUtil;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
+import uk.gov.hmcts.payment.api.configuration.SecurityUtils;
+import uk.gov.hmcts.payment.api.configuration.security.ServiceAndUserAuthFilter;
 import uk.gov.hmcts.payment.api.controllers.FeePayApportionController;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
 import uk.gov.hmcts.payment.api.model.Payment;
@@ -27,6 +31,7 @@ import uk.gov.hmcts.payment.api.service.PaymentService;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.CustomResultMatcher;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.RestActions;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
+import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -36,6 +41,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+import static uk.gov.hmcts.payment.api.configuration.security.ServiceAndUserAuthFilterTest.getUserInfoBasedOnUID_Roles;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles({"local", "componenttest"})
@@ -72,6 +78,15 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     @MockBean
     private LaunchDarklyFeatureToggler featureToggler;
 
+    @Autowired
+    private ServiceAuthFilter serviceAuthFilter;
+
+    @InjectMocks
+    private ServiceAndUserAuthFilter serviceAndUserAuthFilter;
+
+    @MockBean
+    private SecurityUtils securityUtils;
+
 
     protected CustomResultMatcher body() {
         return new CustomResultMatcher(objectMapper);
@@ -80,6 +95,7 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     @Before
     public void setup() {
         MockMvc mvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
+        when(securityUtils.getUserInfo()).thenReturn(getUserInfoBasedOnUID_Roles("UID123","payments"));
         this.restActions = new RestActions(mvc, objectMapper);
 
         restActions
@@ -89,6 +105,7 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = "payments")
     public void retrieveApportionDetailsWithReferenceForCardPayments() throws Exception {
         Payment payment = populateCardPaymentToDb("1");
         populateApportionDetails(payment);
@@ -104,6 +121,7 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void retrieveApportionDetailsWithReferenceNumber() throws Exception {
         Payment payment = populateCardPaymentToDb("1");
         populateApportionDetails(payment);
@@ -119,6 +137,7 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void retrieveApportionDetailsWithReferenceWhenFeeIdIsDifferent() throws Exception {
         Payment payment = populateCardPaymentToDb("1");
         populateApportionDetails(payment);
@@ -134,6 +153,7 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void retrieveApportionDetailsWithReferenceWhenFeeIdIsSame() throws Exception {
         Payment payment = populateCardPaymentToDb("1");
         populateApportionDetails(payment);
@@ -149,6 +169,7 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void retrunEmptyListWhenPaymentIsNotPresent() throws Exception {
         Payment payment = populateCardPaymentToDb("1");
         populateApportionDetails(payment);
@@ -160,6 +181,7 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void getting404PaymentNotFoundException() throws Exception {
         String errorMessage = "errorMessage";
         PaymentNotFoundException ex = new PaymentNotFoundException(errorMessage);
@@ -167,6 +189,7 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void retrieveApportionDetailsWithReference() throws Exception {
         Payment payment = populateCardPaymentToDb("1");
         populateApportionDetails(payment);

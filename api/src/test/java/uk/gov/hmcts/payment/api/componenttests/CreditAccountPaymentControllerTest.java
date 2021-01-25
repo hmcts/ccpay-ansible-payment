@@ -141,8 +141,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
         when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
 
-        setCreditAccountPaymentLiberataCheckFeature(true);
-
         restActions
             .post(format("/credit-account-payments"), request)
             .andExpect(status().isCreated());
@@ -158,8 +156,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
         when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
-
-        setCreditAccountPaymentLiberataCheckFeature(true);
 
         restActions
             .post(format("/credit-account-payments"), request)
@@ -183,8 +179,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
         when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
 
-        setCreditAccountPaymentLiberataCheckFeature(true);
-
         restActions
             .post(format("/credit-account-payments"), request)
             .andExpect(status().isCreated());
@@ -203,8 +197,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
         when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
-
-        setCreditAccountPaymentLiberataCheckFeature(true);
 
         restActions
             .post(format("/credit-account-payments"), request)
@@ -226,8 +218,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
         when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
 
-        setCreditAccountPaymentLiberataCheckFeature(true);
-
         restActions
             .post(format("/credit-account-payments"), request)
             .andExpect(status().isCreated());
@@ -247,8 +237,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName", new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
         when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
-
-        setCreditAccountPaymentLiberataCheckFeature(true);
 
         restActions
             .post(format("/credit-account-payments"), request)
@@ -386,8 +374,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
         when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
 
-        setCreditAccountPaymentLiberataCheckFeature(true);
-
         MvcResult result = restActions
             .post("/credit-account-payments", request)
             .andExpect(status().isCreated())
@@ -405,8 +391,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(100), new BigDecimal(100), AccountStatus.ACTIVE, new Date());
         when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
-
-        setCreditAccountPaymentLiberataCheckFeature(true);
 
         MvcResult result = restActions
             .post(format("/credit-account-payments"), request)
@@ -427,8 +411,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ON_HOLD, new Date());
         when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountOnHoldDto);
 
-        setCreditAccountPaymentLiberataCheckFeature(true);
-
         MvcResult result = restActions
             .post(format("/credit-account-payments"), request)
             .andExpect(status().isForbidden()).andReturn();
@@ -448,8 +430,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             new BigDecimal(100), new BigDecimal(100), AccountStatus.DELETED, new Date());
         when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountDeletedDto);
 
-        setCreditAccountPaymentLiberataCheckFeature(true);
-
         MvcResult result = restActions
             .post(format("/credit-account-payments"), request)
             .andExpect(status().isForbidden()).andReturn();
@@ -467,8 +447,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithFinRemJson().getBytes(), CreditAccountPaymentRequest.class);
         when(accountService.retrieve(request.getAccountNumber())).thenThrow(HttpClientErrorException.class);
 
-        setCreditAccountPaymentLiberataCheckFeature(true);
-
         restActions
             .post(format("/credit-account-payments"), request)
             .andExpect(status().isNotFound());
@@ -480,31 +458,9 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithFinRemJson().getBytes(), CreditAccountPaymentRequest.class);
         when(accountService.retrieve(request.getAccountNumber())).thenThrow(AccountServiceUnavailableException.class);
 
-        setCreditAccountPaymentLiberataCheckFeature(true);
-
         restActions
             .post(format("/credit-account-payments"), request)
             .andExpect(status().isGatewayTimeout());
-    }
-
-    @Test
-    @WithMockUser(authorities = "payments")
-    public void createCreditAccountPaymentWithLiberataFeatureOffShouldReturnPaymentPending() throws Exception {
-        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJson().getBytes(),
-            CreditAccountPaymentRequest.class);
-        AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
-            new BigDecimal(100), new BigDecimal(100), AccountStatus.ACTIVE, new Date());
-        when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
-
-        setCreditAccountPaymentLiberataCheckFeature(false);
-
-        MvcResult result = restActions
-            .post(format("/credit-account-payments"), request)
-            .andExpect(status().isCreated()).andReturn();
-
-        PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
-
-        assertEquals("Pending", paymentDto.getStatus());
     }
 
     @Test
@@ -518,8 +474,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             new BigDecimal(100), new BigDecimal(100), AccountStatus.ACTIVE, new Date());
 
         when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
-
-        setCreditAccountPaymentLiberataCheckFeature(true);
 
         MvcResult result = restActions
             .post(format("/credit-account-payments"), request)
@@ -542,8 +496,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
 
-        setCreditAccountPaymentLiberataCheckFeature(true);
-
         MvcResult result = restActions
             .post(format("/credit-account-payments"), request)
             .andExpect(status().isCreated()).andReturn();
@@ -565,8 +517,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
 
-        setCreditAccountPaymentLiberataCheckFeature(true);
-
         MvcResult result = restActions
             .post(format("/credit-account-payments"), request)
             .andExpect(status().isForbidden()).andReturn();
@@ -581,8 +531,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     @WithMockUser(authorities = "payments")
     public void givenLiberataCheckOnAndCheckLiberataAccountForAllSericesOnThenAllServicesTriggerLiberataCheck() throws Exception {
-        setCreditAccountPaymentLiberataCheckFeature(true);
-        setCheckLiberataAccountForAllServices(true);
         CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithFinRemJson().getBytes(), CreditAccountPaymentRequest.class);
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
@@ -604,15 +552,12 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
         assertNotNull(paymentDto);
-        Mockito.verify(accountService, Mockito.times(2)).retrieve(request.getAccountNumber());
 
     }
 
     @Test
     @WithMockUser(authorities = "payments")
     public void givenLiberataCheckOffAndCheckLiberataAccountForAllSericesOffThenNoServiceTriggersLiberataCheck() throws Exception {
-        setCreditAccountPaymentLiberataCheckFeature(false);
-        setCheckLiberataAccountForAllServices(false);
         CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithFinRemJson().getBytes(), CreditAccountPaymentRequest.class);
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
@@ -625,7 +570,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
         assertNotNull(paymentDto);
-        Mockito.verify(accountService, Mockito.times(0)).retrieve(request.getAccountNumber());
 
 
         request = objectMapper.readValue(creditAccountPaymentRequestJsonWithProbateJson().getBytes(), CreditAccountPaymentRequest.class);
@@ -636,15 +580,12 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
         assertNotNull(paymentDto);
-        Mockito.verify(accountService, Mockito.times(0)).retrieve(request.getAccountNumber());
 
     }
 
     @Test
     @WithMockUser(authorities = "payments")
     public void givenLiberataCheckOnAndCheckLiberataAccountForAllSericesOffThenOnlyFINREMTriggersLiberataCheck() throws Exception {
-        setCreditAccountPaymentLiberataCheckFeature(true);
-        setCheckLiberataAccountForAllServices(false);
         CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithFinRemJson().getBytes(), CreditAccountPaymentRequest.class);
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
@@ -657,8 +598,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
         assertNotNull(paymentDto);
-        Mockito.verify(accountService, Mockito.times(1)).retrieve(request.getAccountNumber());
-
 
         request = objectMapper.readValue(creditAccountPaymentRequestJsonWithProbateJson().getBytes(), CreditAccountPaymentRequest.class);
         result = restActions
@@ -668,15 +607,11 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
         assertNotNull(paymentDto);
-        Mockito.verify(accountService, Mockito.times(1)).retrieve(request.getAccountNumber());
-
     }
 
     @Test
     @WithMockUser(authorities = "payments")
     public void givenLiberataCheckOnAndCheckLiberataAccountForAllSericesOffThenOnlyFPLATriggersLiberataCheck() throws Exception {
-        setCreditAccountPaymentLiberataCheckFeature(true);
-        setCheckLiberataAccountForAllServices(false);
         CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithFPLAJson().getBytes(), CreditAccountPaymentRequest.class);
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
@@ -700,11 +635,10 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
         assertNotNull(paymentDto);
-        Mockito.verify(accountService, Mockito.times(1)).retrieve(request.getAccountNumber());
-
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void givenLiberataCheckOnAndCheckLiberataAccountForAllSericesOffThenOnlyIACTriggersLiberataCheck() throws Exception {
 
         CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithIACJson().getBytes(), CreditAccountPaymentRequest.class);
@@ -734,8 +668,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     @WithMockUser(authorities = "payments")
     public void givenLiberataCheckOffAndCheckLiberataAccountForAllSericesOnThenAllServicesTriggerLiberataCheck() throws Exception {
-        setCreditAccountPaymentLiberataCheckFeature(false);
-        setCheckLiberataAccountForAllServices(true);
         CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithFinRemJson().getBytes(), CreditAccountPaymentRequest.class);
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
@@ -779,9 +711,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     @WithMockUser(authorities = "payments")
     public void givenLiberataCheckOffAndCheckLiberataAccountForAllServicesOnThenAllServicesTriggerLiberataCheck_FPLA() throws Exception {
-        setCreditAccountPaymentLiberataCheckFeature(false);
-        setCheckLiberataAccountForAllServices(true);
-
         CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithFPLAJson().getBytes(), CreditAccountPaymentRequest.class);
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
@@ -912,8 +841,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
         when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
 
-        setCreditAccountPaymentLiberataCheckFeature(true);
-
         restActions
             .post(format("/credit-account-payments"), request)
             .andExpect(status().isUnprocessableEntity());
@@ -961,6 +888,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void createCreditAccountPaymentWithMultipleFee_ExactPayment() throws Exception {
 
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
@@ -1196,33 +1124,6 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         assertEquals(BigDecimal.valueOf(0), savedfees.get(0).getAmountDue());
         assertEquals(BigDecimal.valueOf(0), savedfees.get(1).getAmountDue());
         assertEquals(BigDecimal.valueOf(20), savedfees.get(2).getAmountDue());
-    }
-
-    private void setCreditAccountPaymentLiberataCheckFeature(boolean enabled) throws Exception {
-        String url = "/api/ff4j/store/features/credit-account-payment-liberata-check/";
-        if (enabled) {
-            url += "enable";
-        } else {
-            url += "disable";
-        }
-
-        restActions
-            .post(url,"")
-            .andExpect(status().isAccepted());
-
-    }
-
-    private void setCheckLiberataAccountForAllServices(boolean enabled) throws Exception {
-        String url = "/api/ff4j/store/features/check-liberata-account-for-all-services/";
-        if (enabled) {
-            url += "enable";
-        } else {
-            url += "disable";
-        }
-
-        restActions
-            .post(url,"")
-            .andExpect(status().isAccepted());
     }
 
     private String jsonRequestWithoutCcdCaseRefAndCaseRef() {

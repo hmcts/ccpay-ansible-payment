@@ -8,12 +8,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -24,6 +26,8 @@ import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.payment.api.componenttests.util.CSVUtil;
 import uk.gov.hmcts.payment.api.componenttests.util.PaymentsDataUtil;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
+import uk.gov.hmcts.payment.api.configuration.SecurityUtils;
+import uk.gov.hmcts.payment.api.configuration.security.ServiceAndUserAuthFilter;
 import uk.gov.hmcts.payment.api.contract.CreditAccountPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
@@ -36,6 +40,7 @@ import uk.gov.hmcts.payment.api.service.AccountService;
 import uk.gov.hmcts.payment.api.util.AccountStatus;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.CustomResultMatcher;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.RestActions;
+import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,6 +56,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+import static uk.gov.hmcts.payment.api.configuration.security.ServiceAndUserAuthFilterTest.getUserInfoBasedOnUID_Roles;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles({"local", "componenttest"})
@@ -73,7 +79,7 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Autowired
     protected Payment2Repository paymentRepository;
 
-    @Autowired
+    @MockBean
     protected AccountService<AccountDto, String> accountService;
 
     RestActions restActions;
@@ -88,9 +94,19 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return new CustomResultMatcher(objectMapper);
     }
 
+    @Autowired
+    private ServiceAuthFilter serviceAuthFilter;
+
+    @InjectMocks
+    private ServiceAndUserAuthFilter serviceAndUserAuthFilter;
+
+    @MockBean
+    private SecurityUtils securityUtils;
+
     @Before
     public void setup() {
         MockMvc mvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
+        when(securityUtils.getUserInfo()).thenReturn(getUserInfoBasedOnUID_Roles("UID123","payments"));
         this.restActions = new RestActions(mvc,objectMapper);
 
         restActions
@@ -101,6 +117,7 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void replayCreditAccountPayment_AutomatedTest() throws Exception {
 
         File paymentsToReplayCSV = null;
@@ -175,6 +192,7 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void markPBAPaymentFailed_AutomatedTest() throws Exception {
 
         File paymentsToFailCSV = null;
@@ -227,6 +245,7 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void replayCreditAccountPayment_AutomatedTest_BadRequest() throws Exception {
         //create test csv file
         final File testCSV = newFile("src/test/resources/emptyFile.csv");
@@ -246,6 +265,7 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void replayCreditAccountPayment_ReplayNewOnlyIfOldPaymentExists() throws Exception {
 
         File paymentsToReplayCSV = null;
@@ -291,6 +311,7 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
             //Delete test csvfile
             Files.delete(paymentsToReplayCSV);
         }
+
     }
 
     private void createCSV(Map<String, CreditAccountPaymentRequest> csvParseMap , String fileName) throws IOException {
@@ -398,7 +419,7 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
         }
 
         restActions
-            .post(url)
+            .post(url,"")
             .andExpect(status().isAccepted());
     }
 }

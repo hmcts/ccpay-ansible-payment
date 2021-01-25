@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -93,6 +94,7 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = "payments")
     public void shouldCheckApportionNewFieldsNotPopulatedWhenApportionFeatureIsToggledOffForBulkScanPayments() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
         populatePaymentToDbForExelaPayments(paymentReference);
@@ -101,11 +103,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(false);
 
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
 
         MvcResult result1 = restActions
@@ -129,11 +131,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
 
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
 
         MvcResult result1 = restActions
@@ -157,11 +159,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(false);
 
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
 
         MvcResult result1 = restActions
@@ -185,11 +187,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
 
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
 
         MvcResult result1 = restActions
@@ -213,11 +215,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -240,11 +242,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -266,11 +268,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -293,11 +295,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         String endDate = LocalDateTime.now().toString(DATE_FORMAT);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -322,11 +324,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(false);
 
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -360,11 +362,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         payment.setDateCreated(parseDate("01.05.2020"));
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -388,11 +390,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         payment.setDateCreated(parseDate("01.06.2020"));
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -416,11 +418,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         payment.setDateCreated(parseDate("05.06.2020"));
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -443,11 +445,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         payment.setDateCreated(parseDate("05.06.2020"));
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -472,11 +474,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         payment.setDateCreated(parseDate("05.06.2020"));
         payment.setPaymentChannel(null);
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -501,11 +503,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         payment.setDateCreated(parseDate("05.06.2020"));
         payment.setPaymentChannel(null);
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -530,11 +532,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         payment.setDateCreated(parseDate("01.05.2020"));
         payment.setPaymentChannel(null);
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -559,11 +561,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         payment.setDateCreated(parseDate("01.05.2020"));
         payment.setPaymentChannel(null);
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -586,11 +588,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         payment.setDateCreated(parseDate("05.06.2020"));
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
@@ -614,11 +616,11 @@ public class LiberataApportionmentTest extends PaymentsDataUtil {
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         payment.setDateCreated(parseDate("05.06.2020"));
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
         MvcResult result1 = restActions
             .get("/payments?start_date=" + startDate + "&end_date=" + endDate)
