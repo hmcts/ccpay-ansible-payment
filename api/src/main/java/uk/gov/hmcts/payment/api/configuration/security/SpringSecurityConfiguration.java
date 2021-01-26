@@ -29,7 +29,7 @@ import java.util.function.Function;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 public class SpringSecurityConfiguration {
 
     private static final String CITIZEN_ROLE = "citizen";
