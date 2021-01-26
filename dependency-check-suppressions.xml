@@ -105,7 +105,7 @@
         <cve>CVE-2020-8908</cve>
     </suppress>
 
-    <suppress until="2021-01-20">
+    <suppress until="2021-02-14">
         <notes><![CDATA[
             This CVE is related to file type tag parsing. However, the associated CVE seems to be a false positive on the lang-tag jar.
         ]]></notes>
@@ -113,5 +113,10 @@
         <cve>CVE-2020-29243</cve>
         <cve>CVE-2020-29244</cve>
         <cve>CVE-2020-29245</cve>
+    </suppress>
+
+    <suppress until="2021-02-14">
+        <notes>This CWE occurs in the latest version of feign-core and feign-jackson</notes>
+        <cwe>611</cwe>
     </suppress>
 </suppressions>
