@@ -96,7 +96,6 @@ public class SecurityUtils {
     }
 
     public String getUserToken() {
-        System.out.println("------"+SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         return jwt.getTokenValue();
