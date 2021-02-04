@@ -40,12 +40,7 @@ public class ServiceAndUserTestApplication {
         public Function<HttpServletRequest, Collection<String>> authorizedServicesExtractor() {
             return (any) -> Collections.singletonList("divorce");
         }
-
-        @Bean
-        public PluginRegistry<LinkDiscoverer, MediaType> discoverers(
-            OrderAwarePluginRegistry<LinkDiscoverer, MediaType> relProviderPluginRegistry) {
-            return relProviderPluginRegistry;
-        }
+        
 
     }
 

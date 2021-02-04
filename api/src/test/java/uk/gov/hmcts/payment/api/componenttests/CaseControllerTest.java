@@ -465,10 +465,10 @@ public class CaseControllerTest extends PaymentsDataUtil {
         PaymentFee fee = paymentFeeDbBackdoor.findByPaymentLinkId(paymentFeeLink.getId());
 
         // create a partial remission commented this due to failure
-       /* MvcResult result2 = restActions
+       MvcResult result2 = restActions
             .post("/payment-groups/" + createPaymentResponseDto.getPaymentGroupReference() + "/fees/" + fee.getId() + "/remissions", remissionRequest)
             .andExpect(status().isCreated())
-            .andReturn();*/
+            .andReturn();
 
         // Adding another fee to the exisitng payment group
         restActions
@@ -560,10 +560,10 @@ public class CaseControllerTest extends PaymentsDataUtil {
         PaymentFee fee = paymentFeeDbBackdoor.findByPaymentLinkId(paymentFeeLink.getId());
 
         // create a partial remission. Commented this due to failure.
-        /* MvcResult result2 = restActions
+        MvcResult result2 = restActions
             .post("/payment-groups/" + createPaymentResponseDto.getPaymentGroupReference() + "/fees/" + fee.getId() + "/remissions", remissionRequest)
             .andExpect(status().isCreated())
-            .andReturn();*/
+            .andReturn();
 
         MvcResult result = restActions
             .get("/cases/ccdCaseNumber1/paymentgroups")
