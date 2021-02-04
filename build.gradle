@@ -38,7 +38,7 @@ allprojects {
         jcenter()
         maven { url 'https://repo.spring.io/libs-milestone' }
     }
-    
+
     apply from: "${rootDir}/cve-resolution-strategy.gradle"
 
     dependencyManagement {
