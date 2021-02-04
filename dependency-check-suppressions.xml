@@ -1,108 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-    <suppress>
-        <notes>CVE-2018-1258: we do not use Spring Method Security, so this does not affect us. see https://pivotal.io/security/cve-2018-1258.
-            we are on latest Spring Framework version : 5.2.2.RELEASE : https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-Versions</notes>
+
+    <!-- Below are the supressions added fpr False Positive CVEs -->
+    <suppress until="2021-02-14">
+        <notes>The CVE-2018-1258 occurs from spring security libraries, despite the latest versions are used. This is confirmed as false positive
+            and hence it is suppressed (https://github.com/jeremylong/DependencyCheck/issues/2952)
+        </notes>
         <cve>CVE-2018-1258</cve>
-        <cve>CVE-2020-5407</cve>
-        <cve>CVE-2020-5408</cve>
-        <cve>CVE-2020-9484</cve>
-    </suppress>
-
-    <suppress>
-        <notes>We are on latest version , these are coming form mvn:pkg </notes>
-        <cve>CVE-2020-10683</cve>
-        <cve>CVE-2020-13692</cve>
-    </suppress>
-
-    <suppress>
-        <notes>Latest CVE's </notes>
-        <cve>CVE-2020-11996</cve>
-        <cve>CVE-2020-13934</cve>
-        <cve>CVE-2020-13935</cve>
-        <cve>CVE-2020-8022</cve>
-        <cve>CVE-2020-5398</cve>
-        <cve>CVE-2020-10672</cve>
-        <cve>CVE-2020-10673</cve>
-        <cve>CVE-2019-10172</cve>
-        <cve>CVE-2019-14900</cve>
-        <cve>CVE-2019-10086</cve>
-        <cve>CVE-2019-12402</cve>
-        <cve>CVE-2019-14540</cve>
-        <cve>CVE-2019-14893</cve>
-        <cve>CVE-2019-16335</cve>
-        <cve>CVE-2019-17267</cve>
-        <cve>CVE-2019-17638</cve>
-        <cve>CVE-2019-17195</cve>
-        <cve>CVE-2019-0223</cve>
-        <cve>CVE-2018-1270</cve>
-        <cve>CVE-2018-1271</cve>
-        <cve>CVE-2018-1272</cve>
-        <cve>CVE-2018-10237</cve>
-        <cwe>79</cwe>
-        <cve>CVE-2018-1000873</cve>
-        <cve>CVE-2018-14718</cve>
-        <cve>CVE-2018-5968</cve>
-        <cve>CVE-2018-17187</cve>
-        <cve>CVE-2018-7489</cve>
-        <cve>CVE-2017-15095</cve>
-        <cve>CVE-2017-17485</cve>
-        <cve>CVE-2017-7525</cve>
-        <cve>CVE-2015-0203</cve>
-        <cve>CVE-2015-0224</cve>
-        <cve>CVE-2015-0254</cve>
-        <cve>CVE-2015-0223</cve>
-        <cve>CVE-2017-18640</cve>
-        <cve>CVE-2019-17638</cve>
-        <cve>CVE-2020-24616</cve>
-    </suppress>
-    <suppress>
-        <notes>Transitive dependency of spring boot version</notes>
-        <cve>CVE-2020-5421</cve>
-    </suppress>
-
-    <suppress>
-        <notes>We are currently using wiremock lib to support functional Tests, as a transitive dependency we are having Jetty Lib which is having this CVE</notes>
-        <cve>CVE-2020-27216</cve>
-    </suppress>
-
-    <suppress>
-        <notes>This suppress specific cve for tomcat-embed-core-9.0.33.jar and tomcat-embed-websocket-9.0.33.jar</notes>
-        <cve>CVE-2020-13943</cve>
-    </suppress>
-
-    <suppress>
-        <notes> False positive reported at https://github.com/jeremylong/DependencyCheck/issues/1658 </notes>
-        <cve>CVE-2007-1651</cve>
-        <cve>CVE-2007-1652</cve>
-    </suppress>
-
-    <suppress>
-        <notes>Jetty jar vulnerability 9.4.27 Need to suppress, This is transitive dependency coming from properties-volume-spring-boot-starter project which is under reform</notes>
-        <cve>CVE-2020-27216</cve>
-        <cve>CVE-2020-27218</cve>
-    </suppress>
-
-    <suppress>
-        <notes>file name: junit-4.13.1.jar Awaiting patch for Junit : https://deb.freexian.com/extended-lts/tracker/CVE-2020-15250</notes>
-        <packageUrl regex="true">^pkg:maven/junit/junit@.*$</packageUrl>
-        <cve>CVE-2020-15250</cve>
-    </suppress>
-
-    <suppress>
-        <notes>Hibernate core 5.4.12 related issue, its transitive dependency coming from spring boot starter JPA</notes>
-        <cve>CVE-2020-25638</cve>
-    </suppress>
-
-    <suppress>
-        <notes>HTTP Client 4.5.11 suppression, root cause and fix needs to be carried out separately</notes>
-        <cve>CVE-2020-13956</cve>
-    </suppress>
-
-    <suppress>
-        <notes>Launch-darkley jar uses guava@28.2-jre as an internal library and it is not exposed outside. Since it cannot be upgraded,
-            this supression is added. </notes>
-        <cve>CVE-2020-8908</cve>
     </suppress>
 
     <suppress until="2021-02-14">
@@ -116,7 +20,53 @@
     </suppress>
 
     <suppress until="2021-02-14">
+        <notes>False positive reported at https://github.com/jeremylong/DependencyCheck/issues/1658 </notes>
+        <cve>CVE-2007-1651</cve>
+        <cve>CVE-2007-1652</cve>
+    </suppress>
+    <!-- False Positive CVE supressions ends here-->
+
+    <!-- Below are the supressions that are made for the CVEs which occur in the latest version -->
+    <suppress until="2021-02-14">
+        <notes>We are on latest version , these are coming form mvn:pkg </notes>
+        <cve>CVE-2020-13692</cve>
+    </suppress>
+
+    <suppress until="2021-02-14">
+        <notes>This CVE appears in the latest version of JSTL.</notes>
+        <cve>CVE-2015-0254</cve>
+    </suppress>
+
+    <suppress until="2021-02-14">
+        <notes>This CVE appears in the latest version of wiremock </notes>
+        <cve>CVE-2020-11022</cve>
+        <cve>CVE-2020-11023</cve>
+    </suppress >
+  
+    <suppress until="2021-02-14">
         <notes>This CWE occurs in the latest version of feign-core and feign-jackson</notes>
         <cwe>611</cwe>
     </suppress>
+    <!-- Supression Group ends here -->
+
+    <!-- Other Supressions -->
+    <suppress until="2021-02-14">
+        <notes>Transitive dependency of spring boot version</notes>
+        <cve>CVE-2020-5421</cve>
+    </suppress>
+
+    <suppress until="2021-02-14">
+        <notes>Jetty jar vulnerability 9.4.27 Need to suppress, This is transitive dependency coming from properties-volume-spring-boot-starter project which is under reform</notes>
+        <cve>CVE-2020-27216</cve>
+        <cve>CVE-2020-27218</cve>
+        <cve>CVE-2019-17638</cve>
+    </suppress>
+
+    <suppress until="2021-02-14">
+        <notes>Launch-darkley jar uses guava@28.2-jre as an internal library and it is not exposed outside. Since it cannot be upgraded,
+            this supression is added. </notes>
+        <cve>CVE-2020-8908</cve>
+    </suppress>
+    <!-- Other Supression Group Ends here -->
+  
 </suppressions>

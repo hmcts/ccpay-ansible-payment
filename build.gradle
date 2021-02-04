@@ -38,40 +38,8 @@ allprojects {
         jcenter()
         maven { url 'https://repo.spring.io/libs-milestone' }
     }
-
-    configurations.all {
-        resolutionStrategy {
-            eachDependency { DependencyResolveDetails det ->
-
-                if (det.requested.name == 'micrometer-core' && det.requested.group == 'io.micrometer') {
-                    det.useVersion '1.6.1'
-                }
-
-                if (det.requested.name == 'tomcat-embed-core') {
-                    det.useVersion '9.0.41'
-                }
-
-                if (det.requested.name == 'tomcat-embed-websocket') {
-                    det.useVersion '9.0.41'
-                }
-                if (det.requested.group == 'com.fasterxml.jackson.core') {
-                    det.useVersion '2.12.0'
-                }
-
-                if (det.requested.name == 'launchdarkly-java-server-sdk') {
-                    det.useVersion '5.2.1'
-                }
-
-                if (det.requested.name == 'handlebars') {
-                    det.useVersion '4.2.0'
-                }
-
-                if (det.requested.name == 'bcprov-jdk15on') {
-                    det.useVersion '1.68'
-                }
-            }
-        }
-    }
+    
+    apply from: "${rootDir}/cve-resolution-strategy.gradle"
 
     dependencyManagement {
         imports {
