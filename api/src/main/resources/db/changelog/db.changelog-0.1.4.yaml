@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 1554989041418-25
+      id: 1554989041418-31
       author: ayan
       changes:
         - createTable:
@@ -56,7 +56,7 @@ databaseChangeLog:
                   name: date_updated
                   type: TIMESTAMP WITHOUT TIME ZONE
   - changeSet:
-      id: 1554989041418-30
+      id: 1554989041418-32
       author: ayan
       changes:
         - addForeignKeyConstraint:
@@ -68,7 +68,7 @@ databaseChangeLog:
             referencedColumnNames: id
             referencedTableName: payment_fee_link
   - changeSet:
-      id: 1554989046143-21
+      id: 1554989046143-33
       author: ayan
       failOnError: true
       changes:
@@ -78,9 +78,8 @@ databaseChangeLog:
               ALTER TABLE fee ADD COLUMN amount_due numeric(19, 2);
               ALTER TABLE fee ADD COLUMN date_created TIMESTAMP(3) WITHOUT TIME ZONE;
               ALTER TABLE fee ADD COLUMN date_updated TIMESTAMP(3) WITHOUT TIME ZONE;
-
   - changeSet:
-      id: 1554989041418-22
+      id: 1554989041418-34
       author: ayan
       changes:
         - createTable:
@@ -108,7 +107,7 @@ databaseChangeLog:
                   ('remission_applied', 'Valid remission received and applied to fee successfully'),
                   ('payment_apportioned', 'Valid payment received and fee apportioned successfully');
   - changeSet:
-      id: 1554989041418-23
+      id: 1554989041418-35
       author: ayan
       changes:
         - createTable:
@@ -140,7 +139,7 @@ databaseChangeLog:
                   name: date_updated
                   type: TIMESTAMP WITHOUT TIME ZONE
   - changeSet:
-      id: 1554989041418-29
+      id: 1554989041418-36
       author: ayan
       changes:
         - addForeignKeyConstraint:
@@ -152,9 +151,9 @@ databaseChangeLog:
             referencedColumnNames: name
             referencedTableName: audit_events_type
 
-# Apportionment DB Model Rollback Scripts
+#  # Apportionment DB Model Rollback Scripts
 #  - changeSet:
-#      id: 1554989041418-24
+#      id: 1554989041418-36
 #      author: ayan
 #      failOnError: true
 #      changes:
@@ -169,4 +168,3 @@ databaseChangeLog:
 #              ALTER TABLE fee DROP COLUMN amount_due;
 #              ALTER TABLE fee DROP COLUMN date_created;
 #              ALTER TABLE fee DROP COLUMN date_updated;
-

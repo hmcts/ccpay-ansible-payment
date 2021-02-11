@@ -35,9 +35,7 @@ resource "azurerm_key_vault_secret" "gov-pay-keys-cmc-claim-store" {
 
 module "payment-database-v11" {
   source = "git@github.com:hmcts/cnp-module-postgres?ref=master"
-  product = var.product
-  component = var.component
-  name = join("-", [var.product, "postgres-db-v11"])
+  product = join("-", [var.product, "postgres-db-v11"])
   location = var.location
   env = var.env
   postgresql_user = var.postgresql_user
