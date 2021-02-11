@@ -26,11 +26,13 @@ public class FeesRegisterAdapter {
 
     @Cacheable(value = "feesDtoMap", key = "#root.method.name", unless = "#result == null || #result.isEmpty()")
     public Map<String, Fee2Dto> getFeesDtoMap() {
+        LOG.info("Value not present in Cache!!!So triggering a call to Fees Register");
         Map<String, Fee2Dto> feesDtoMap = null;
         try {
             Optional<Map<String, Fee2Dto>> optionalFeesDtoMap = feesRegisterClient.getFeesDataAsMap();
             if (optionalFeesDtoMap.isPresent()) {
                 feesDtoMap = optionalFeesDtoMap.get();
+                LOG.info("feesDtoMap size: {}",feesDtoMap.size());
             }
         } catch (Exception ex) {
             LOG.error("FeesService  -  Unable to get fees data. {}", ex.getMessage());

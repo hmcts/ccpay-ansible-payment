@@ -296,7 +296,18 @@ public class PaymentDtoMapper {
         if (bulkScanCheck && isBulkScanPayment) {
             paymentDto.setPaymentAllocation(payment.getPaymentAllocation() != null ? toPaymentAllocationDtoForLibereta(payment.getPaymentAllocation()) : null);
         }
-        return enrichWithFeeData(paymentDto);
+        boolean cacheFeature = featureToggler.getBooleanValue("cache-feature",false);
+        if(cacheFeature)
+        {
+            LOG.info("Inside CacheFeature and enrichWithFeeData!!!");
+            return enrichWithFeeData(paymentDto);
+        }
+        else
+        {
+            LOG.info("Inside Else part without enrichWithFeeData!!!");
+            return paymentDto;
+        }
+
     }
 
 

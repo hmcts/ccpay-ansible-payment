@@ -58,7 +58,7 @@ public class PaymentApiApplication {
         SimpleCacheManager cacheManager = new SimpleCacheManager();
         cacheManager.setCaches(Arrays.asList(
             new CaffeineCache("feesDtoMap", Caffeine.newBuilder()
-                .expireAfterWrite(1440, TimeUnit.MINUTES)
+                .expireAfterWrite(30, TimeUnit.MINUTES)
                     .build()),
             new CaffeineCache("sites", Caffeine.newBuilder()
                 .expireAfterWrite(48, TimeUnit.HOURS)
