@@ -46,7 +46,7 @@ public class PaymentFixture {
             .siteId("AA101")
             .customerReference("CUST101")
             .organisationName("ORG101")
-            .accountNumber("PBA0082848")
+            .accountNumber("PBAFUNC12345")
             .fees(Lists.newArrayList(
                 FeeDto.feeDtoWith()
                     .calculatedAmount(new BigDecimal(amountString))
@@ -69,7 +69,7 @@ public class PaymentFixture {
             .siteId("AAA7")
             .customerReference("CUST101")
             .organisationName("ORG101")
-            .accountNumber("PBA0082848")
+            .accountNumber("PBAFUNC12345")
             .fees(Lists.newArrayList(
                 FeeDto.feeDtoWith()
                     .calculatedAmount(new BigDecimal(amountString))
@@ -92,7 +92,7 @@ public class PaymentFixture {
             .siteId("BFA1")
             .customerReference("CUST101")
             .organisationName("ORG101")
-            .accountNumber("PBA0082848")
+            .accountNumber("PBAFUNC12345")
             .fees(Lists.newArrayList(
                 FeeDto.feeDtoWith()
                     .calculatedAmount(new BigDecimal(amountString))
@@ -115,7 +115,7 @@ public class PaymentFixture {
             .siteId("ABA3")
             .customerReference("CUST101")
             .organisationName("ORG101")
-            .accountNumber("PBA0082848")
+            .accountNumber("PBAFUNC12345")
             .fees(Lists.newArrayList(
                 FeeDto.feeDtoWith()
                     .calculatedAmount(new BigDecimal(amountString))
@@ -138,7 +138,7 @@ public class PaymentFixture {
             .siteId("ABA6")
             .customerReference("CUST101")
             .organisationName("ORG101")
-            .accountNumber("PBA0082848")
+            .accountNumber("PBAFUNC12345")
             .fees(Lists.newArrayList(
                 FeeDto.feeDtoWith()
                     .calculatedAmount(new BigDecimal(amountString))
@@ -161,7 +161,7 @@ public class PaymentFixture {
             .siteId("ABA6")
             .customerReference("CUST101")
             .organisationName("ORG101")
-            .accountNumber("PBA0082848")
+            .accountNumber("PBAFUNC12345")
             .fees(Lists.newArrayList(
                 FeeDto.feeDtoWith()
                     .calculatedAmount(new BigDecimal(amountString))
