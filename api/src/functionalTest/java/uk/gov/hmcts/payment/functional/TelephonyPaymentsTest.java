@@ -8,14 +8,12 @@ import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
-import uk.gov.hmcts.payment.api.contract.FeeDto;
-import uk.gov.hmcts.payment.api.contract.PaymentDto;
-import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
-import uk.gov.hmcts.payment.api.contract.TelephonyPaymentRequest;
+import uk.gov.hmcts.payment.api.contract.*;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
 import uk.gov.hmcts.payment.api.dto.PaymentRecordRequest;
@@ -39,6 +37,7 @@ import static uk.gov.hmcts.payment.functional.idam.IdamService.CMC_CITIZEN_GROUP
 public class TelephonyPaymentsTest {
     private static final String DATE_TIME_FORMAT_T_HH_MM_SS = "yyyy-MM-dd'T'HH:mm:ss";
     private static final String PAYMENT_REFERENCE_REGEX = "^[RC-]{3}(\\w{4}-){3}(\\w{4})";
+    private static final Logger LOG = LoggerFactory.getLogger(TelephonyPaymentsTest.class);
     private static String USER_TOKEN;
     private static String SERVICE_TOKEN;
     private static boolean TOKENS_INITIALIZED = false;
@@ -96,6 +95,12 @@ public class TelephonyPaymentsTest {
                 .when().updatePaymentStatus(referenceNumber, status)
                 .then().noContent();
 
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOG.error(e.getMessage());
+            }
+
             String endDateTime = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
 
             dsl.given().userToken(USER_TOKEN)
@@ -136,6 +141,12 @@ public class TelephonyPaymentsTest {
                 .returnUrl("https://www.moneyclaims.service.gov.uk")
                 .when().updatePaymentStatus(referenceNumber, status)
                 .then().noContent();
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOG.error(e.getMessage());
+            }
 
             String endDateTime = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
 
@@ -178,6 +189,13 @@ public class TelephonyPaymentsTest {
                 .returnUrl("https://www.moneyclaims.service.gov.uk")
                 .when().updatePaymentStatus(referenceNumber, status)
                 .then().noContent();
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOG.error(e.getMessage());
+            }
+
             String endDateTime = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
 
             dsl.given().userToken(USER_TOKEN)
