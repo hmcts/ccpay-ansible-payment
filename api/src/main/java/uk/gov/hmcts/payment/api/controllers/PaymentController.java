@@ -121,6 +121,57 @@ public class PaymentController {
             .map(s -> fromDateTime != null && s.getHourOfDay() == 0 ? s.plusDays(1).minusSeconds(1).toDate() : s.toDate())
             .orElse(null);
 
+        List<PaymentFeeLink> paymentFeeLinks = paymentService
+            .search(
+                PaymentSearchCriteria
+                    .searchCriteriaWith()
+                    .startDate(fromDateTime)
+                    .endDate(toDateTime)
+                    .ccdCaseNumber(ccdCaseNumber)
+                    .pbaNumber(pbaNumber)
+                    .paymentMethod(paymentMethodType.map(value -> PaymentMethodType.valueOf(value.toUpperCase()).getType()).orElse(null))
+                    .serviceType(serviceType.map(value -> Service.valueOf(value.toUpperCase()).getName()).orElse(null))
+                    .build()
+            );
+
+        final List<PaymentDto> paymentDtos = new ArrayList<>();
+        LOG.info("No of paymentFeeLinks retrieved for Liberata Pull : {}", paymentFeeLinks.size());
+        for (final PaymentFeeLink paymentFeeLink: paymentFeeLinks) {
+            populatePaymentDtos(paymentDtos, paymentFeeLink);
+        }
+        return new PaymentsResponse(paymentDtos);
+    }
+
+    @ApiOperation(value = "Get payments for between dates", notes = "Get list of payments. You can optionally provide start date and end dates which can include times as well. Following are the supported date/time formats. These are yyyy-MM-dd, dd-MM-yyyy," +
+        "yyyy-MM-dd HH:mm:ss, dd-MM-yyyy HH:mm:ss, yyyy-MM-dd'T'HH:mm:ss, dd-MM-yyyy'T'HH:mm:ss")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Payments retrieved"),
+        @ApiResponse(code = 400, message = "Bad request")
+    })
+    @GetMapping(value = "/payments-approach1")
+    @PaymentExternalAPI
+    public PaymentsResponse retrievePaymentsByApportion(@RequestParam(name = "start_date", required = false) Optional<String> startDateTimeString,
+                                             @RequestParam(name = "end_date", required = false) Optional<String> endDateTimeString,
+                                             @RequestParam(name = "payment_method", required = false) Optional<String> paymentMethodType,
+                                             @RequestParam(name = "service_name", required = false) Optional<String> serviceType,
+                                             @RequestParam(name = "ccd_case_number", required = false) String ccdCaseNumber,
+                                             @RequestParam(name = "pba_number", required = false) String pbaNumber
+    ) {
+
+        if (!ff4j.check("payment-search")) {
+            throw new PaymentException("Payment search feature is not available for usage.");
+        }
+
+        validator.validate(paymentMethodType, serviceType, startDateTimeString, endDateTimeString);
+
+        Date fromDateTime = Optional.ofNullable(startDateTimeString.map(formatter::parseLocalDateTime).orElse(null))
+            .map(LocalDateTime::toDate)
+            .orElse(null);
+
+        Date toDateTime = Optional.ofNullable(endDateTimeString.map(formatter::parseLocalDateTime).orElse(null))
+            .map(s -> fromDateTime != null && s.getHourOfDay() == 0 ? s.plusDays(1).minusSeconds(1).toDate() : s.toDate())
+            .orElse(null);
+
         List<Payment> payments = paymentService
             .search1(
                 PaymentSearchCriteria
@@ -189,6 +240,37 @@ public class PaymentController {
             .filter(p -> p.getReference().equals(reference)).findAny();
     }
 
+    private void populatePaymentDtos(final List<PaymentDto> paymentDtos, final PaymentFeeLink paymentFeeLink) {
+        //Adding this filter to exclude Exela payments if the bulk scan toggle feature is disabled.
+        List<Payment> payments = getFilteredListBasedOnBulkScanToggleFeature(paymentFeeLink);
+        boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature",false);
+
+        LOG.info("BSP Feature ON : No of Payments retrieved for Liberata Pull : {}", payments.size());
+        LOG.info("Apportion feature flag in liberata API: {}", apportionFeature);
+        for (final Payment payment: payments) {
+            final String paymentReference = paymentFeeLink.getPaymentReference();
+            //Apportion logic added for pulling allocation amount
+            boolean apportionCheck = payment.getPaymentChannel() != null
+                && !payment.getPaymentChannel().getName().equalsIgnoreCase(Service.DIGITAL_BAR.getName());
+            LOG.info("Apportion check value in liberata API: {}", apportionCheck);
+            List<PaymentFee> fees = paymentFeeLink.getFees();
+            boolean isPaymentAfterApportionment = false;
+            if (apportionCheck && apportionFeature) {
+                LOG.info("Apportion check and feature passed");
+                final List<FeePayApportion> feePayApportionList = paymentService.findByPaymentId(payment.getId());
+                if(feePayApportionList != null && !feePayApportionList.isEmpty()) {
+                    LOG.info("Apportion details available in PaymentController");
+                    fees = new ArrayList<>();
+                    getApportionedDetails(fees, feePayApportionList);
+                    isPaymentAfterApportionment = true;
+                }
+            }
+            //End of Apportion logic
+            final PaymentDto paymentDto = paymentDtoMapper.toReconciliationResponseDtoForLibereta(payment, paymentReference, fees,ff4j,isPaymentAfterApportionment);
+            paymentDtos.add(paymentDto);
+        }
+    }
+
     private void populatePaymentDtos(final List<PaymentDto> paymentDtos, final List<Payment> payments) {
         //Adding this filter to exclude Exela payments if the bulk scan toggle feature is disabled.
         List<Payment> filteredPayments = getFilteredListBasedOnBulkScanToggleFeature(payments);
@@ -244,6 +326,23 @@ public class PaymentController {
                 fees.add(fee);
             }
         }
+    }
+
+    private List<Payment> getFilteredListBasedOnBulkScanToggleFeature(PaymentFeeLink paymentFeeLink) {
+        List<Payment> payments = paymentFeeLink.getPayments();
+        boolean bulkScanCheck = ff4j.check("bulk-scan-check");
+        LOG.info("bulkScanCheck value: {}",bulkScanCheck);
+        if(!bulkScanCheck) {
+            LOG.info("BSP Feature OFF : No of Payments retrieved for Liberata Pull : {}", payments.size());
+            payments = Optional.ofNullable(payments)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .filter(payment -> Objects.nonNull(payment.getPaymentChannel()))
+                .filter(payment -> Objects.nonNull(payment.getPaymentChannel().getName()))
+                .filter(payment -> !payment.getPaymentChannel().getName().equalsIgnoreCase("bulk scan"))
+                .collect(Collectors.toList());
+        }
+        return payments;
     }
 
     private List<Payment> getFilteredListBasedOnBulkScanToggleFeature(List<Payment> payments) {
