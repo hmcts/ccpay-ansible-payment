@@ -20,6 +20,7 @@ public interface FeesRegisterClient {
     List<Fee2Dto> getFeesData();
 
     default Optional<Map<String,Fee2Dto>> getFeesDataAsMap() {
+        LOG.info("Inside getFeesDataAsMap in FeesRegisterClient!!!");
         return Optional.ofNullable(getFeesData().stream()
             .collect(Collectors.toMap(
                 Fee2Dto::getCode,

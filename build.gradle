@@ -1,14 +1,14 @@
 plugins {
     id 'application'
     id "org.sonarqube" version "3.0"
-    id 'org.springframework.boot' version '2.2.6.RELEASE'
+    id 'org.springframework.boot' version '2.3.6.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id "uk.gov.hmcts.java" version '0.12.0'
     id "com.gorylenko.gradle-git-properties" version "1.4.21"
     id 'jacoco'
 }
 
-def springBootVersion = '2.2.6.RELEASE'
+def springBootVersion = '2.3.6.RELEASE'
 def springCloudVersion = 'Finchley.SR2'
 
 
@@ -17,7 +17,6 @@ def versions = [
         javaVersion: '11',
         jacocoVersion: '0.8.5'
 ]
-
 allprojects {
     apply plugin: 'maven'
     apply plugin: 'io.spring.dependency-management'
@@ -39,35 +38,8 @@ allprojects {
         jcenter()
         maven { url 'https://repo.spring.io/libs-milestone' }
     }
-    configurations.all {
-        resolutionStrategy {
-            eachDependency { DependencyResolveDetails det ->
-                if (det.requested.name == 'tomcat-embed-core') {
-                    det.useVersion '9.0.41'
-                }
 
-                if (det.requested.name == 'tomcat-embed-websocket') {
-                    det.useVersion '9.0.41'
-                }
-                if (det.requested.group == 'com.fasterxml.jackson.core') {
-                    det.useVersion '2.12.0'
-                }
-
-                if (det.requested.name == 'launchdarkly-java-server-sdk') {
-                    det.useVersion '5.2.1'
-                }
-
-                if (det.requested.name == 'handlebars') {
-                    det.useVersion '4.2.0'
-                }
-
-                if (det.requested.name == 'bcprov-jdk15on') {
-                    det.useVersion '1.68'
-                }
-
-            }
-        }
-    }
+    apply from: "${rootDir}/cve-resolution-strategy.gradle"
 
     dependencyManagement {
         imports {
@@ -147,7 +119,7 @@ subprojects {
         compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
         testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-        compile 'org.jetbrains:annotations:16.0.2'
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
         compile(group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: '4.7.3') {
             sourceSets {
                 main {

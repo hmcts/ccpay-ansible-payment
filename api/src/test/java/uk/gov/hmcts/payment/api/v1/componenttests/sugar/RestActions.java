@@ -1,9 +1,8 @@
 package uk.gov.hmcts.payment.api.v1.componenttests.sugar;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.UUID;
-
 import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -12,8 +11,9 @@ import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.UserResolverBackdoor
 import uk.gov.hmcts.reform.auth.checker.core.service.ServiceRequestAuthorizer;
 import uk.gov.hmcts.reform.auth.checker.core.user.UserRequestAuthorizer;
 
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
+import java.util.UUID;
+
+import static org.springframework.http.MediaType.*;
 
 public class RestActions {
     private final HttpHeaders httpHeaders = new HttpHeaders();
@@ -83,6 +83,18 @@ public class RestActions {
             .headers(httpHeaders)
             .content(requestBody)
             .contentType(APPLICATION_FORM_URLENCODED_VALUE)
+            .accept(APPLICATION_JSON)));
+    }
+
+    public ResultActions postWithMultiPartFileData(String urlTemplate, MockMultipartFile mockMultipartFile
+        , String paramName, String paramValue) {
+
+        return translateException(() -> mvc.perform(MockMvcRequestBuilders
+            .multipart(urlTemplate)
+            .file(mockMultipartFile)
+            .headers(httpHeaders)
+            .param(paramName, paramValue)
+            .contentType(MULTIPART_FORM_DATA_VALUE)
             .accept(APPLICATION_JSON)));
     }
 

@@ -10,32 +10,35 @@ java:
     POSTGRES_CONNECTION_OPTIONS: "?sslmode=allow"
 
     SPRING_LIQUIBASE_ENABLED: true
-    SPRING_CLOUD_PROPERTIESVOLUME_ENABLED: false
     OIDC_ISSUER: https://forgerock-am.service.core-compute-idam-aat2.internal:8443/openam/oauth2/hmcts
-    OIDC_CLIENT_SECRET: NVYEC2X7XFSRENTU
-    OIDC_S2S_SECRET: G5XTFNBUW4P6ZP4F
     LAUNCH_DARKLY_USER_NAME_PREFIX: aat
-
     SPRING_PROFILES_ACTIVE: "liberataMock,callbackMock,ccdMock"
     CALLBACK_PAYMENTS_CUTOFF_TIME_IN_MINUTES: 0
 
     #Below key required for preview pipeline
     GOV_PAY_AUTH_KEY_CMC: 8ln764q6jrbgqvvvv40uggsea3h1p602v79gdrt7ni66mrmpk416ulohvd
     LAUNCH_DARKLY_SDK_KEY: sdk-06456c8b-312c-475c-b154-ca585f5ca063
-    CCPAY_BULK_SCANNING_API_URL: http://ccpay-bulkscanning-api-pr-251.service.core-compute-preview.internal
+    CCPAY_BULK_SCANNING_API_URL: http://ccpay-bulkscanning-api-aat.service.core-compute-aat.internal
     PAYMENT_S2S_SECRET: ETNY5CBN7NR62T6M
     PBA_CONFIG1_SERVICE_NAMES: PROBATE
-    PCI_PAL_ANTENNA_TENANT_NAME: HMCTS
-    PCI_PAL_ANTENNA_USER_NAME: APIUser
-    PCI_PAL_ANTENNA_CLIENT_ID: HMCTSStage
-    PCI_PAL_ANTENNA_CLIENT_SECRET: Vm82kOUZAf9U4Kms3hIQM03jqsDQKc8aHIGy5I9y
-    PCI_PAL_ANTENNA_GET_TOKENS_URL: https://pcipalstaging.cloud/api/v1/token
-    PCI_PAL_ANTENNA_LAUNCH_URL: https://euwest1.pcipalstaging.cloud/api/v1/session/303/launch
-    PCI_PAL_ANTENNA_VIEW_ID_URL: https://euwest1.pcipalstaging.cloud/session/303/view/
-    PCI_PAL_ANTENNA_RETURN_URL: http://localhost
-    PCI_PAL_ANTENNA_CMC_FLOW_ID: 1356
-    PCI_PAL_ANTENNA_PROBATE_FLOW_ID: 1356
-    PCI_PAL_ANTENNA_DIVORCE_FLOW_ID: 1356
-    PCI_PAL_ANTENNA_FINANCIAL_REMEDY_FLOW_ID: 1356
+      PCI_PAL_ANTENNA_TENANT_NAME: HMCTS
+      PCI_PAL_ANTENNA_USER_NAME: APIUser
+      PCI_PAL_ANTENNA_CLIENT_ID: HMCTSStage
+      PCI_PAL_ANTENNA_CLIENT_SECRET: Vm82kOUZAf9U4Kms3hIQM03jqsDQKc8aHIGy5I9y
+      PCI_PAL_ANTENNA_GET_TOKENS_URL: https://pcipalstaging.cloud/api/v1/token
+      PCI_PAL_ANTENNA_LAUNCH_URL: https://euwest1.pcipalstaging.cloud/api/v1/session/303/launch
+      PCI_PAL_ANTENNA_VIEW_ID_URL: https://euwest1.pcipalstaging.cloud/session/303/view/
+      PCI_PAL_ANTENNA_RETURN_URL: http://localhost
+      PCI_PAL_ANTENNA_CMC_FLOW_ID: 1356
+      PCI_PAL_ANTENNA_PROBATE_FLOW_ID: 1356
+      PCI_PAL_ANTENNA_DIVORCE_FLOW_ID: 1356
+      PCI_PAL_ANTENNA_FINANCIAL_REMEDY_FLOW_ID: 1356
+  keyVaults:
+    "ccpay":
+      resourceGroup: ccpay
+      secrets:
+        - gov-pay-keys-cmc
+        - launch-darkly-sdk-key
+        - payment-s2s-secret
   postgresql:
     enabled: true

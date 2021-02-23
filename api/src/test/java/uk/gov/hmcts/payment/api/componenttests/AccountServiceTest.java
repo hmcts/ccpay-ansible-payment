@@ -47,4 +47,13 @@ public class AccountServiceTest {
         when(restTemplateMock.getForObject(baseUrl + "/" + pbaCode, AccountDto.class)).thenReturn(expectedDto);
         assertEquals(expectedDto, accountServiceImpl.retrieve(pbaCode));
     }
+
+    @Test
+    public void retrieveMockAccountReturnsAccountDto() throws Exception {
+        String pbaCode = "PBAFUNC12345";
+        AccountDto expectedDto = new AccountDto(pbaCode, "CAERPHILLY COUNTY BOROUGH COUNCIL", new BigDecimal(28879),
+            new BigDecimal(30000), AccountStatus.ACTIVE,null);
+        when(restTemplateMock.getForObject(baseUrl + "/" + pbaCode, AccountDto.class)).thenReturn(expectedDto);
+        assertEquals(expectedDto, accountServiceImpl.retrieve(pbaCode));
+    }
 }

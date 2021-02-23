@@ -3,9 +3,11 @@ package uk.gov.hmcts.payment.api.componenttests;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.payment.api.model.*;
-import uk.gov.hmcts.payment.api.model.PaymentFeeLink.PaymentFeeLinkBuilder;
 import uk.gov.hmcts.payment.api.model.FeePayApportion.FeePayApportionBuilder;
+import uk.gov.hmcts.payment.api.model.PaymentFeeLink.PaymentFeeLinkBuilder;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
+
+import java.util.List;
 
 @Component
 public class PaymentDbBackdoor {
@@ -31,6 +33,10 @@ public class PaymentDbBackdoor {
     public FeePayApportion createApportionDetails(FeePayApportionBuilder apportionBuilder)
     {
         return feePayApportionRepository.save(apportionBuilder.build());
+    }
+
+    public List<Payment> findByCcdCaseNumber(String ccdCaseNumber) {
+        return paymentRepository.findByCcdCaseNumber(ccdCaseNumber).orElseThrow(PaymentNotFoundException::new);
     }
 
 

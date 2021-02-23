@@ -103,4 +103,15 @@ public class CreditAccountPaymentRequest {
         }
     }
 
+    @AssertFalse(message = "Invalid Site ID (URN) provided for PROBATE. Accepted values are ABA6")
+    private boolean isValidSiteIdProbate() {
+        String[] validSiteIds = {"ABA6"};
+        if(null != service && service.getName().equalsIgnoreCase(Service.PROBATE.getName())) {
+            return siteId != null && !Arrays.asList(validSiteIds).stream().anyMatch(vm -> vm.equalsIgnoreCase(
+                siteId));
+        } else {
+            return false;
+        }
+    }
+
 }
