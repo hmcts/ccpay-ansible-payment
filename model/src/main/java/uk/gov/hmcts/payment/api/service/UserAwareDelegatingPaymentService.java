@@ -281,6 +281,62 @@ public class UserAwareDelegatingPaymentService implements DelegatingPaymentServi
     }
 
     @Override
+    public List<Payment> search1(PaymentSearchCriteria searchCriteria) {
+        return paymentRespository.findAll(constructPaymentSpecification(searchCriteria));
+    }
+
+    private static final Specification constructPaymentSpecification(final PaymentSearchCriteria searchCriteria) {
+        return ((root, query, cb) -> constructPredicate(root, cb, searchCriteria, query));
+    }
+
+    private static Predicate constructPredicate(final Root<Payment> root,
+                                                final CriteriaBuilder cb,
+                                                final PaymentSearchCriteria searchCriteria,
+                                                final CriteriaQuery<?> query) {
+        final List<Predicate> predicates = new ArrayList<>();
+        final Expression<Date> dateUpdatedExpr = cb.function("date_trunc", Date.class, cb.literal("seconds"), root.get("dateUpdated"));
+
+        if (searchCriteria.getCcdCaseNumber() != null) {
+            predicates.add(cb.equal(root.get("ccdCaseNumber"), searchCriteria.getCcdCaseNumber()));
+        }
+        if (searchCriteria.getStartDate() != null && searchCriteria.getEndDate() != null) {
+            predicates.add(cb.between(dateUpdatedExpr, searchCriteria.getStartDate(), searchCriteria.getEndDate()));
+        } else if (searchCriteria.getStartDate() != null) {
+            predicates.add(cb.greaterThanOrEqualTo(dateUpdatedExpr, searchCriteria.getStartDate()));
+        } else if (searchCriteria.getEndDate() != null) {
+            predicates.add(cb.lessThanOrEqualTo(dateUpdatedExpr, searchCriteria.getEndDate()));
+        }
+        if (searchCriteria.getPaymentMethod() != null) {
+            if(searchCriteria.getPaymentMethod().equalsIgnoreCase("all"))
+            {
+                Predicate predicateCheque = cb.equal(root.get(PAYMENT_METHOD), PaymentMethod.paymentMethodWith().name("cheque").build());
+                Predicate predicateCard = cb.equal(root.get(PAYMENT_METHOD), PaymentMethod.paymentMethodWith().name("card").build());
+                Predicate predicateDD = cb.equal(root.get(PAYMENT_METHOD), PaymentMethod.paymentMethodWith().name("direct debit").build());
+                Predicate predicateCash = cb.equal(root.get(PAYMENT_METHOD), PaymentMethod.paymentMethodWith().name("cash").build());
+                Predicate predicatePBA = cb.equal(root.get(PAYMENT_METHOD), PaymentMethod.paymentMethodWith().name("payment by account").build());
+                Predicate predicateAllPay = cb.equal(root.get(PAYMENT_METHOD), PaymentMethod.paymentMethodWith().name("all pay").build());
+                Predicate predicatePO = cb.equal(root.get(PAYMENT_METHOD), PaymentMethod.paymentMethodWith().name("postal order").build());
+                Predicate predicateFinal = cb.or(predicateCheque,predicateCard,predicateDD,predicateCash,predicatePBA,predicateAllPay,predicatePO);
+                predicates.add(predicateFinal);
+            }
+            else
+            {
+                predicates.add(cb.equal(root.get(PAYMENT_METHOD), PaymentMethod.paymentMethodWith().name(searchCriteria.getPaymentMethod()).build()));
+            }
+
+        }
+        if (searchCriteria.getServiceType() != null) {
+            predicates.add(cb.equal(root.get("serviceType"), searchCriteria.getServiceType()));
+        }
+        if (searchCriteria.getPbaNumber() != null) {
+            predicates.add(cb.equal(root.get("pbaNumber"), searchCriteria.getPbaNumber()));
+        }
+
+        query.groupBy(root.get("id"));
+        return cb.and(predicates.toArray(REF));
+    }
+
+    @Override
     public void cancel(String paymentReference) {
         Payment payment = findSavedPayment(paymentReference);
         delegateGovPay.cancel(govpayUrl + "/" + payment.getExternalReference() + "/cancel");
