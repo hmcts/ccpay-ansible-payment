@@ -55,7 +55,6 @@
         <cve>CVE-2017-18640</cve>
         <cve>CVE-2019-17638</cve>
         <cve>CVE-2020-24616</cve>
-        <cve>CVE-2020-27216</cve>
     </suppress>
     <suppress>
         <notes>Transitive dependency of spring boot version</notes>
@@ -79,12 +78,6 @@
     </suppress>
 
     <suppress>
-        <notes>file name: junit-4.13.1.jar Awaiting patch for Junit : https://deb.freexian.com/extended-lts/tracker/CVE-2020-15250</notes>
-        <packageUrl regex="true">^pkg:maven/junit/junit@.*$</packageUrl>
-        <cve>CVE-2020-15250</cve>
-    </suppress>
-
-    <suppress>
         <notes>Jetty jar vulnerability 9.4.27 Need to suppress, This is transitive dependency coming from properties-volume-spring-boot-starter project which is under reform</notes>
         <cve>CVE-2020-27216</cve>
         <cve>CVE-2020-27218</cve>
@@ -105,13 +98,20 @@
         <notes>HTTP Client 4.5.11 suppression, root cause and fix needs to be carried out separately</notes>
         <cve>CVE-2020-13956</cve>
     </suppress>
+
     <suppress>
-        <notes>jackson-databind 2.10.0 suppression, its transitive dependency coming from spring boot</notes>
-        <cve>CVE-2020-25649</cve>
-    </suppress>
-    <suppress>
-        <notes>tomcat-embed-core 9.0.33 suppression, root cause and fix needs to be carried out separately</notes>
-        <cve>CVE-2020-17527</cve>
+        <notes>Launch-darkley jar uses guava@28.2-jre as an internal library and it is not exposed outside. Since it cannot be upgraded,
+            this supression is added. </notes>
+        <cve>CVE-2020-8908</cve>
     </suppress>
 
+    <suppress>
+        <notes><![CDATA[
+            This CVE is related to file type tag parsing. However, the associated CVE seems to be a false positive on the lang-tag jar.
+        ]]></notes>
+        <cve>CVE-2020-29242</cve>
+        <cve>CVE-2020-29243</cve>
+        <cve>CVE-2020-29244</cve>
+        <cve>CVE-2020-29245</cve>
+    </suppress>
 </suppressions>

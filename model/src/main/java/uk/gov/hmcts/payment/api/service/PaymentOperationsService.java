@@ -87,4 +87,8 @@ public class PaymentOperationsService implements PaymentService<Payment, String>
         return cb.and(predicates.toArray(new Predicate[0]));
     }
 
+    @Override
+    public List<Payment> search1(PaymentSearchCriteria searchCriteria) {
+        return null;
+    }
 }

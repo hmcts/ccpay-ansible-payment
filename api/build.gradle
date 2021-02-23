@@ -125,7 +125,7 @@ dependencies {
     testCompile group: 'org.projectlombok', name: 'lombok', version: versions.lombok
     testCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.7'
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf'
-    testCompile group: 'org.testcontainers', name: 'postgresql', version: '1.12.4'
+    testCompile group: 'org.testcontainers', name: 'postgresql', version: '1.15.1'
     testCompile 'org.awaitility:awaitility:3.1.6'
     // smoke
     smokeTestCompile sourceSets.test.runtimeClasspath

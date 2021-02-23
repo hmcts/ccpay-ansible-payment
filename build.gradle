@@ -39,6 +39,36 @@ allprojects {
         jcenter()
         maven { url 'https://repo.spring.io/libs-milestone' }
     }
+    configurations.all {
+        resolutionStrategy {
+            eachDependency { DependencyResolveDetails det ->
+                if (det.requested.name == 'tomcat-embed-core') {
+                    det.useVersion '9.0.41'
+                }
+
+                if (det.requested.name == 'tomcat-embed-websocket') {
+                    det.useVersion '9.0.41'
+                }
+                if (det.requested.group == 'com.fasterxml.jackson.core') {
+                    det.useVersion '2.12.0'
+                }
+
+                if (det.requested.name == 'launchdarkly-java-server-sdk') {
+                    det.useVersion '5.2.1'
+                }
+
+                if (det.requested.name == 'handlebars') {
+                    det.useVersion '4.2.0'
+                }
+
+                if (det.requested.name == 'bcprov-jdk15on') {
+                    det.useVersion '1.68'
+                }
+
+            }
+        }
+    }
+
     dependencyManagement {
         imports {
             mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
@@ -101,7 +131,6 @@ subprojects {
             exceptionFormat = 'full'
         }
     }
-
     dependencies {
         compile ('com.sun.xml.bind:jaxb-osgi:2.3.1')
         testCompile 'io.github.openfeign:feign-jackson:9.7.0'
@@ -118,6 +147,7 @@ subprojects {
         compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
         testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+        compile 'org.jetbrains:annotations:16.0.2'
         compile(group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: '4.7.3') {
             sourceSets {
                 main {

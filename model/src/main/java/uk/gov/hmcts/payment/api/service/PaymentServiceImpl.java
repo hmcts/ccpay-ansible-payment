@@ -137,4 +137,9 @@ public class PaymentServiceImpl implements PaymentService<PaymentFeeLink, String
     private Payment findSavedPayment(@NotNull String paymentReference) {
         return paymentRepository.findByReference(paymentReference).orElseThrow(PaymentNotFoundException::new);
     }
+
+    @Override
+    public List<Payment> search1(PaymentSearchCriteria searchCriteria) {
+        return delegatingPaymentService.search1(searchCriteria);
+    }
 }
