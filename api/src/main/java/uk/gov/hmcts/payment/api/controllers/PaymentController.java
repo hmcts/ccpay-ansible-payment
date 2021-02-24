@@ -317,25 +317,19 @@ public class PaymentController {
 
     private List<Payment> getFilteredListBasedOnBulkScanToggleFeature(PaymentFeeLink paymentFeeLink) {
         List<Payment> payments = paymentFeeLink.getPayments();
-        boolean bulkScanCheck = ff4j.check("bulk-scan-check");
-        LOG.info("bulkScanCheck value: {}",bulkScanCheck);
-        if(!bulkScanCheck) {
-            LOG.info("BSP Feature OFF : No of Payments retrieved for Liberata Pull : {}", payments.size());
-            payments = Optional.ofNullable(payments)
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .filter(payment -> Objects.nonNull(payment.getPaymentChannel()))
-                .filter(payment -> Objects.nonNull(payment.getPaymentChannel().getName()))
-                .filter(payment -> !payment.getPaymentChannel().getName().equalsIgnoreCase("bulk scan"))
-                .collect(Collectors.toList());
-        }
+        payments = getPayments(payments);
         return payments;
     }
 
     private List<Payment> getFilteredListBasedOnBulkScanToggleFeature(List<Payment> payments) {
+        payments = getPayments(payments);
+        return payments;
+    }
+
+    private List<Payment> getPayments(List<Payment> payments) {
         boolean bulkScanCheck = ff4j.check("bulk-scan-check");
-        LOG.info("bulkScanCheck value: {}",bulkScanCheck);
-        if(!bulkScanCheck) {
+        LOG.info("bulkScanCheck value: {}", bulkScanCheck);
+        if (!bulkScanCheck) {
             LOG.info("BSP Feature OFF : No of Payments retrieved for Liberata Pull : {}", payments.size());
             payments = Optional.ofNullable(payments)
                 .orElseGet(Collections::emptyList)
