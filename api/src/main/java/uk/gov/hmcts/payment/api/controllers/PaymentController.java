@@ -107,31 +107,15 @@ public class PaymentController {
                                              @RequestParam(name = "pba_number", required = false) String pbaNumber
     ) {
 
-        if (!ff4j.check("payment-search")) {
-            throw new PaymentException("Payment search feature is not available for usage.");
-        }
+        validatePullRequest(startDateTimeString, endDateTimeString, paymentMethodType, serviceType);
 
-        validator.validate(paymentMethodType, serviceType, startDateTimeString, endDateTimeString);
+        Date fromDateTime = getFromDateTime(startDateTimeString);
 
-        Date fromDateTime = Optional.ofNullable(startDateTimeString.map(formatter::parseLocalDateTime).orElse(null))
-            .map(LocalDateTime::toDate)
-            .orElse(null);
-
-        Date toDateTime = Optional.ofNullable(endDateTimeString.map(formatter::parseLocalDateTime).orElse(null))
-            .map(s -> fromDateTime != null && s.getHourOfDay() == 0 ? s.plusDays(1).minusSeconds(1).toDate() : s.toDate())
-            .orElse(null);
+        Date toDateTime = getToDateTime(endDateTimeString, fromDateTime);
 
         List<PaymentFeeLink> paymentFeeLinks = paymentService
             .search(
-                PaymentSearchCriteria
-                    .searchCriteriaWith()
-                    .startDate(fromDateTime)
-                    .endDate(toDateTime)
-                    .ccdCaseNumber(ccdCaseNumber)
-                    .pbaNumber(pbaNumber)
-                    .paymentMethod(paymentMethodType.map(value -> PaymentMethodType.valueOf(value.toUpperCase()).getType()).orElse(null))
-                    .serviceType(serviceType.map(value -> Service.valueOf(value.toUpperCase()).getName()).orElse(null))
-                    .build()
+                getSearchCriteria(paymentMethodType, serviceType, ccdCaseNumber, pbaNumber, fromDateTime, toDateTime)
             );
 
         final List<PaymentDto> paymentDtos = new ArrayList<>();
@@ -158,31 +142,15 @@ public class PaymentController {
                                              @RequestParam(name = "pba_number", required = false) String pbaNumber
     ) {
 
-        if (!ff4j.check("payment-search")) {
-            throw new PaymentException("Payment search feature is not available for usage.");
-        }
+        validatePullRequest(startDateTimeString, endDateTimeString, paymentMethodType, serviceType);
 
-        validator.validate(paymentMethodType, serviceType, startDateTimeString, endDateTimeString);
+        Date fromDateTime = getFromDateTime(startDateTimeString);
 
-        Date fromDateTime = Optional.ofNullable(startDateTimeString.map(formatter::parseLocalDateTime).orElse(null))
-            .map(LocalDateTime::toDate)
-            .orElse(null);
-
-        Date toDateTime = Optional.ofNullable(endDateTimeString.map(formatter::parseLocalDateTime).orElse(null))
-            .map(s -> fromDateTime != null && s.getHourOfDay() == 0 ? s.plusDays(1).minusSeconds(1).toDate() : s.toDate())
-            .orElse(null);
+        Date toDateTime = getToDateTime(endDateTimeString, fromDateTime);
 
         List<Payment> payments = paymentService
             .search1(
-                PaymentSearchCriteria
-                    .searchCriteriaWith()
-                    .startDate(fromDateTime)
-                    .endDate(toDateTime)
-                    .ccdCaseNumber(ccdCaseNumber)
-                    .pbaNumber(pbaNumber)
-                    .paymentMethod(paymentMethodType.map(value -> PaymentMethodType.valueOf(value.toUpperCase()).getType()).orElse(null))
-                    .serviceType(serviceType.map(value -> Service.valueOf(value.toUpperCase()).getName()).orElse(null))
-                    .build()
+                getSearchCriteria(paymentMethodType, serviceType, ccdCaseNumber, pbaNumber, fromDateTime, toDateTime)
             );
 
         final List<PaymentDto> paymentDtos = new ArrayList<>();
@@ -234,6 +202,38 @@ public class PaymentController {
             return paymentDtoMapper.toGetPaymentResponseDtos(payment1);
     }
 
+    private PaymentSearchCriteria getSearchCriteria(@RequestParam(name = "payment_method", required = false) Optional<String> paymentMethodType, @RequestParam(name = "service_name", required = false) Optional<String> serviceType, @RequestParam(name = "ccd_case_number", required = false) String ccdCaseNumber, @RequestParam(name = "pba_number", required = false) String pbaNumber, Date fromDateTime, Date toDateTime) {
+        return PaymentSearchCriteria
+            .searchCriteriaWith()
+            .startDate(fromDateTime)
+            .endDate(toDateTime)
+            .ccdCaseNumber(ccdCaseNumber)
+            .pbaNumber(pbaNumber)
+            .paymentMethod(paymentMethodType.map(value -> PaymentMethodType.valueOf(value.toUpperCase()).getType()).orElse(null))
+            .serviceType(serviceType.map(value -> Service.valueOf(value.toUpperCase()).getName()).orElse(null))
+            .build();
+    }
+
+    private Date getFromDateTime(@RequestParam(name = "start_date", required = false) Optional<String> startDateTimeString) {
+        return Optional.ofNullable(startDateTimeString.map(formatter::parseLocalDateTime).orElse(null))
+            .map(LocalDateTime::toDate)
+            .orElse(null);
+    }
+
+    private void validatePullRequest(@RequestParam(name = "start_date", required = false) Optional<String> startDateTimeString, @RequestParam(name = "end_date", required = false) Optional<String> endDateTimeString, @RequestParam(name = "payment_method", required = false) Optional<String> paymentMethodType, @RequestParam(name = "service_name", required = false) Optional<String> serviceType) {
+        if (!ff4j.check("payment-search")) {
+            throw new PaymentException("Payment search feature is not available for usage.");
+        }
+
+        validator.validate(paymentMethodType, serviceType, startDateTimeString, endDateTimeString);
+    }
+
+    private Date getToDateTime(@RequestParam(name = "end_date", required = false) Optional<String> endDateTimeString, Date fromDateTime) {
+        return Optional.ofNullable(endDateTimeString.map(formatter::parseLocalDateTime).orElse(null))
+            .map(s -> fromDateTime != null && s.getHourOfDay() == 0 ? s.plusDays(1).minusSeconds(1).toDate() : s.toDate())
+            .orElse(null);
+    }
+
     private Optional<Payment> getPaymentByReference(String reference) {
         PaymentFeeLink paymentFeeLink = paymentService.retrieve(reference);
         return paymentFeeLink.getPayments().stream()
@@ -250,24 +250,7 @@ public class PaymentController {
         for (final Payment payment: payments) {
             final String paymentReference = paymentFeeLink.getPaymentReference();
             //Apportion logic added for pulling allocation amount
-            boolean apportionCheck = payment.getPaymentChannel() != null
-                && !payment.getPaymentChannel().getName().equalsIgnoreCase(Service.DIGITAL_BAR.getName());
-            LOG.info("Apportion check value in liberata API: {}", apportionCheck);
-            List<PaymentFee> fees = paymentFeeLink.getFees();
-            boolean isPaymentAfterApportionment = false;
-            if (apportionCheck && apportionFeature) {
-                LOG.info("Apportion check and feature passed");
-                final List<FeePayApportion> feePayApportionList = paymentService.findByPaymentId(payment.getId());
-                if(feePayApportionList != null && !feePayApportionList.isEmpty()) {
-                    LOG.info("Apportion details available in PaymentController");
-                    fees = new ArrayList<>();
-                    getApportionedDetails(fees, feePayApportionList);
-                    isPaymentAfterApportionment = true;
-                }
-            }
-            //End of Apportion logic
-            final PaymentDto paymentDto = paymentDtoMapper.toReconciliationResponseDtoForLibereta(payment, paymentReference, fees,ff4j,isPaymentAfterApportionment);
-            paymentDtos.add(paymentDto);
+            populateApportionedFees(paymentDtos, paymentFeeLink, apportionFeature, payment, paymentReference);
         }
     }
 
@@ -279,30 +262,34 @@ public class PaymentController {
         LOG.info("BSP Feature ON : No of Payments retrieved for Liberata Pull : {}", payments.size());
         LOG.info("Apportion feature flag in liberata API: {}", apportionFeature);
         for (final Payment payment: filteredPayments) {
-            LOG.info("BSP Feature ON : No of Payments retrieved for Liberata Pull : {}", payments.size());
-            LOG.info("Apportion feature flag in liberata API: {}", apportionFeature);
             final String paymentReference = payment.getPaymentLink() != null ? payment.getPaymentLink().getPaymentReference() : null;
             //Apportion logic added for pulling allocation amount
-            boolean apportionCheck = payment.getPaymentChannel() != null
-                && !payment.getPaymentChannel().getName().equalsIgnoreCase(Service.DIGITAL_BAR.getName());
-            LOG.info("Apportion check value in liberata API: {}", apportionCheck);
-            List<PaymentFee> fees = payment.getPaymentLink() != null ? payment.getPaymentLink().getFees() : new ArrayList<>();
-            boolean isPaymentAfterApportionment = false;
-            if (apportionCheck && apportionFeature) {
-                LOG.info("Apportion check and feature passed");
-                final List<FeePayApportion> feePayApportionList = paymentService.findByPaymentId(payment.getId());
-                if(feePayApportionList != null && !feePayApportionList.isEmpty()) {
-                    LOG.info("Apportion details available in PaymentController");
-                    fees = new ArrayList<>();
-                    getApportionedDetails(fees, feePayApportionList);
-                    isPaymentAfterApportionment = true;
-                }
-            }
-            //End of Apportion logic
-            final PaymentDto paymentDto = paymentDtoMapper.toReconciliationResponseDtoForLibereta(payment, paymentReference, fees,ff4j,isPaymentAfterApportionment);
-            paymentDtos.add(paymentDto);
+            populateApportionedFees(paymentDtos, payment.getPaymentLink(), apportionFeature, payment, paymentReference);
         }
     }
+
+    private void populateApportionedFees(List<PaymentDto> paymentDtos, PaymentFeeLink paymentFeeLink, boolean apportionFeature, Payment payment, String paymentReference) {
+        boolean apportionCheck = payment.getPaymentChannel() != null
+            && !payment.getPaymentChannel().getName().equalsIgnoreCase(Service.DIGITAL_BAR.getName());
+        LOG.info("Apportion check value in liberata API: {}", apportionCheck);
+        List<PaymentFee> fees = paymentFeeLink.getFees();
+        boolean isPaymentAfterApportionment = false;
+        if (apportionCheck && apportionFeature) {
+            LOG.info("Apportion check and feature passed");
+            final List<FeePayApportion> feePayApportionList = paymentService.findByPaymentId(payment.getId());
+            if(feePayApportionList != null && !feePayApportionList.isEmpty()) {
+                LOG.info("Apportion details available in PaymentController");
+                fees = new ArrayList<>();
+                getApportionedDetails(fees, feePayApportionList);
+                isPaymentAfterApportionment = true;
+            }
+        }
+        //End of Apportion logic
+        final PaymentDto paymentDto = paymentDtoMapper.toReconciliationResponseDtoForLibereta(payment, paymentReference, fees,ff4j,isPaymentAfterApportionment);
+        paymentDtos.add(paymentDto);
+    }
+
+
 
     private void getApportionedDetails(List<PaymentFee> fees, List<FeePayApportion> feePayApportionList) {
         LOG.info("Getting Apportionment Details!!!");
