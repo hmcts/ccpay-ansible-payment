@@ -47,4 +47,19 @@ public class AccountServiceTest {
         when(restTemplateMock.getForObject(baseUrl + "/" + pbaCode, AccountDto.class)).thenReturn(expectedDto);
         assertEquals(expectedDto, accountServiceImpl.retrieve(pbaCode));
     }
+
+    @Test
+    public void retrieveMockAccountReturnsAccountDto() throws Exception {
+        String pbaCode = "PBAFUNC12345";
+        FieldSetter.setField(accountServiceImpl, accountServiceImpl.getClass().getDeclaredField("baseUrl"), baseUrl);
+        AccountDto expectedDto =  AccountDto.accountDtoWith()
+            .accountNumber("PBAFUNC12345")
+            .accountName("CAERPHILLY COUNTY BOROUGH COUNCIL")
+            .creditLimit(BigDecimal.valueOf(28879))
+            .availableBalance(BigDecimal.valueOf(30000))
+            .status(AccountStatus.ACTIVE)
+            .build();
+        when(restTemplateMock.getForObject(baseUrl + "/" + pbaCode, AccountDto.class)).thenReturn(expectedDto);
+        assertEquals(expectedDto, accountServiceImpl.retrieve(pbaCode));
+    }
 }
