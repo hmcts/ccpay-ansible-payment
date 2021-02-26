@@ -18,7 +18,7 @@ import uk.gov.hmcts.reform.auth.checker.spring.serviceonly.AuthCheckerServiceOnl
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 public class SpringSecurityConfiguration {
 
     private static final String CITIZEN_ROLE = "citizen";
@@ -69,6 +69,7 @@ public class SpringSecurityConfiguration {
 
         @Override
         public void configure(WebSecurity web) {
+            web.debug(true);
             web.ignoring().antMatchers("/swagger-ui.html",
                 "/webjars/springfox-swagger-ui/**",
                 "/swagger-resources/**",
