@@ -65,7 +65,6 @@ def versions = [
 def javaLoggingVersion = '5.1.1'
 
 dependencies {
-
   compile project(':payment-gov-pay-client')
   compile project(':payment-api-contract')
   compile project(':payment-model')
@@ -78,7 +77,7 @@ dependencies {
   compile group: 'org.springframework.boot', name: 'spring-boot-autoconfigure'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-security'
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
+  compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator',version: '2.3.6.RELEASE'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.1.2.RELEASE'
   compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.9'
@@ -108,7 +107,6 @@ dependencies {
     compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.1.RELEASE'
     compile group: 'uk.gov.hmcts.reform.fees-register', name: 'fees-register-api-contract', version: '2.3.0'
     compile group: 'uk.gov.hmcts.reform.fees-register', name: 'fees-register-model', version: '2.3.0'
-    compile group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version: '0.0.5'
     compile group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version: '0.0.4'
     //Added this for spring boot upgrade as swagger was not working with the latest version.
     compile group: 'org.springframework.plugin', name: 'spring-plugin-core', version: '1.2.0.RELEASE'

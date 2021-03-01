@@ -1,14 +1,14 @@
 plugins {
     id 'application'
     id "org.sonarqube" version "3.0"
-    id 'org.springframework.boot' version '2.2.6.RELEASE'
+    id 'org.springframework.boot' version '2.3.6.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id "uk.gov.hmcts.java" version '0.12.0'
     id "com.gorylenko.gradle-git-properties" version "1.4.21"
     id 'jacoco'
 }
 
-def springBootVersion = '2.2.6.RELEASE'
+def springBootVersion = '2.3.6.RELEASE'
 def springCloudVersion = 'Finchley.SR2'
 
 
@@ -33,29 +33,15 @@ allprojects {
     sourceCompatibility = versions.javaVersion
     targetCompatibility = versions.javaVersion
 
-
-    configurations.all {
-        resolutionStrategy {
-            eachDependency { DependencyResolveDetails det ->
-
-                if (det.requested.name == 'handlebars') {
-                    det.useVersion '4.2.0'
-                }
-
-                if (det.requested.name == 'bcprov-jdk15on') {
-                    det.useVersion '1.68'
-                }
-
-            }
-        }
-    }
-
     repositories {
         mavenLocal()
         maven { url "https://dl.bintray.com/hmcts/hmcts-maven" }
         jcenter()
         maven { url 'https://repo.spring.io/libs-milestone' }
     }
+
+    apply from: "${rootDir}/cve-resolution-strategy.gradle"
+
     dependencyManagement {
         imports {
             mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
@@ -118,7 +104,6 @@ subprojects {
             exceptionFormat = 'full'
         }
     }
-
     dependencies {
         compile ('com.sun.xml.bind:jaxb-osgi:2.3.1')
         testCompile 'io.github.openfeign:feign-jackson:9.7.0'
@@ -135,6 +120,16 @@ subprojects {
         compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
         testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+        compile(group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: '4.7.3') {
+            sourceSets {
+                main {
+                    java {
+                        exclude '**/CoreCaseDataClientAutoConfiguration.java'
+                    }
+                }
+            }
+        }
 
     }
 }

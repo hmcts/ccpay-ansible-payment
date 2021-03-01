@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1559091041418-6
+      author: aravindan
+      changes:
+        - createIndex:
+            indexName: ix_fee_pay_appor_pay_id
+            tableName: fee_pay_apportion
+            unique: false
+            columns:
+              - column:
+                  name: payment_id
+                  type: INT

@@ -79,6 +79,7 @@ public class SpringSecurityConfiguration {
                 "/refdata/status",
                 "/health",
                 "/health/liveness",
+                "/health/readiness",
                 "/info",
                 "/favicon.ico",
                 "/mock-api/**",

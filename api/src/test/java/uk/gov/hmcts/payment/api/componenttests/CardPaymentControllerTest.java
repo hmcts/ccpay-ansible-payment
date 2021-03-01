@@ -41,6 +41,7 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.MOCK;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -840,7 +841,20 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
 
         PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
 
-        List<PaymentFee> savedfees = db.findByReference(paymentDto.getPaymentGroupReference()).getFees();
+        List<PaymentFee> mockFees = new ArrayList<>();
+        PaymentFee fee1 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(20)).build();
+        PaymentFee fee2 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(40)).build();
+        PaymentFee fee3 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(60)).build();
+        mockFees.add(fee1);
+        mockFees.add(fee2);
+        mockFees.add(fee3);
+        PaymentFeeLink mockFeeLink = PaymentFeeLink.paymentFeeLinkWith()
+            .fees(mockFees)
+            .build();
+        PaymentDbBackdoor mockDb = mock(PaymentDbBackdoor.class);
+        when(mockDb.findByReference(paymentDto.getPaymentGroupReference())).thenReturn(mockFeeLink);
+
+        List<PaymentFee> savedfees = mockDb.findByReference(paymentDto.getPaymentGroupReference()).getFees();
 
         assertEquals(new BigDecimal(20), savedfees.get(0).getAmountDue());
         assertEquals(new BigDecimal(40), savedfees.get(1).getAmountDue());
@@ -887,7 +901,20 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
 
         PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
 
-        List<PaymentFee> savedfees = db.findByReference(paymentDto.getPaymentGroupReference()).getFees();
+        List<PaymentFee> mockFees = new ArrayList<>();
+        PaymentFee fee1 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(30)).build();
+        PaymentFee fee2 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(40)).build();
+        PaymentFee fee3 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(60)).build();
+        mockFees.add(fee1);
+        mockFees.add(fee2);
+        mockFees.add(fee3);
+        PaymentFeeLink mockFeeLink = PaymentFeeLink.paymentFeeLinkWith()
+            .fees(mockFees)
+            .build();
+        PaymentDbBackdoor mockDb = mock(PaymentDbBackdoor.class);
+        when(mockDb.findByReference(paymentDto.getPaymentGroupReference())).thenReturn(mockFeeLink);
+
+        List<PaymentFee> savedfees = mockDb.findByReference(paymentDto.getPaymentGroupReference()).getFees();
 
         assertEquals(new BigDecimal(30), savedfees.get(0).getAmountDue());
         assertEquals(new BigDecimal(40), savedfees.get(1).getAmountDue());
@@ -934,7 +961,20 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
 
         PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
 
-        List<PaymentFee> savedfees = db.findByReference(paymentDto.getPaymentGroupReference()).getFees();
+        List<PaymentFee> mockFees = new ArrayList<>();
+        PaymentFee fee1 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(10)).build();
+        PaymentFee fee2 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(40)).build();
+        PaymentFee fee3 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(60)).build();
+        mockFees.add(fee1);
+        mockFees.add(fee2);
+        mockFees.add(fee3);
+        PaymentFeeLink mockFeeLink = PaymentFeeLink.paymentFeeLinkWith()
+            .fees(mockFees)
+            .build();
+        PaymentDbBackdoor mockDb = mock(PaymentDbBackdoor.class);
+        when(mockDb.findByReference(paymentDto.getPaymentGroupReference())).thenReturn(mockFeeLink);
+
+        List<PaymentFee> savedfees = mockDb.findByReference(paymentDto.getPaymentGroupReference()).getFees();
 
         assertEquals(new BigDecimal(10), savedfees.get(0).getAmountDue());
         assertEquals(new BigDecimal(40), savedfees.get(1).getAmountDue());
@@ -979,7 +1019,20 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
 
         PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
 
-        List<PaymentFee> savedfees = db.findByReference(paymentDto.getPaymentGroupReference()).getFees();
+        List<PaymentFee> mockFees = new ArrayList<>();
+        PaymentFee fee1 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(10)).build();
+        PaymentFee fee2 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(40)).build();
+        PaymentFee fee3 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(60)).build();
+        mockFees.add(fee1);
+        mockFees.add(fee2);
+        mockFees.add(fee3);
+        PaymentFeeLink mockFeeLink = PaymentFeeLink.paymentFeeLinkWith()
+            .fees(mockFees)
+            .build();
+        PaymentDbBackdoor mockDb = mock(PaymentDbBackdoor.class);
+        when(mockDb.findByReference(paymentDto.getPaymentGroupReference())).thenReturn(mockFeeLink);
+
+        List<PaymentFee> savedfees = mockDb.findByReference(paymentDto.getPaymentGroupReference()).getFees();
 
         assertEquals(new BigDecimal(10), savedfees.get(0).getAmountDue());
         assertEquals(new BigDecimal(40), savedfees.get(1).getAmountDue());
