@@ -19,9 +19,6 @@ java:
     OIDC_CLIENT_SECRET: NVYEC2X7XFSRENTU
     OIDC_S2S_SECRET: G5XTFNBUW4P6ZP4F
 
-    SPRING_PROFILES_ACTIVE: "liberataMock,callbackMock,ccdMock"
-    CALLBACK_PAYMENTS_CUTOFF_TIME_IN_MINUTES: 0
-
     #Below key required for preview pipeline
     GOV_PAY_AUTH_KEY_CMC: 8ln764q6jrbgqvvvv40uggsea3h1p602v79gdrt7ni66mrmpk416ulohvd
     LAUNCH_DARKLY_SDK_KEY: sdk-06456c8b-312c-475c-b154-ca585f5ca063
