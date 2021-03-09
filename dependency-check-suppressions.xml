@@ -2,14 +2,14 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
 
     <!-- Below are the supressions added fpr False Positive CVEs -->
-    <suppress until="2021-03-14">
+    <suppress until="2021-05-05">
         <notes>The CVE-2018-1258 occurs from spring security libraries, despite the latest versions are used. This is confirmed as false positive
             and hence it is suppressed (https://github.com/jeremylong/DependencyCheck/issues/2952)
         </notes>
         <cve>CVE-2018-1258</cve>
     </suppress>
 
-    <suppress until="2021-03-14">
+    <suppress until="2021-05-05">
         <notes><![CDATA[
             This CVE is related to file type tag parsing. However, the associated CVE seems to be a false positive on the lang-tag jar.
         ]]></notes>
@@ -19,7 +19,7 @@
         <cve>CVE-2020-29245</cve>
     </suppress>
 
-    <suppress until="2021-03-14">
+    <suppress until="2021-05-05">
         <notes>False positive reported at https://github.com/jeremylong/DependencyCheck/issues/1658 </notes>
         <cve>CVE-2007-1651</cve>
         <cve>CVE-2007-1652</cve>
@@ -27,48 +27,49 @@
     <!-- False Positive CVE supressions ends here-->
 
     <!-- Below are the supressions that are made for the CVEs which occur in the latest version -->
-    <suppress until="2021-03-14">
+    <suppress until="2021-05-05">
         <notes>We are on latest version , these are coming form mvn:pkg </notes>
         <cve>CVE-2020-13692</cve>
     </suppress>
 
-    <suppress until="2021-03-14">
+    <suppress until="2021-05-05">
         <notes>This CVE appears in the latest version of JSTL.</notes>
         <cve>CVE-2015-0254</cve>
     </suppress>
 
-    <suppress until="2021-03-14">
+    <suppress until="2021-05-05">
         <notes>This CVE appears in the latest version of wiremock </notes>
         <cve>CVE-2020-11022</cve>
         <cve>CVE-2020-11023</cve>
     </suppress >
 
-    <suppress until="2021-02-28">
+    <suppress until="2021-05-05">
         <notes>This CWE occurs in the latest version of feign-core and feign-jackson</notes>
         <cwe>611</cwe>
     </suppress>
     <!-- Supression Group ends here -->
 
     <!-- Other Supressions -->
-    <suppress until="2021-03-14">
+    <suppress until="2021-05-05">
         <notes>Transitive dependency of spring boot version</notes>
         <cve>CVE-2020-5421</cve>
     </suppress>
 
-    <suppress until="2021-03-14">
+    <suppress until="2021-05-05">
         <notes>Jetty jar vulnerability 9.4.27 Need to suppress, This is transitive dependency coming from properties-volume-spring-boot-starter project which is under reform</notes>
         <cve>CVE-2020-27216</cve>
         <cve>CVE-2020-27218</cve>
         <cve>CVE-2019-17638</cve>
+        <cve>CVE-2020-27223</cve>
     </suppress>
 
-    <suppress until="2021-03-14">
+    <suppress until="2021-05-05">
         <notes>Launch-darkley jar uses guava@28.2-jre as an internal library and it is not exposed outside. Since it cannot be upgraded,
             this supression is added. </notes>
         <cve>CVE-2020-8908</cve>
     </suppress>
-  
-    <suppress until="2021-03-14">
+
+    <suppress until="2021-05-05">
         <notes><![CDATA[
             This CVE is related to file type tag parsing. However, the associated CVE seems to be a false positive on the lang-tag jar.
         ]]></notes>
@@ -77,8 +78,8 @@
         <cve>CVE-2020-29244</cve>
         <cve>CVE-2020-29245</cve>
     </suppress>
-    
-    <suppress until="2021-03-14">
+
+    <suppress until="2021-05-05">
         <notes>spring-security jars cannot be upgraded, this supression is added. </notes>
         <cve>CVE-2021-22112</cve>
     </suppress>

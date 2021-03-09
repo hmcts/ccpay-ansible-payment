@@ -1672,6 +1672,7 @@ public class PaymentControllerTest extends PaymentsDataUtil {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = "payments")
     public void duplicateBSPPaymentsShouldNotAppearLiberata() throws Exception {
         String paymentReference = "RC-1519-9028-1909-1435";
         populatePaymentToDbForBulkScanPayment(paymentReference, "2018-00000000001");
@@ -1680,11 +1681,11 @@ public class PaymentControllerTest extends PaymentsDataUtil {
         String endDate = LocalDateTime.now().toString(DATE_TIME_FORMAT);
 
         restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
+            .post("/api/ff4j/store/features/payment-search/enable","")
             .andExpect(status().isAccepted());
 
         restActions
-            .post("/api/ff4j/store/features/bulk-scan-check/enable")
+            .post("/api/ff4j/store/features/bulk-scan-check/enable","")
             .andExpect(status().isAccepted());
 
         MvcResult result1 = restActions
