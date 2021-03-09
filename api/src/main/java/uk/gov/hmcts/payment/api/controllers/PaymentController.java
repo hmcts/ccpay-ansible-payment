@@ -137,7 +137,7 @@ public class PaymentController {
         final List<PaymentDto> paymentDtos = new ArrayList<>();
         LOG.info("No of paymentFeeLinks retrieved for Liberata Pull : {}", paymentFeeLinks.size());
         for (final PaymentFeeLink paymentFeeLink: paymentFeeLinks) {
-            populatePaymentDtos(paymentDtos, paymentFeeLink);
+            populatePaymentDtos(paymentDtos, paymentFeeLink, fromDateTime, toDateTime);
         }
         return new PaymentsResponse(paymentDtos);
     }
@@ -190,9 +190,23 @@ public class PaymentController {
             .filter(p -> p.getReference().equals(reference)).findAny();
     }
 
-    private void populatePaymentDtos(final List<PaymentDto> paymentDtos, final PaymentFeeLink paymentFeeLink) {
+    private void populatePaymentDtos(final List<PaymentDto> paymentDtos, final PaymentFeeLink paymentFeeLink, Date fromDateTime, Date toDateTime) {
         //Adding this filter to exclude Exela payments if the bulk scan toggle feature is disabled.
         List<Payment> payments = getFilteredListBasedOnBulkScanToggleFeature(paymentFeeLink);
+
+        //Additional filter to retrieve payments within specified Date Range for Liberata Pull
+        if (null != fromDateTime && null != toDateTime) {
+            payments = payments.stream().filter(payment -> (payment.getDateUpdated().compareTo(fromDateTime) >= 0
+                && payment.getDateUpdated().compareTo(toDateTime) <= 0 ))
+                .collect(Collectors.toList());
+        } else if (null != fromDateTime) {
+            payments = payments.stream().filter(payment -> (payment.getDateUpdated().compareTo(fromDateTime) >= 0))
+                .collect(Collectors.toList());
+        } else if (null != toDateTime) {
+            payments = payments.stream().filter(payment -> (payment.getDateUpdated().compareTo(toDateTime) <= 0 ))
+                .collect(Collectors.toList());
+        }
+
         boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature",false);
 
         LOG.info("BSP Feature ON : No of Payments retrieved for Liberata Pull : {}", payments.size());
