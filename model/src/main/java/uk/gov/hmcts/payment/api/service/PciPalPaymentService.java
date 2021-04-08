@@ -48,6 +48,7 @@ public class PciPalPaymentService implements DelegatingPaymentService<PciPalPaym
     private static final String SERVICE_TYPE_CMC= "Specified Money Claims";
     private static final String SERVICE_TYPE_DIVORCE = "divorce";
     private static final String SERVICE_TYPE_FINREM = "Financial Remedy";
+    private static final String SERVICE_TYPE_OCMC = "OCMC";
 
     @Value("${pci-pal.account.id.cmc}")
     private String ppAccountIDCmc;
@@ -85,17 +86,14 @@ public class PciPalPaymentService implements DelegatingPaymentService<PciPalPaym
     @Value("${pci-pal.antenna.view.id.url}")
     private String viewIdURL;
 
-    @Value("${pci-pal.antenna.cmc.flow.id}")
-    private String cmcFlowId;
-
     @Value("${pci-pal.antenna.probate.flow.id}")
     private String probateFlowId;
 
     @Value("${pci-pal.antenna.divorce.flow.id}")
     private String divorceFlowId;
 
-    @Value("${pci-pal.antenna.financial.remedy.flow.id}")
-    private String financialRemedyFlowId;
+    @Value("${pci-pal.antenna.strategic.flow.id}")
+    private String strategicFlowId;
 
     private final String callbackUrl;
     private final String url;
@@ -197,9 +195,10 @@ public class PciPalPaymentService implements DelegatingPaymentService<PciPalPaym
 
         Map<String, String> flowIdHashMap = new HashMap<>();
         flowIdHashMap.put(SERVICE_TYPE_DIVORCE, divorceFlowId);
-        flowIdHashMap.put(SERVICE_TYPE_CMC, cmcFlowId);
         flowIdHashMap.put(SERVICE_TYPE_PROBATE, probateFlowId);
-        flowIdHashMap.put(SERVICE_TYPE_FINREM, financialRemedyFlowId);
+        flowIdHashMap.put(SERVICE_TYPE_CMC, strategicFlowId);
+        flowIdHashMap.put(SERVICE_TYPE_FINREM, strategicFlowId);
+        flowIdHashMap.put(SERVICE_TYPE_OCMC, strategicFlowId);
         if(flowIdHashMap.containsKey(serviceType))
         {
             flowId = flowIdHashMap.get(serviceType);
