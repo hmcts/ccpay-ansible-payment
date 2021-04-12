@@ -21,6 +21,7 @@
         <cve>CVE-2020-29245</cve>
     </suppress>
 
+
     <suppress until="2021-05-05">
         <notes><![CDATA[False positive reported for Oauth2-oidc-sdk at (https://github.com/jeremylong/DependencyCheck/issues/1658) and
             (https://github.com/jeremylong/DependencyCheck/issues/2866)]]></notes>
@@ -39,9 +40,6 @@
     </suppress>
     <!-- Supression Group ends here -->
 
-    <!-- Other Supressions -->
-
-    <!-- Other Supressions ends here-->
 
 
 </suppressions>

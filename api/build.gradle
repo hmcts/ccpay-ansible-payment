@@ -125,6 +125,8 @@ dependencies {
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf'
     testCompile group: 'org.testcontainers', name: 'postgresql', version: '1.15.1'
     testCompile 'org.awaitility:awaitility:3.1.6'
+    testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.9'
+    testCompile 'org.powermock:powermock-api-mockito2:2.0.9'
     // smoke
     smokeTestCompile sourceSets.test.runtimeClasspath
     // functional

@@ -349,7 +349,6 @@ public class BulkScanningReportControllerTest extends PaymentsDataUtil{
         paymentList.add(payment);
         when(paymentService.getPayments(any(Date.class),any(Date.class))).thenReturn(paymentList);
 
-
         MvcResult result = restActions
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
@@ -363,7 +362,6 @@ public class BulkScanningReportControllerTest extends PaymentsDataUtil{
     @Test
     @Transactional
     public void shouldGenerateReportWhenReportTypeIsSurplus() throws Exception {
-
         StatusHistory statusHistory = StatusHistory.statusHistoryWith().status("Initiated").externalStatus("created").build();
         PaymentAllocation paymentAllocation = PaymentAllocation.paymentAllocationWith().paymentGroupReference("2018-0000000000")
             .paymentReference("RC-1519-9028-2432-000")

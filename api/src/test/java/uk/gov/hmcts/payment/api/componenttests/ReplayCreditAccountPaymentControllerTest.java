@@ -379,18 +379,18 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
     private CreditAccountPaymentRequest getPBAPayment(Double calculatedAmount, List<FeeDto> fees) {
         return CreditAccountPaymentRequest.createCreditAccountPaymentRequestDtoWith()
-                .amount(new BigDecimal(calculatedAmount))
-                .ccdCaseNumber("1607065" + RandomUtils.nextInt(999999999))
-                .accountNumber("\"PBA0073" + RandomUtils.nextInt(999) + "\"")
-                .description("Money Claim issue fee")
-                .caseReference("\"9eb95270-7fee-48cf-afa2-e6c58ee" + RandomUtils.nextInt(999) + "ba\"")
-                .service("CMC")
-                .currency(CurrencyCode.GBP)
-                .customerReference("DEA2682/1/SWG" + RandomUtils.nextInt(999))
-                .organisationName("\"Slater & Gordon" + RandomUtils.nextInt(999) + "\"")
-                .siteId("Y689")
-                .fees(fees)
-                .build();
+            .amount(new BigDecimal(calculatedAmount))
+            .ccdCaseNumber("1607065" + RandomUtils.nextInt(999999999))
+            .accountNumber("\"PBA0073" + RandomUtils.nextInt(999) + "\"")
+            .description("Money Claim issue fee")
+            .caseReference("\"9eb95270-7fee-48cf-afa2-e6c58ee" + RandomUtils.nextInt(999) + "ba\"")
+            .service("CMC")
+            .currency(CurrencyCode.GBP)
+            .customerReference("DEA2682/1/SWG" + RandomUtils.nextInt(999))
+            .organisationName("\"Slater & Gordon" + RandomUtils.nextInt(999) + "\"")
+            .siteId("Y689")
+            .fees(fees)
+            .build();
     }
 
     @NotNull
