@@ -34,7 +34,6 @@ public class PaymentGroupDtoMapper {
 
 
     public PaymentGroupDto toPaymentGroupDto(PaymentFeeLink paymentFeeLink) {
-        LOG.info("toPaymentGroupDto");
         return PaymentGroupDto.paymentGroupDtoWith()
             .paymentGroupReference(paymentFeeLink.getPaymentReference())
             .dateCreated(paymentFeeLink.getDateCreated())

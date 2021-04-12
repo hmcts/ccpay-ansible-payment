@@ -170,22 +170,17 @@ public class UserAwareDelegatingPaymentService implements DelegatingPaymentServi
         } else {
             throw new MethodNotSupportedException("Only Telephony payments are supported");
         }
-        LOG.info("-----"+payment.getStatus());
-
         PaymentFeeLink paymentFeeLink = paymentFeeLinkRepository.findByPaymentReference(paymentServiceRequest.
             getPaymentGroupReference()).orElseThrow(InvalidPaymentGroupReferenceException::new);
-        LOG.info("-----a"+paymentFeeLink.getPayments());
         payment.setPaymentLink(paymentFeeLink);
 
         if(paymentFeeLink.getPayments() != null){
-            LOG.info("-----b"+paymentFeeLink.getPayments().size());
             paymentFeeLink.getPayments().addAll(Lists.newArrayList(payment));
         } else {
             paymentFeeLink.setPayments(Lists.newArrayList(payment));
         }
 
         auditRepository.trackPaymentEvent("CREATE_CARD_PAYMENT", payment, paymentFeeLink.getFees());
-        LOG.info("trackPaymentEvent done");
         return paymentFeeLink;
     }
 

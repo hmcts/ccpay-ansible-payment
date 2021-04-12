@@ -1,4 +1,4 @@
-package uk.gov.hmcts.payment.api.componenttests;
+package uk.gov.hmcts.payment.api.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.math.RandomUtils;
@@ -20,13 +20,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
-import uk.gov.hmcts.payment.api.componenttests.util.CSVUtil;
+import uk.gov.hmcts.payment.api.componenttests.PaymentDbBackdoor;
 import uk.gov.hmcts.payment.api.componenttests.util.PaymentsDataUtil;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.CreditAccountPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
-import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
+import uk.gov.hmcts.payment.api.controllers.utils.ReplayCreditAccountPaymentUtils;
 import uk.gov.hmcts.payment.api.dto.AccountDto;
 import uk.gov.hmcts.payment.api.model.Payment;
 import uk.gov.hmcts.payment.api.model.Payment2Repository;
@@ -37,13 +37,13 @@ import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.UserResolverBackdoor
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.CustomResultMatcher;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.RestActions;
 
-import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.util.Files.newFile;
@@ -82,6 +82,9 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
     @Autowired
     protected AccountService<AccountDto, String> accountService;
+
+    @Autowired
+    protected ReplayCreditAccountPaymentUtils replayCreditAccountPaymentUtils;
 
     private static final String USER_ID = UserResolverBackdoor.AUTHENTICATED_USER_ID;
 
@@ -126,7 +129,7 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
             createCreditAccountPayments(csvParseMap, 10);
 
             //Create CSV
-            createCSV(csvParseMap,"paymentsToReplay.csv");
+            replayCreditAccountPaymentUtils.createCSV(csvParseMap,"paymentsToReplay.csv");
 
             //Invoke replay-credit-account-payment
             MockMultipartFile csvFile = new MockMultipartFile("csvFile", "paymentsToReplay.csv", "text/csv",
@@ -200,7 +203,7 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
             createCreditAccountPayments(csvParseMap, 5);
 
             //Create CSV
-            createCSV(csvParseMap ,"paymentsToFailed.csv");
+            replayCreditAccountPaymentUtils.createCSV(csvParseMap ,"paymentsToFailed.csv");
 
             //Invoke replay-credit-account-payment
             MockMultipartFile csvFile = new MockMultipartFile("csvFile", "paymentsToFailed.csv", "text/csv",
@@ -277,7 +280,7 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
             });
 
             //Create CSV
-            createCSV(csvParseMapWithIncorrectPayRef,"paymentsToReplay.csv");
+            replayCreditAccountPaymentUtils.createCSV(csvParseMapWithIncorrectPayRef,"paymentsToReplay.csv");
 
             //Invoke replay-credit-account-payment
             MockMultipartFile csvFile = new MockMultipartFile("csvFile", "paymentsToReplay.csv", "text/csv",
@@ -304,61 +307,22 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
         }
     }
 
-    private void createCSV(Map<String, CreditAccountPaymentRequest> csvParseMap , String fileName) throws IOException {
-        String csvFile = "src/test/resources/" +fileName;
-        FileWriter writer = new FileWriter(csvFile);
-
-        //for header
-        CSVUtil.writeLine
-            (writer, Arrays.asList("index_col", "impacted.payment.reference", "payment.amount", "payment.ccd_case_number",
-                "payment.pba_number", "payment.description", "payment.case_reference", "payment.service",
-                "payment.currency", "payment.customer_reference", "payment.organisation_name", "payment.site_id",
-                "fee.code", "fee.calculated_amount", "fee.version"));
-
-        csvParseMap.entrySet().stream().forEach(paymentRequestEntry ->
-            {
-                CreditAccountPaymentRequest request = paymentRequestEntry.getValue();
-                List<String> list = new ArrayList<>();
-                list.add("");
-                list.add(paymentRequestEntry.getKey());
-                list.add(request.getAmount().toString());
-                list.add(request.getCcdCaseNumber());
-                list.add(request.getAccountNumber());
-                list.add(request.getDescription());
-                list.add(request.getCaseReference());
-                list.add("CMC");
-                list.add("GBP");
-                list.add(request.getCustomerReference());
-                list.add(request.getOrganisationName());
-                list.add(request.getSiteId());
-                list.add(request.getFees().get(0).getCode());
-                list.add(request.getFees().get(0).getCalculatedAmount().toString());
-                list.add(request.getFees().get(0).getVersion());
-
-                try {
-                    CSVUtil.writeLine(writer, list);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        );
-
-        writer.flush();
-        writer.close();
-    }
 
     private void createCreditAccountPayments(Map<String, CreditAccountPaymentRequest> csvParseMap , int noOfPayments) throws Exception {
         for (int i = 0; i < noOfPayments; i++) {
             //create PBA payment
-            setCreditAccountPaymentLiberataCheckFeature(true);
+            String url = replayCreditAccountPaymentUtils.setCreditAccountPaymentLiberataCheckFeature(true);
+            restActions
+                .post(url)
+                .andExpect(status().isAccepted());
 
             when(featureToggler.getBooleanValue("apportion-feature", false)).thenReturn(true);
 
             Double calculatedAmount = Double.parseDouble(Integer.toString(RandomUtils.nextInt(99) + 1));
 
-            List<FeeDto> fees = getFees(calculatedAmount);
+            List<FeeDto> fees = replayCreditAccountPaymentUtils.getFees(calculatedAmount);
 
-            CreditAccountPaymentRequest request = getPBAPayment(calculatedAmount, fees);
+            CreditAccountPaymentRequest request = replayCreditAccountPaymentUtils.getPBAPayment(calculatedAmount, fees);
 
             AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
                 new BigDecimal(calculatedAmount), new BigDecimal(calculatedAmount), AccountStatus.ACTIVE, new Date());
@@ -377,42 +341,4 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
         }
     }
 
-    private CreditAccountPaymentRequest getPBAPayment(Double calculatedAmount, List<FeeDto> fees) {
-        return CreditAccountPaymentRequest.createCreditAccountPaymentRequestDtoWith()
-            .amount(new BigDecimal(calculatedAmount))
-            .ccdCaseNumber("1607065" + RandomUtils.nextInt(999999999))
-            .accountNumber("\"PBA0073" + RandomUtils.nextInt(999) + "\"")
-            .description("Money Claim issue fee")
-            .caseReference("\"9eb95270-7fee-48cf-afa2-e6c58ee" + RandomUtils.nextInt(999) + "ba\"")
-            .service("CMC")
-            .currency(CurrencyCode.GBP)
-            .customerReference("DEA2682/1/SWG" + RandomUtils.nextInt(999))
-            .organisationName("\"Slater & Gordon" + RandomUtils.nextInt(999) + "\"")
-            .siteId("Y689")
-            .fees(fees)
-            .build();
-    }
-
-    @NotNull
-    private List<FeeDto> getFees(Double calculatedAmount) {
-        List<FeeDto> fees = new ArrayList<>();
-        fees.add(FeeDto.feeDtoWith()
-            .code("FEE020" + RandomUtils.nextInt(9))
-            .version(Integer.toString(RandomUtils.nextInt(9)))
-            .calculatedAmount(new BigDecimal(calculatedAmount)).build());
-        return fees;
-    }
-
-    private void setCreditAccountPaymentLiberataCheckFeature(boolean enabled) throws Exception {
-        String url = "/api/ff4j/store/features/credit-account-payment-liberata-check/";
-        if (enabled) {
-            url += "enable";
-        } else {
-            url += "disable";
-        }
-
-        restActions
-            .post(url)
-            .andExpect(status().isAccepted());
-    }
 }

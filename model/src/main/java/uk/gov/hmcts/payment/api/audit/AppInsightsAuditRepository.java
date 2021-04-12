@@ -48,9 +48,7 @@ public class AppInsightsAuditRepository implements AuditRepository {
             .put("status", payment.getStatus())
             .put("fees", fees != null ? toFeeDtoJson(fees) : "")
             .build();
-        LOG.info("---properties"+properties.toString());
         telemetry.trackEvent(name, properties,null);
-        LOG.info("---trackevent done");
     }
 
     private String toFeeDtoJson(List<PaymentFee> fees) {

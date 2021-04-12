@@ -3,7 +3,6 @@ package uk.gov.hmcts.payment.api.contract;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -58,7 +57,7 @@ public class CreditAccountPaymentRequestTest {
     @Test
     public void testValidateSiteIdForUnspecCmc(){
         CreditAccountPaymentRequest request = new CreditAccountPaymentRequest();
-        request.setService(Service.CMC);
+        request.setService("CMC");
         request.setSiteId("invalid-site-id");
         Set<ConstraintViolation<CreditAccountPaymentRequest>> violations = validator.validate(request);
         violations.stream().forEach(v->{
@@ -72,7 +71,7 @@ public class CreditAccountPaymentRequestTest {
     @Test
     public void testValidateSiteIdForIac(){
         CreditAccountPaymentRequest request = new CreditAccountPaymentRequest();
-        request.setService(Service.IAC);
+        request.setService("IAC");
         request.setSiteId("invalid-site-id");
         Set<ConstraintViolation<CreditAccountPaymentRequest>> violations = validator.validate(request);
         violations.stream().forEach(v->{
@@ -86,7 +85,7 @@ public class CreditAccountPaymentRequestTest {
     @Test
     public void testValidateSiteIdForFpl() {
         CreditAccountPaymentRequest request = new CreditAccountPaymentRequest();
-        request.setService(Service.IAC);
+        request.setService("IAC");
         request.setSiteId("invalid-site-id");
         Set<ConstraintViolation<CreditAccountPaymentRequest>> violations = validator.validate(request);
         violations.stream().forEach(v->{
