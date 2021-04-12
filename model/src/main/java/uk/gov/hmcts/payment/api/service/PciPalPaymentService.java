@@ -48,7 +48,6 @@ public class PciPalPaymentService implements DelegatingPaymentService<PciPalPaym
     private static final String SERVICE_TYPE_CMC= "Specified Money Claims";
     private static final String SERVICE_TYPE_DIVORCE = "divorce";
     private static final String SERVICE_TYPE_FINREM = "Financial Remedy";
-    private static final String SERVICE_TYPE_OCMC = "OCMC";
 
     @Value("${pci-pal.account.id.cmc}")
     private String ppAccountIDCmc;
@@ -198,7 +197,7 @@ public class PciPalPaymentService implements DelegatingPaymentService<PciPalPaym
         flowIdHashMap.put(SERVICE_TYPE_PROBATE, probateFlowId);
         flowIdHashMap.put(SERVICE_TYPE_CMC, strategicFlowId);
         flowIdHashMap.put(SERVICE_TYPE_FINREM, strategicFlowId);
-        flowIdHashMap.put(SERVICE_TYPE_OCMC, strategicFlowId);
+
         if(flowIdHashMap.containsKey(serviceType))
         {
             flowId = flowIdHashMap.get(serviceType);
