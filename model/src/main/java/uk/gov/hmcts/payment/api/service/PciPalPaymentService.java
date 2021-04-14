@@ -198,10 +198,12 @@ public class PciPalPaymentService implements DelegatingPaymentService<PciPalPaym
         flowIdHashMap.put(SERVICE_TYPE_CMC, strategicFlowId);
         flowIdHashMap.put(SERVICE_TYPE_FINREM, strategicFlowId);
 
+        LOG.info("serviceType: {} FlowId: {} ", serviceType, strategicFlowId);
         if(flowIdHashMap.containsKey(serviceType))
         {
             flowId = flowIdHashMap.get(serviceType);
         }
+
         else
         {
             throw new PaymentException("This service type is not supported for Telephony Payments!!!: " + serviceType);

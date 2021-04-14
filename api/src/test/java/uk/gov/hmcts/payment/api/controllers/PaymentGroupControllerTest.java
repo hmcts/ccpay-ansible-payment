@@ -2114,7 +2114,7 @@ public class PaymentGroupControllerTest {
         TelephonyCardPaymentsRequest telephonyCardPaymentsRequest = TelephonyCardPaymentsRequest.telephonyCardPaymentsRequestWith()
             .amount(amount)
             .currency(CurrencyCode.GBP)
-            .caseType("CMC")
+            .caseType("MoneyClaimCase")
             .ccdCaseNumber("2154234356342357")
             .returnURL("http://localhost")
             .build();
