@@ -43,3 +43,4 @@ spring:
         pci-pal-antenna-probate-flow-id: pci-pal.antenna.probate.flow.id
         pci-pal-antenna-divorce-flow-id: pci-pal.antenna.divorce.flow.id
         pci-pal-antenna-strategic-flow-id: pci-pal.antenna.strategic.flow.id
+        payment.spring-mail-password: spring.mail.password
