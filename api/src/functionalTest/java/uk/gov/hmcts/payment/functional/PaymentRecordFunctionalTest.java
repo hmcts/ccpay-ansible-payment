@@ -71,7 +71,7 @@ public class PaymentRecordFunctionalTest {
             assertNotNull(paymentDto.getReference());
 
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 LOG.error(e.getMessage());
             }
