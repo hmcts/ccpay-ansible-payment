@@ -8,7 +8,8 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Builder(builderMethodName = "paymentAllocationWith")
 @AllArgsConstructor
 @NoArgsConstructor

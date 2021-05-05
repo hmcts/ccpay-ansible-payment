@@ -44,14 +44,10 @@ import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 @Service
 public class PciPalPaymentService implements DelegatingPaymentService<PciPalPayment, String> {
     private static final Logger LOG = LoggerFactory.getLogger(PciPalPaymentService.class);
-    private static final String SERVICE_TYPE_PROBATE = "probate";
-    private static final String SERVICE_TYPE_CMC = "cmc";
-    private static final String SERVICE_TYPE_DIVORCE = "divorce";
-    private static final String SERVICE_TYPE_FINREM = "finrem";
-    private static final String PROBATE = "PROBATE";
-    private static final String DIVORCE = "DIVORCE";
-    private static final String CMC = "CMC";
-    private static final String FINREM = "FINREM";
+    private static final String SERVICE_TYPE_PROBATE = "Probate";
+    private static final String SERVICE_TYPE_CMC= "Specified Money Claims";
+    private static final String SERVICE_TYPE_DIVORCE = "Divorce";
+    private static final String SERVICE_TYPE_FINREM = "Financial Remedy";
 
     @Value("${pci-pal.account.id.cmc}")
     private String ppAccountIDCmc;
@@ -89,17 +85,14 @@ public class PciPalPaymentService implements DelegatingPaymentService<PciPalPaym
     @Value("${pci-pal.antenna.view.id.url}")
     private String viewIdURL;
 
-    @Value("${pci-pal.antenna.cmc.flow.id}")
-    private String cmcFlowId;
-
     @Value("${pci-pal.antenna.probate.flow.id}")
     private String probateFlowId;
 
     @Value("${pci-pal.antenna.divorce.flow.id}")
     private String divorceFlowId;
 
-    @Value("${pci-pal.antenna.financial.remedy.flow.id}")
-    private String financialRemedyFlowId;
+    @Value("${pci-pal.antenna.strategic.flow.id}")
+    private String strategicFlowId;
 
     private final String callbackUrl;
     private final String url;
@@ -200,15 +193,17 @@ public class PciPalPaymentService implements DelegatingPaymentService<PciPalPaym
         String flowId;
 
         Map<String, String> flowIdHashMap = new HashMap<>();
-        flowIdHashMap.put(DIVORCE, divorceFlowId);
-        flowIdHashMap.put(CMC, cmcFlowId);
-        flowIdHashMap.put(PROBATE, probateFlowId);
-        flowIdHashMap.put(FINREM, financialRemedyFlowId);
+        flowIdHashMap.put(SERVICE_TYPE_DIVORCE, divorceFlowId);
+        flowIdHashMap.put(SERVICE_TYPE_PROBATE, probateFlowId);
+        flowIdHashMap.put(SERVICE_TYPE_CMC, strategicFlowId);
+        flowIdHashMap.put(SERVICE_TYPE_FINREM, strategicFlowId);
 
+        LOG.info("serviceType: {} FlowId: {} ", serviceType, strategicFlowId);
         if(flowIdHashMap.containsKey(serviceType))
         {
             flowId = flowIdHashMap.get(serviceType);
         }
+
         else
         {
             throw new PaymentException("This service type is not supported for Telephony Payments!!!: " + serviceType);

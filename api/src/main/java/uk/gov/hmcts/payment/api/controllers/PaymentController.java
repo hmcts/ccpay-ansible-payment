@@ -16,7 +16,6 @@ import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
 import uk.gov.hmcts.payment.api.contract.UpdatePaymentRequest;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.dto.PaymentSearchCriteria;
 import uk.gov.hmcts.payment.api.dto.mapper.PaymentDtoMapper;
 import uk.gov.hmcts.payment.api.model.*;
@@ -48,15 +47,14 @@ public class PaymentController {
     private final FF4j ff4j;
     private final DateTimeFormatter formatter;
     private final PaymentFeeRepository paymentFeeRepository;
-
-    @Autowired
-    private LaunchDarklyFeatureToggler featureToggler;
+    private final LaunchDarklyFeatureToggler featureToggler;
 
     @Autowired
     public PaymentController(PaymentService<PaymentFeeLink, String> paymentService,
                              PaymentStatusRepository paymentStatusRepository, CallbackService callbackService,
                              PaymentDtoMapper paymentDtoMapper, PaymentValidator paymentValidator, FF4j ff4j,
-                             DateUtil dateUtil,PaymentFeeRepository paymentFeeRepository) {
+                             DateUtil dateUtil,PaymentFeeRepository paymentFeeRepository,
+                             LaunchDarklyFeatureToggler featureToggler) {
         this.paymentService = paymentService;
         this.callbackService = callbackService;
         this.paymentStatusRepository = paymentStatusRepository;
@@ -65,6 +63,7 @@ public class PaymentController {
         this.ff4j = ff4j;
         this.formatter = dateUtil.getIsoDateTimeFormatter();
         this.paymentFeeRepository = paymentFeeRepository;
+        this.featureToggler = featureToggler;
     }
 
     @ApiOperation(value = "Update case reference by payment reference", notes = "Update case reference by payment reference")
@@ -210,7 +209,7 @@ public class PaymentController {
             .ccdCaseNumber(ccdCaseNumber)
             .pbaNumber(pbaNumber)
             .paymentMethod(paymentMethodType.map(value -> PaymentMethodType.valueOf(value.toUpperCase()).getType()).orElse(null))
-            .serviceType(serviceType.map(value -> Service.valueOf(value.toUpperCase()).getName()).orElse(null))
+            .serviceType(serviceType.orElse(null))
             .build();
     }
 
@@ -225,7 +224,7 @@ public class PaymentController {
             throw new PaymentException("Payment search feature is not available for usage.");
         }
 
-        validator.validate(paymentMethodType, serviceType, startDateTimeString, endDateTimeString);
+        validator.validate(paymentMethodType, startDateTimeString, endDateTimeString);
     }
 
     private Date getToDateTime(@RequestParam(name = "end_date", required = false) Optional<String> endDateTimeString, Date fromDateTime) {
@@ -284,7 +283,7 @@ public class PaymentController {
 
     private void populateApportionedFees(List<PaymentDto> paymentDtos, PaymentFeeLink paymentFeeLink, boolean apportionFeature, Payment payment, String paymentReference) {
         boolean apportionCheck = payment.getPaymentChannel() != null
-            && !payment.getPaymentChannel().getName().equalsIgnoreCase(Service.DIGITAL_BAR.getName());
+            && !payment.getPaymentChannel().getName().equalsIgnoreCase(paymentService.getServiceNameByCode("DIGITAL_BAR"));
         LOG.info("Apportion check value in liberata API: {}", apportionCheck);
         List<PaymentFee> fees = paymentFeeLink.getFees();
         boolean isPaymentAfterApportionment = false;

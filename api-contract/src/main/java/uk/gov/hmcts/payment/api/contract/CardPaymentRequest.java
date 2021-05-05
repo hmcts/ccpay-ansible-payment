@@ -12,7 +12,6 @@ import lombok.experimental.Wither;
 import org.apache.commons.lang3.StringUtils;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
 import uk.gov.hmcts.payment.api.contract.util.Language;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -45,7 +44,10 @@ public class CardPaymentRequest {
 
     private String caseReference;
 
-    private Service service;
+    /*
+    Following attribute to be removed once all Services are on-boarded to Enterprise ORG ID
+    */
+    private String service;
 
     private CurrencyCode currency;
 
@@ -55,22 +57,33 @@ public class CardPaymentRequest {
 
     private String language;
 
-    @NotEmpty
+    /*
+    Following attribute to be removed once all Services are on-boarded to Enterprise ORG ID
+    */
     @JsonProperty("site_id")
     private String siteId;
+
+    @JsonProperty("case_type")
+    private String caseType;
 
     @Valid
     private List<FeeDto> fees;
 
     @AssertFalse(message = "Either ccdCaseNumber or caseReference is required.")
     private boolean isEitherOneRequired() {
-        return (ccdCaseNumber == null && caseReference == null);
+        return ((ccdCaseNumber == null || ccdCaseNumber.isEmpty()) && (caseReference == null || caseReference.isEmpty()));
     }
 
-    @AssertFalse(message =  "Invalid value for language attribute.")
+    @AssertFalse(message = "Either of Site ID or Case Type is mandatory as part of the request.")
+    private boolean isEitherIdOrTypeRequired() {
+        return ((StringUtils.isNotBlank(caseType) && StringUtils.isNotBlank(siteId)) ||
+            (StringUtils.isBlank(caseType) && StringUtils.isBlank(siteId)));
+    }
+
+    @AssertFalse(message = "Invalid value for language attribute.")
     private boolean isValidLanguage() {
-                return !StringUtils.isBlank(language) && !language.equalsIgnoreCase("string")
-                    && Arrays.stream(Language.values()).noneMatch(language1 ->
-                    language1.getLanguage().equalsIgnoreCase(language));
+        return !StringUtils.isBlank(language) && !language.equalsIgnoreCase("string")
+            && Arrays.stream(Language.values()).noneMatch(language1 ->
+            language1.getLanguage().equalsIgnoreCase(language));
     }
 }

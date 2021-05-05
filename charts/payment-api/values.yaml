@@ -75,6 +75,8 @@ java:
     FEATURE_SERVICE_CALLBACK: "true"
     PAYMENT_S2S_MICROSERVICE_NAME: payment_app
     PBA_CONFIG1_SERVICE_NAMES: CMC
+
+    RD_LOCATION_BASE_URL: http://rd-location-ref-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     SERVER_SHUTDOWN_STRATEGY: graceful
     TIMEOUT_SERVER_SHUTDOWN_PHASE: 30s
 
@@ -119,8 +121,7 @@ java:
         - pci-pal-antenna-launch-url
         - pci-pal-antenna-view-id-url
         - pci-pal-antenna-return-url
-        - pci-pal-antenna-cmc-flow-id
         - pci-pal-antenna-probate-flow-id
         - pci-pal-antenna-divorce-flow-id
-        - pci-pal-antenna-financial-remedy-flow-id
+        - pci-pal-antenna-strategic-flow-id
         - spring-mail-password

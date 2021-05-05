@@ -15,7 +15,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.dto.PaymentRecordRequest;
 import uk.gov.hmcts.payment.api.util.PaymentMethodType;
 import uk.gov.hmcts.payment.functional.config.TestConfigProperties;
@@ -143,7 +142,7 @@ public class PaymentBarPerformanceLiberataTest {
             .paymentMethod(PaymentMethodType.CASH)
             .reference("REF_123")
             .externalProvider("middle office provider")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .giroSlipNo("312131")
             .reportedDateOffline(DateTime.now().toString())
@@ -171,6 +170,7 @@ public class PaymentBarPerformanceLiberataTest {
             .s2sToken(SERVICE_TOKEN)
             .when().createTelephonyPayment(getPaymentRecordRequestForPostalOrder())
             .then().created(paymentDto -> {
+                LOG.info(paymentDto.getReference());
             assertNotNull(paymentDto.getReference());
         });
 
@@ -196,7 +196,7 @@ public class PaymentBarPerformanceLiberataTest {
         //Comparing the response size of old and new approach
         Java6Assertions.assertThat(liberataResponseOld.getPayments().size()).
             isEqualTo(liberataResponseApproach1.getPayments().size());
-
+        LOG.info(""+liberataResponseApproach1.getPayments().size());
         //Comparing the response of old and new approach
         Boolean compareResult = new HashSet<>(liberataResponseOld.getPayments()).equals(new HashSet<>(liberataResponseApproach1.getPayments()));
         Java6Assertions.assertThat(compareResult).isEqualTo(true);
@@ -245,7 +245,7 @@ public class PaymentBarPerformanceLiberataTest {
             .paymentMethod(PaymentMethodType.POSTAL_ORDER)
             .reference("REF_123")
             .externalProvider("middle office provider")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .giroSlipNo("312131")
             .reportedDateOffline(DateTime.now().toString())
@@ -347,7 +347,7 @@ public class PaymentBarPerformanceLiberataTest {
             .paymentMethod(PaymentMethodType.CHEQUE)
             .reference("REF_123")
             .externalProvider("middle office provider")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .giroSlipNo("312131")
             .reportedDateOffline(DateTime.now().toString())
@@ -447,7 +447,7 @@ public class PaymentBarPerformanceLiberataTest {
             .paymentMethod(PaymentMethodType.CARD)
             .reference("REF_123")
             .externalProvider("middle office provider")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .reportedDateOffline(DateTime.now().toString())
             .siteId("Y431")

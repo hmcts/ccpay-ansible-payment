@@ -15,13 +15,11 @@ import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.dto.PaymentSearchCriteria;
 import uk.gov.hmcts.payment.api.dto.Reference;
 import uk.gov.hmcts.payment.api.model.*;
+import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentException;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Service
@@ -44,6 +42,8 @@ public class PaymentServiceImpl implements PaymentService<PaymentFeeLink, String
     private final FeePayApportionService feePayApportionService;
     private final FeePayApportionRepository feePayApportionRepository;
     private final LaunchDarklyFeatureToggler featureToggler;
+    private static Map<String, String> serviceNameMap;
+
 
     @Value("${callback.payments.cutoff.time.in.minutes:2}")
     private int paymentsCutOffTime;
@@ -64,6 +64,21 @@ public class PaymentServiceImpl implements PaymentService<PaymentFeeLink, String
         this.feePayApportionService = feePayApportionService;
         this.feePayApportionRepository = feePayApportionRepository;
         this.featureToggler = featureToggler;
+    }
+
+    /*
+    Following piece of code to be removed once all Services are on-boarded to Enterprise ORG ID
+    */
+    static {
+        serviceNameMap = new HashMap<>();
+        serviceNameMap.put("CMC", "Civil Money Claims");
+        serviceNameMap.put("DIVORCE", "Divorce");
+        serviceNameMap.put("PROBATE", "Probate");
+        serviceNameMap.put("FINREM", "Finrem");
+        serviceNameMap.put("DIGITAL_BAR", "Digital Bar");
+        serviceNameMap.put("FPL", "Family Public Law");
+        serviceNameMap.put("IAC", "Immigration and Asylum Appeals");
+        serviceNameMap.put("UNSPEC", "Unspecified Claim");
     }
 
     @Override
@@ -138,6 +153,15 @@ public class PaymentServiceImpl implements PaymentService<PaymentFeeLink, String
     public List<FeePayApportion> findByPaymentId(Integer paymentId)
     {
         return feePayApportionRepository.findByPaymentId(paymentId).orElse(Collections.EMPTY_LIST);
+    }
+
+    @Override
+    public String getServiceNameByCode(String serviceCode) {
+        if(serviceNameMap.containsKey(serviceCode))
+        {
+            return serviceNameMap.get(serviceCode);
+        }
+        else throw new PaymentException("Service in Request is Invalid !!!");
     }
 
     private Payment findSavedPayment(@NotNull String paymentReference) {

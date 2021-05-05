@@ -135,17 +135,17 @@ public class PaymentDto {
                 .add(getStatus())
                 .add(getChannel())
                 .add(getMethod())
-                .add(getAmount().toString())
+                .add(getAmount() != null ? getAmount().toString() : "0.00")
                 .add(getSiteId());
 
             String memoLineWithQuotes = fee.getMemoLine() != null ? new StringBuffer().append('"').append(fee.getMemoLine()).append('"').toString() : "";
             String naturalAccountCode = fee.getNaturalAccountCode() != null ? fee.getNaturalAccountCode() : "";
             sb.add(fee.getCode())
                 .add(fee.getVersion())
-                .add(fee.getCalculatedAmount().toString())
+                .add(fee.getCalculatedAmount() != null ? fee.getCalculatedAmount().toString() : "0.00")
                 .add(memoLineWithQuotes)
                 .add(naturalAccountCode)
-                .add(fee.getVolume().toString());
+                .add(fee.getVolume() != null ? fee.getVolume().toString() : "1");
 
             result.add(sb.toString());
         }

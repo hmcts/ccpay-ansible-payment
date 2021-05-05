@@ -1,4 +1,4 @@
-package uk.gov.hmcts.payment.api.componenttests;
+package uk.gov.hmcts.payment.api.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.math.RandomUtils;
@@ -20,14 +20,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
-import uk.gov.hmcts.payment.api.componenttests.util.CSVUtil;
+import uk.gov.hmcts.payment.api.componenttests.PaymentDbBackdoor;
 import uk.gov.hmcts.payment.api.componenttests.util.PaymentsDataUtil;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.CreditAccountPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
-import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.controllers.utils.ReplayCreditAccountPaymentUtils;
 import uk.gov.hmcts.payment.api.dto.AccountDto;
 import uk.gov.hmcts.payment.api.model.Payment;
@@ -39,13 +37,13 @@ import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.UserResolverBackdoor
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.CustomResultMatcher;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.RestActions;
 
-import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.util.Files.newFile;
@@ -174,7 +172,7 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
                 Assert.assertEquals(entry.getValue().getAccountNumber().replace("\"", ""), newPayment.getPbaNumber());
                 Assert.assertEquals(entry.getValue().getDescription(), newPayment.getDescription());
                 Assert.assertEquals(entry.getValue().getCaseReference().replace("\"", ""), newPayment.getCaseReference());
-                Assert.assertEquals(entry.getValue().getService().getName(), newPayment.getServiceType());
+                Assert.assertEquals(entry.getValue().getService(), newPayment.getServiceType());
                 Assert.assertEquals(entry.getValue().getCurrency().getCode(), newPayment.getCurrency());
                 Assert.assertEquals(entry.getValue().getCustomerReference(), newPayment.getCustomerReference());
                 Assert.assertEquals(entry.getValue().getOrganisationName().replace("\"", ""), newPayment.getOrganisationName());
@@ -335,9 +333,12 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
                 .andExpect(status().isCreated())
                 .andReturn();
 
+            //Overwrite for response validation
+            request.setService("Civil Money Claims");
+
             PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
             csvParseMap.put(paymentDto.getReference(), request);
         }
     }
 
- }
+}

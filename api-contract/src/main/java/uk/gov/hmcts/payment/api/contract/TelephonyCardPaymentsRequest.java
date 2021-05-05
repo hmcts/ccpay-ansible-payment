@@ -10,10 +10,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Wither;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 
+import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
+import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
@@ -38,17 +39,16 @@ public class TelephonyCardPaymentsRequest {
     private String ccdCaseNumber;
 
     @NotNull
-    private Service service;
-
-    @NotNull
     private CurrencyCode currency;
 
     @NotEmpty
-    @JsonProperty("site_id")
-    private String siteId;
-
-    @NotEmpty
     private String returnURL;
+
+    @JsonProperty("case_type")
+    @NotBlank
+    private String caseType;
+
+
 
 
 }

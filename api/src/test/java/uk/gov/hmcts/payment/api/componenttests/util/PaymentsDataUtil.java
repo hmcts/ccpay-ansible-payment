@@ -615,6 +615,25 @@ public class PaymentsDataUtil {
             "  ]\n" +
             "}";
     }
+    protected String requestJsonWithCaseType() {
+        return "{\n" +
+            "  \"amount\": 100.89,\n" +
+            "  \"description\": \"New passport application\",\n" +
+            "  \"ccd_case_number\": \"CCD201\",\n" +
+            "  \"case_reference\": \"1234335\",\n" +
+            "  \"service\": \"CMC\",\n" +
+            "  \"currency\": \"GBP\",\n" +
+            "  \"return_url\": \"https://www.moneyclaims.service.gov.uk\",\n" +
+            "  \"case_type\": \"tax_exception\",\n" +
+            "  \"fees\": [\n" +
+            "    {\n" +
+            "      \"calculated_amount\": 100.89,\n" +
+            "      \"code\": \"X2101\",\n" +
+            "      \"version\": \"1\"\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+    }
 
     public Payment populatePaymentToDbForBulkScanPayment(String paymentRef, String groupRef) throws Exception {
         //Create a payment in remissionDbBackdoor

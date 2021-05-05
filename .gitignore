@@ -31,3 +31,4 @@ gov-pay-client/out/
 model/out/
 reference-data/out/
 /.apt_generated/
+/api/pacts/
