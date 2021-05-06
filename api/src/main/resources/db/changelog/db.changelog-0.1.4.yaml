@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 1554989041418-25
+      id: 1554989041418-31
       author: ayan
       changes:
         - createTable:
@@ -56,7 +56,7 @@ databaseChangeLog:
                   name: date_updated
                   type: TIMESTAMP WITHOUT TIME ZONE
   - changeSet:
-      id: 1554989041418-30
+      id: 1554989041418-32
       author: ayan
       changes:
         - addForeignKeyConstraint:
@@ -68,7 +68,7 @@ databaseChangeLog:
             referencedColumnNames: id
             referencedTableName: payment_fee_link
   - changeSet:
-      id: 1554989046143-21
+      id: 1554989041418-21
       author: ayan
       failOnError: true
       changes:
@@ -76,11 +76,12 @@ databaseChangeLog:
             splitStatements:
             sql: >
               ALTER TABLE fee ADD COLUMN amount_due numeric(19, 2);
+              ALTER TABLE fee ADD COLUMN date_apportioned TIMESTAMP WITHOUT TIME ZONE;
               ALTER TABLE fee ADD COLUMN date_created TIMESTAMP(3) WITHOUT TIME ZONE;
               ALTER TABLE fee ADD COLUMN date_updated TIMESTAMP(3) WITHOUT TIME ZONE;
 
   - changeSet:
-      id: 1554989041418-22
+      id: 1554989041418-34
       author: ayan
       changes:
         - createTable:
@@ -140,7 +141,7 @@ databaseChangeLog:
                   name: date_updated
                   type: TIMESTAMP WITHOUT TIME ZONE
   - changeSet:
-      id: 1554989041418-29
+      id: 1554989041418-36
       author: ayan
       changes:
         - addForeignKeyConstraint:
