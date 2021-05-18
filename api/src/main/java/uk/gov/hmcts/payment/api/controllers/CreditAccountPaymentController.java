@@ -6,34 +6,36 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.checkdigit.CheckDigitException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.CreditAccountPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.dto.AccountDto;
+import uk.gov.hmcts.payment.api.dto.OrganisationalServiceDto;
 import uk.gov.hmcts.payment.api.dto.mapper.CreditAccountDtoMapper;
-import uk.gov.hmcts.payment.api.mapper.PBAStatusErrorMapper;
 import uk.gov.hmcts.payment.api.exception.AccountNotFoundException;
 import uk.gov.hmcts.payment.api.exception.AccountServiceUnavailableException;
 import uk.gov.hmcts.payment.api.mapper.CreditAccountPaymentRequestMapper;
-import uk.gov.hmcts.payment.api.model.*;
-import uk.gov.hmcts.payment.api.service.AccountService;
-import uk.gov.hmcts.payment.api.service.CreditAccountPaymentService;
-import uk.gov.hmcts.payment.api.service.FeePayApportionService;
-import uk.gov.hmcts.payment.api.v1.model.exceptions.DuplicatePaymentException;
-import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentException;
-import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
+import uk.gov.hmcts.payment.api.mapper.PBAStatusErrorMapper;
+import uk.gov.hmcts.payment.api.model.Payment;
+import uk.gov.hmcts.payment.api.model.PaymentFee;
+import uk.gov.hmcts.payment.api.model.PaymentFeeLink;
+import uk.gov.hmcts.payment.api.model.PaymentStatus;
+import uk.gov.hmcts.payment.api.service.*;
+import uk.gov.hmcts.payment.api.v1.model.exceptions.*;
 import uk.gov.hmcts.payment.api.validators.DuplicatePaymentValidator;
+import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -58,16 +60,20 @@ public class CreditAccountPaymentController {
     private final PBAStatusErrorMapper pbaStatusErrorMapper;
     private final CreditAccountPaymentRequestMapper requestMapper;
     private final List<String> pbaConfig1ServiceNames;
+    private final PaymentService<PaymentFeeLink, String> paymentService;
+    private final ReferenceDataService referenceDataService;
+    private final AuthTokenGenerator authTokenGenerator;
 
-
-    @Autowired
-    public CreditAccountPaymentController(@Qualifier("loggingCreditAccountPaymentService") CreditAccountPaymentService<PaymentFeeLink, String> creditAccountPaymentService,
-                                          CreditAccountDtoMapper creditAccountDtoMapper,
-                                          AccountService<AccountDto, String> accountService,
-                                          DuplicatePaymentValidator paymentValidator,
-                                          FeePayApportionService feePayApportionService,LaunchDarklyFeatureToggler featureToggler,
-                                          PBAStatusErrorMapper pbaStatusErrorMapper,
-                                          CreditAccountPaymentRequestMapper requestMapper,  @Value("#{'${pba.config1.service.names}'.split(',')}") List<String> pbaConfig1ServiceNames) {
+    public CreditAccountPaymentController(
+        @Qualifier("loggingCreditAccountPaymentService") CreditAccountPaymentService<PaymentFeeLink, String> creditAccountPaymentService,
+        CreditAccountDtoMapper creditAccountDtoMapper,
+        AccountService<AccountDto, String> accountService,
+        DuplicatePaymentValidator paymentValidator,
+        FeePayApportionService feePayApportionService, LaunchDarklyFeatureToggler featureToggler,
+        PBAStatusErrorMapper pbaStatusErrorMapper,
+        CreditAccountPaymentRequestMapper requestMapper, @Value("#{'${pba.config1.service.names}'.split(',')}") List<String> pbaConfig1ServiceNames,
+        PaymentService<PaymentFeeLink, String> paymentService, ReferenceDataService referenceDataService,
+        AuthTokenGenerator authTokenGenerator) {
         this.creditAccountPaymentService = creditAccountPaymentService;
         this.creditAccountDtoMapper = creditAccountDtoMapper;
         this.accountService = accountService;
@@ -77,6 +83,9 @@ public class CreditAccountPaymentController {
         this.pbaStatusErrorMapper = pbaStatusErrorMapper;
         this.requestMapper = requestMapper;
         this.pbaConfig1ServiceNames = pbaConfig1ServiceNames;
+        this.paymentService = paymentService;
+        this.referenceDataService = referenceDataService;
+        this.authTokenGenerator = authTokenGenerator;
     }
 
     @ApiOperation(value = "Create credit account payment", notes = "Create credit account payment")
@@ -84,26 +93,44 @@ public class CreditAccountPaymentController {
         @ApiResponse(code = 201, message = "Payment created"),
         @ApiResponse(code = 400, message = "Payment creation failed"),
         @ApiResponse(code = 403, message = "Payment failed due to insufficient funds or the account being on hold"),
-        @ApiResponse(code = 404, message = "Account information could not be found"),
-        @ApiResponse(code = 504, message = "Unable to retrieve account information, please try again later"),
+        @ApiResponse(code = 404, message = "Account information could not be found, \t\n No Service found for given CaseType"),
+        @ApiResponse(code = 504, message = "Unable to retrieve account information, please try again later \t\n Unable to retrieve service information. Please try again later"),
         @ApiResponse(code = 422, message = "Invalid or missing attribute")
     })
     @PostMapping(value = "/credit-account-payments")
     @ResponseBody
     @Transactional
-    public ResponseEntity<PaymentDto> createCreditAccountPayment(@Valid @RequestBody CreditAccountPaymentRequest creditAccountPaymentRequest) throws CheckDigitException {
+    public ResponseEntity<PaymentDto> createCreditAccountPayment(@Valid @RequestBody CreditAccountPaymentRequest creditAccountPaymentRequest, @RequestHeader(required = false) MultiValueMap<String, String> headers) throws CheckDigitException {
         String paymentGroupReference = PaymentReference.getInstance().getNext();
+
+        /*
+        Following piece of code to be removed once all Services are on-boarded to PBA Config 2
+         */
+        LOG.info("PBA Old Config Service Names : {}", pbaConfig1ServiceNames);
+        Boolean isPBAConfig1Journey = pbaConfig1ServiceNames.contains(creditAccountPaymentRequest.getService())
+            ? true : false;
+
+        LOG.info("Case Type: {} ", creditAccountPaymentRequest.getCaseType());
+        if (StringUtils.isNotBlank(creditAccountPaymentRequest.getCaseType())) {
+            OrganisationalServiceDto organisationalServiceDto = referenceDataService.getOrganisationalDetail(creditAccountPaymentRequest.getCaseType(), headers);
+            creditAccountPaymentRequest.setSiteId(organisationalServiceDto.getServiceCode());
+            creditAccountPaymentRequest.setService(organisationalServiceDto.getServiceDescription());
+        } else {
+            creditAccountPaymentRequest.setService(paymentService.getServiceNameByCode(creditAccountPaymentRequest.getService()));
+        }
 
         final Payment payment = requestMapper.mapPBARequest(creditAccountPaymentRequest);
 
         List<PaymentFee> fees = requestMapper.mapPBAFeesFromRequest(creditAccountPaymentRequest);
 
+        LOG.info("payment site map  Id : {}", payment.getSiteId());
+
         LOG.debug("Create credit account request for PaymentGroupRef:" + paymentGroupReference + " ,with Payment and " + fees.size() + " - Fees");
 
         LOG.info("CreditAccountPayment received for ccdCaseNumber : {} serviceType : {} pbaNumber : {} amount : {} NoOfFees : {}",
             payment.getCcdCaseNumber(), payment.getServiceType(), payment.getPbaNumber(), payment.getAmount(), fees.size());
-        LOG.info("PBA Old Config Service Names : {}", pbaConfig1ServiceNames);
-        if (!pbaConfig1ServiceNames.contains(creditAccountPaymentRequest.getService().toString())) {
+
+        if (!isPBAConfig1Journey) {
             LOG.info("Checking with Liberata for Service : {}", creditAccountPaymentRequest.getService());
             AccountDto accountDetails;
             try {
@@ -134,15 +161,15 @@ public class CreditAccountPaymentController {
         }
 
         // trigger Apportion based on the launch darkly feature flag
-        boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature",false);
+        boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature", false);
         LOG.info("ApportionFeature Flag Value in CreditAccountPaymentController : {}", apportionFeature);
-        if(apportionFeature) {
+        if (apportionFeature) {
             Payment pbaPayment = paymentFeeLink.getPayments().get(0);
             pbaPayment.setPaymentLink(paymentFeeLink);
-            feePayApportionService.processApportion(pbaPayment);
+            feePayApportionService.processApportion(pbaPayment, false);
 
             // Update Fee Amount Due as Payment Status received from PBA Payment as SUCCESS
-            if(Lists.newArrayList("success", "pending").contains(pbaPayment.getPaymentStatus().getName().toLowerCase())) {
+            if (Lists.newArrayList("success", "pending").contains(pbaPayment.getPaymentStatus().getName().toLowerCase())) {
                 LOG.info("Update Fee Amount Due as Payment Status received from PBA Payment as {}" + pbaPayment.getPaymentStatus().getName());
                 feePayApportionService.updateFeeAmountDue(pbaPayment);
             }
@@ -210,6 +237,18 @@ public class CreditAccountPaymentController {
     @ResponseStatus(HttpStatus.GATEWAY_TIMEOUT)
     @ExceptionHandler(AccountServiceUnavailableException.class)
     public String return504(AccountServiceUnavailableException ex) {
+        return ex.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(value = {NoServiceFoundException.class})
+    public String return404(NoServiceFoundException ex) {
+        return ex.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.GATEWAY_TIMEOUT)
+    @ExceptionHandler(GatewayTimeoutException.class)
+    public String return504(GatewayTimeoutException ex) {
         return ex.getMessage();
     }
 

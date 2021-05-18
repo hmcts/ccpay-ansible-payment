@@ -57,4 +57,10 @@ public class DateUtil {
     public static Date localDateTimeToDate(LocalDateTime ldt) {
         return ldt == null ? null : Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
     }
+
+    public static Date convertToDateViaInstant(LocalDateTime dateToConvert) {
+        return java.util.Date
+            .from(dateToConvert.atZone(ZoneId.systemDefault())
+                .toInstant());
+    }
 }

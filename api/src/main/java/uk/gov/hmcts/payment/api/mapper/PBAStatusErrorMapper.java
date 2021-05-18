@@ -56,6 +56,11 @@ public class PBAStatusErrorMapper {
         }
     }
 
+    public void setOrderPaymentStatus(BigDecimal amount, Payment payment, AccountDto accountDetails) {
+        setPaymentStatus(CreditAccountPaymentRequest.createCreditAccountPaymentRequestDtoWith().amount(amount).build(), payment, accountDetails);
+    }
+
+
     private boolean isAccountBalanceSufficient(BigDecimal availableBalance, BigDecimal paymentAmount) {
         return availableBalance.compareTo(paymentAmount) >= 0;
     }

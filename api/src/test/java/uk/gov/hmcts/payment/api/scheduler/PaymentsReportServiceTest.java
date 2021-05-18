@@ -6,7 +6,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.dto.PaymentSearchCriteria;
 import uk.gov.hmcts.payment.api.dto.mapper.PaymentDtoMapper;
 import uk.gov.hmcts.payment.api.email.Email;
@@ -77,11 +76,11 @@ public class PaymentsReportServiceTest {
             .startDate(startDate)
             .endDate(endDate)
             .paymentMethod(PaymentMethodType.PBA.getType())
-            .serviceType(Service.DIVORCE.getName())
+            .serviceType("Divorce")
             .build();
 
         // when
-        paymentsReportService.generateCsvAndSendEmail(startDate, endDate, PaymentMethodType.PBA, Service.DIVORCE, paymentReportConfig);
+        paymentsReportService.generateCsvAndSendEmail(startDate, endDate, PaymentMethodType.PBA, "Divorce", paymentReportConfig);
 
         // then
         verify(delegatingPaymentService).search(criteria);

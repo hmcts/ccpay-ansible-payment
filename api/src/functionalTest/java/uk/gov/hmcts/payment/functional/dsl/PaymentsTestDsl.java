@@ -10,14 +10,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.payment.api.contract.*;
-import uk.gov.hmcts.payment.api.contract.util.Service;
-import uk.gov.hmcts.payment.api.dto.*;
+import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
+import uk.gov.hmcts.payment.api.contract.PaymentDto;
+import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
+import uk.gov.hmcts.payment.api.contract.TelephonyCardPaymentsRequest;
+import uk.gov.hmcts.payment.api.contract.TelephonyPaymentRequest;
+import uk.gov.hmcts.payment.api.dto.AccountDto;
+import uk.gov.hmcts.payment.api.dto.BulkScanPaymentRequest;
+import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
+import uk.gov.hmcts.payment.api.dto.PaymentGroupResponse;
+import uk.gov.hmcts.payment.api.dto.PaymentRecordRequest;
+import uk.gov.hmcts.payment.api.dto.RemissionRequest;
+import uk.gov.hmcts.payment.api.dto.TelephonyCallbackDto;
 import uk.gov.hmcts.payment.functional.idam.IdamService;
 import uk.gov.hmcts.payment.functional.s2s.S2sTokenService;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -100,8 +108,8 @@ public class PaymentsTestDsl {
             return this;
         }
 
-        public PaymentWhenDsl createTelephonyCardPayment(CardPaymentRequest cardPaymentRequest, String paymentGroupReference) {
-            response = newRequest().contentType(ContentType.JSON).body(cardPaymentRequest).post("/payment-groups/{payment-group-reference}/card-payments", paymentGroupReference);
+        public PaymentWhenDsl createTelephonyCardPayment(TelephonyPaymentRequest telephonyPaymentRequest, String paymentGroupReference) {
+            response = newRequest().contentType(ContentType.JSON).body(telephonyPaymentRequest).post("/payment-groups/{payment-group-reference}/card-payments", paymentGroupReference);
             return this;
         }
 
@@ -233,7 +241,7 @@ public class PaymentsTestDsl {
             return this;
         }
 
-        public PaymentWhenDsl searchPaymentsByServiceBetweenDates(Service serviceName, String startDate, String endDate) {
+        public PaymentWhenDsl searchPaymentsByServiceBetweenDates(String  serviceName, String startDate, String endDate) {
             StringBuilder sb = new StringBuilder("/payments?");
             sb.append("start_date=").append(startDate);
             sb.append("&end_date=").append(endDate);

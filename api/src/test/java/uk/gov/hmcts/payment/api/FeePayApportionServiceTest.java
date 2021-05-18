@@ -76,7 +76,7 @@ public class FeePayApportionServiceTest extends TestUtil {
             .fees(Arrays.asList(fee))
             .build());
         Mockito.when(paymentFeeRepository.findByCcdCaseNumber(Mockito.any())).thenThrow(new RuntimeException("DB Exception"));
-        feePayApportionService.processApportion(paymentFeeLink.getPayments().get(0));
+        feePayApportionService.processApportion(paymentFeeLink.getPayments().get(0), false);
     }
 
     @Test(expected = PaymentException.class)

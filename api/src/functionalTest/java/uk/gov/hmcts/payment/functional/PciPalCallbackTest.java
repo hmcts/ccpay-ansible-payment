@@ -13,8 +13,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
+import uk.gov.hmcts.payment.api.contract.TelephonyPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
 import uk.gov.hmcts.payment.api.dto.PaymentRecordRequest;
 import uk.gov.hmcts.payment.api.dto.TelephonyCallbackDto;
@@ -122,15 +122,14 @@ public class PciPalCallbackTest {
         fees.add(FeeDto.feeDtoWith().code("FEE0273").ccdCaseNumber(ccdCaseNumber).feeAmount(new BigDecimal(60))
             .volume(1).version("1").calculatedAmount(new BigDecimal(60)).build());
 
-        CardPaymentRequest cardPaymentRequest = CardPaymentRequest.createCardPaymentRequestDtoWith()
+        TelephonyPaymentRequest telephonyPaymentRequest = TelephonyPaymentRequest.createTelephonyPaymentRequestDtoWith()
             .amount(new BigDecimal("120"))
             .ccdCaseNumber(ccdCaseNumber)
             .channel("telephony")
+            .caseType("DIVORCE")
             .currency(CurrencyCode.GBP)
             .description("A test telephony payment")
             .provider("pci pal")
-            .service(Service.DIVORCE)
-            .siteId("AA007")
             .build();
 
         PaymentGroupDto groupDto = PaymentGroupDto.paymentGroupDtoWith()
@@ -149,7 +148,7 @@ public class PciPalCallbackTest {
             dsl.given().userToken(USER_TOKEN)
                 .s2sToken(SERVICE_TOKEN)
                 .returnUrl("https://www.moneyclaims.service.gov.uk")
-                .when().createTelephonyCardPayment(cardPaymentRequest, paymentGroupReference)
+                .when().createTelephonyCardPayment(telephonyPaymentRequest, paymentGroupReference)
                 .then().gotCreated(PaymentDto.class, paymentDto -> {
                     Assertions.assertThat(paymentDto).isNotNull();
                     Assertions.assertThat(paymentDto.getReference().matches(PAYMENT_REFERENCE_REGEX)).isTrue();
@@ -229,15 +228,14 @@ public class PciPalCallbackTest {
         fees.add(FeeDto.feeDtoWith().code("FEE0273").ccdCaseNumber(ccdCaseNumber).feeAmount(new BigDecimal(60))
             .volume(1).version("1").calculatedAmount(new BigDecimal(60)).build());
 
-        CardPaymentRequest cardPaymentRequest = CardPaymentRequest.createCardPaymentRequestDtoWith()
+        TelephonyPaymentRequest telephonyPaymentRequest = TelephonyPaymentRequest.createTelephonyPaymentRequestDtoWith()
             .amount(new BigDecimal("120"))
             .ccdCaseNumber(ccdCaseNumber)
             .channel("telephony")
             .currency(CurrencyCode.GBP)
             .description("A test telephony payment")
             .provider("pci pal")
-            .service(Service.DIVORCE)
-            .siteId("AA007")
+            .caseType("DIVORCE")
             .build();
 
         PaymentGroupDto groupDto = PaymentGroupDto.paymentGroupDtoWith()
@@ -256,7 +254,7 @@ public class PciPalCallbackTest {
             dsl.given().userToken(USER_TOKEN)
                 .s2sToken(SERVICE_TOKEN)
                 .returnUrl("https://www.moneyclaims.service.gov.uk")
-                .when().createTelephonyCardPayment(cardPaymentRequest, paymentGroupReference)
+                .when().createTelephonyCardPayment(telephonyPaymentRequest, paymentGroupReference)
                 .then().gotCreated(PaymentDto.class, paymentDto -> {
                 Assertions.assertThat(paymentDto).isNotNull();
                 Assertions.assertThat(paymentDto.getReference().matches(PAYMENT_REFERENCE_REGEX)).isTrue();
@@ -344,7 +342,7 @@ public class PciPalCallbackTest {
             .amount(new BigDecimal("99.99"))
             .paymentMethod(PaymentMethodType.CARD)
             .reference(reference)
-            .service(Service.CMC)
+            .service("CMC")
             .currency(CurrencyCode.GBP)
             .externalReference(reference)
             .siteId("AA01")

@@ -15,17 +15,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.dto.PaymentRecordRequest;
 import uk.gov.hmcts.payment.api.util.PaymentMethodType;
 import uk.gov.hmcts.payment.functional.config.TestConfigProperties;
 import uk.gov.hmcts.payment.functional.dsl.PaymentsTestDsl;
 import uk.gov.hmcts.payment.functional.idam.IdamService;
 import uk.gov.hmcts.payment.functional.s2s.S2sTokenService;
+
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.HashSet;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static uk.gov.hmcts.payment.functional.idam.IdamService.CMC_CITIZEN_GROUP;
@@ -67,7 +68,7 @@ public class PaymentBarPerformanceLiberataTest {
     @Test
     public void createPaymentRecordAndValidateSearchResults() throws Exception {
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_TIME_FORMAT);
-        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusSeconds(3).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusSeconds(30).toDate());
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
@@ -79,7 +80,7 @@ public class PaymentBarPerformanceLiberataTest {
         // search payment and assert the result
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -143,7 +144,7 @@ public class PaymentBarPerformanceLiberataTest {
             .paymentMethod(PaymentMethodType.CASH)
             .reference("REF_123")
             .externalProvider("middle office provider")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .giroSlipNo("312131")
             .reportedDateOffline(DateTime.now().toString())
@@ -165,7 +166,7 @@ public class PaymentBarPerformanceLiberataTest {
     @Test
     public void createBarPostalOrderPaymentRecordAndValidateSearchResults() throws Exception {
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_TIME_FORMAT);
-        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusSeconds(3).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusSeconds(30).toDate());
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
@@ -245,7 +246,7 @@ public class PaymentBarPerformanceLiberataTest {
             .paymentMethod(PaymentMethodType.POSTAL_ORDER)
             .reference("REF_123")
             .externalProvider("middle office provider")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .giroSlipNo("312131")
             .reportedDateOffline(DateTime.now().toString())
@@ -267,7 +268,7 @@ public class PaymentBarPerformanceLiberataTest {
     @Test
     public void createBarChequePaymentRecordAndValidateSearchResults() throws Exception {
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_TIME_FORMAT);
-        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusSeconds(3).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusSeconds(30).toDate());
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
@@ -278,7 +279,7 @@ public class PaymentBarPerformanceLiberataTest {
 
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -347,7 +348,7 @@ public class PaymentBarPerformanceLiberataTest {
             .paymentMethod(PaymentMethodType.CHEQUE)
             .reference("REF_123")
             .externalProvider("middle office provider")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .giroSlipNo("312131")
             .reportedDateOffline(DateTime.now().toString())
@@ -369,7 +370,7 @@ public class PaymentBarPerformanceLiberataTest {
     @Test
     public void createBarCardPaymentRecordAndValidateSearchResults() throws Exception {
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_TIME_FORMAT);
-        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusSeconds(3).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusSeconds(30).toDate());
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
@@ -447,7 +448,7 @@ public class PaymentBarPerformanceLiberataTest {
             .paymentMethod(PaymentMethodType.CARD)
             .reference("REF_123")
             .externalProvider("middle office provider")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .reportedDateOffline(DateTime.now().toString())
             .siteId("Y431")

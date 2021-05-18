@@ -1,0 +1,87 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1559091041418-38
+      author: vignesh
+      failOnError: true
+      changes:
+        - sql:
+            splitStatements:
+            sql: >
+              ALTER TABLE payment_fee_link ADD COLUMN org_id varchar(255);
+              ALTER TABLE payment_fee_link ADD COLUMN enterprise_service_name varchar(255);
+
+        - createTable:
+            tableName: case_details
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  constraints:
+                    nullable: false
+                  name: ccd_case_number
+                  type: varchar(255)
+              - column:
+                  name: case_reference
+                  type: varchar(255)
+              - column:
+                  name: date_created
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: date_updated
+                  type: TIMESTAMP WITHOUT TIME ZONE
+
+        - createTable:
+            tableName: order_cases
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  constraints:
+                    nullable: false
+                  name: case_details_id
+                  type: INT
+              - column:
+                  name: order_id
+                  type: INT
+
+        - addForeignKeyConstraint:
+            baseColumnNames: case_details_id
+            baseTableName: order_cases
+            constraintName: FK_boc1od01im5po7i8e5biph5vp
+            referencedColumnNames: id
+            referencedTableName: case_details
+
+        - addForeignKeyConstraint:
+            baseColumnNames: order_id
+            baseTableName: order_cases
+            constraintName: FK_boc1od01im5po7i8e5biph5pv
+            referencedColumnNames: id
+            referencedTableName: payment_fee_link
+
+        - createIndex:
+            indexName: ix_case_details_ccd_case_number
+            tableName: case_details
+            unique: true
+            columns:
+              - column:
+                  name: ccd_case_number
+                  type: varchar(255)
+
+        - createIndex:
+            indexName: ix_case_details_case_reference
+            tableName: case_details
+            unique: false
+            columns:
+              - column:
+                  name: case_reference
+                  type: varchar(255)

@@ -3,12 +3,15 @@ package uk.gov.hmcts.payment.api.service;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.payment.api.model.*;
+import uk.gov.hmcts.payment.api.util.OrderCaseUtil;
 import uk.gov.hmcts.payment.api.util.PayStatusToPayHubStatus;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.InvalidPaymentGroupReferenceException;
+import uk.gov.hmcts.payment.api.v1.model.exceptions.OrderException;
 
 import javax.persistence.criteria.*;
 import java.util.*;
@@ -25,6 +28,9 @@ public class PaymentGroupServiceImpl implements PaymentGroupService<PaymentFeeLi
 
     private final PaymentStatusRepository paymentStatusRepository;
 
+    @Autowired
+    private OrderCaseUtil orderCaseUtil;
+
     public PaymentGroupServiceImpl(PaymentFeeLinkRepository paymentFeeLinkRepository, PaymentStatusRepository paymentStatusRepository) {
         this.paymentFeeLinkRepository = paymentFeeLinkRepository;
         this.paymentStatusRepository = paymentStatusRepository;
@@ -32,7 +38,7 @@ public class PaymentGroupServiceImpl implements PaymentGroupService<PaymentFeeLi
 
     @Override
     public PaymentFeeLink findByPaymentGroupReference(String paymentGroupReference) {
-        return paymentFeeLinkRepository.findByPaymentReference(paymentGroupReference).orElseThrow(InvalidPaymentGroupReferenceException::new);
+        return paymentFeeLinkRepository.findByPaymentReference(paymentGroupReference).orElseThrow(() -> new InvalidPaymentGroupReferenceException("Order reference doesn't exist"));
     }
 
     @Override
@@ -47,6 +53,7 @@ public class PaymentGroupServiceImpl implements PaymentGroupService<PaymentFeeLi
         PaymentFeeLink paymentFeeLink = paymentFeeLinkRepository.findByPaymentReference(paymentGroupReference)
             .orElseThrow(() -> new InvalidPaymentGroupReferenceException("Payment group " + paymentGroupReference + " does not exists."));
 
+
         paymentFeeLink.getFees().addAll(fees);
 
         fees.stream().forEach(fee -> fee.setPaymentLink(paymentFeeLink));
@@ -59,6 +66,8 @@ public class PaymentGroupServiceImpl implements PaymentGroupService<PaymentFeeLi
 
         PaymentFeeLink paymentFeeLink = paymentFeeLinkRepository.findByPaymentReference(PaymentGroupReference)
             .orElseThrow(() -> new InvalidPaymentGroupReferenceException("Payment group " + PaymentGroupReference + " does not exists."));
+
+        orderCaseUtil.updateOrderCaseDetails(paymentFeeLink, payment);
 
         payment.setPaymentStatus(paymentStatusRepository.findByNameOrThrow(payment.getPaymentStatus().getName()));
         payment.setStatus(PayStatusToPayHubStatus.valueOf(payment.getPaymentStatus().getName()).getMappedStatus());
@@ -91,7 +100,7 @@ public class PaymentGroupServiceImpl implements PaymentGroupService<PaymentFeeLi
             .payments(Arrays.asList(payment))
             .build();
 
-        return  paymentFeeLinkRepository.save(paymentFeeLink);
+        return  paymentFeeLinkRepository.save(orderCaseUtil.enhanceWithOrderCaseDetails(paymentFeeLink, payment));
     }
 
 
