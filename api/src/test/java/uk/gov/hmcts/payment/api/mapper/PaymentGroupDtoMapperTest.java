@@ -7,24 +7,36 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import uk.gov.hmcts.fees2.register.api.contract.FeeVersionDto;
-import uk.gov.hmcts.fees2.register.data.service.FeeService;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
-import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.domain.service.FeeDomainService;
 import uk.gov.hmcts.payment.api.domain.service.PaymentDomainService;
-import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
+import uk.gov.hmcts.payment.api.dto.RetrieveOrderPaymentGroupDto;
 import uk.gov.hmcts.payment.api.dto.mapper.PaymentGroupDtoMapper;
-import uk.gov.hmcts.payment.api.model.*;
+import uk.gov.hmcts.payment.api.model.FeePayApportion;
+import uk.gov.hmcts.payment.api.model.Payment;
+import uk.gov.hmcts.payment.api.model.PaymentAllocation;
+import uk.gov.hmcts.payment.api.model.PaymentAllocationStatus;
+import uk.gov.hmcts.payment.api.model.PaymentChannel;
+import uk.gov.hmcts.payment.api.model.PaymentFee;
+import uk.gov.hmcts.payment.api.model.PaymentFeeLink;
+import uk.gov.hmcts.payment.api.model.PaymentMethod;
+import uk.gov.hmcts.payment.api.model.PaymentStatus;
+import uk.gov.hmcts.payment.api.model.Remission;
 import uk.gov.hmcts.payment.api.reports.FeesService;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -72,14 +84,14 @@ public class PaymentGroupDtoMapperTest {
 
     @Test
     public void testToPaymentGroupDtoForFeePayApportionment(){
-        PaymentGroupDto paymentGroupDto = PaymentGroupDto.paymentGroupDtoWith().build();
+        RetrieveOrderPaymentGroupDto paymentGroupDto = RetrieveOrderPaymentGroupDto.paymentGroupDtoWith().build();
         Payment payment = getPayment();
         FeeVersionDto feeVersionDto = FeeVersionDto.feeVersionDtoWith().build();
         Mockito.when(feesService.getFeeVersion(anyString(), anyString())).thenReturn(getPaymentFeeDto());
         Mockito.when(featureToggler.getBooleanValue(anyString(),anyBoolean())).thenReturn(true);
         Mockito.when(paymentDomainService.getFeePayApportionByPaymentId(anyInt())).thenReturn(Arrays.asList(getFeePayApportion()));
         when(feeDomainService.getPaymentFeeById(anyInt())).thenReturn(getPaymentFee());
-        PaymentGroupDto resultPaymentGroupDto = paymentGroupDtoMapper.toPaymentGroupDtoForFeePayApportionment(paymentGroupDto,payment);
+        RetrieveOrderPaymentGroupDto resultPaymentGroupDto = paymentGroupDtoMapper.toPaymentGroupDtoForFeePayApportionment(paymentGroupDto,payment);
         assertEquals(resultPaymentGroupDto.getPayments().get(0).getAmount(),new BigDecimal("100.00"));
 
     }
