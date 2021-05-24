@@ -37,7 +37,7 @@ public class AccountServiceImpl implements AccountService<AccountDto, String> {
         @HystrixProperty(name = "execution.timeout.enabled", value = "false")
     })
     public AccountDto retrieve(String pbaCode) {
-        if (mockLiberata) {
+        if (Boolean.TRUE.equals(mockLiberata)) {
             LOG.info("Liberata mock is enabled");
             return AccountDto.accountDtoWith()
                 .accountNumber(pbaCode)
