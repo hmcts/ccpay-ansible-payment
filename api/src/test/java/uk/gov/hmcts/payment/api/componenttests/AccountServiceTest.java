@@ -59,7 +59,7 @@ public class AccountServiceTest {
 
     @Test
     public void retrieveMockActiveDto() throws Exception {
-        String pbaCode = "pba0001_ACTIVE";
+        String pbaCode = "PBA0001_ACTIVE";
         AccountDto expectedDto = new AccountDto(pbaCode, "CAERPHILLY COUNTY BOROUGH COUNCIL", new BigDecimal(28879),
             new BigDecimal(30000), AccountStatus.ACTIVE, null);
         assertEquals(expectedDto, accountServiceImpl.retrieve(pbaCode));
@@ -67,7 +67,7 @@ public class AccountServiceTest {
 
     @Test
     public void retrieveMockDeletedDto() throws Exception {
-        String pbaCode = "pba0002_DELETED";
+        String pbaCode = "PBA0002_DELETED";
         AccountDto expectedDto = new AccountDto(pbaCode, "CAERPHILLY COUNTY BOROUGH COUNCIL", new BigDecimal(28879),
             new BigDecimal(30000), AccountStatus.DELETED, null);
         assertEquals(expectedDto, accountServiceImpl.retrieve(pbaCode));
@@ -75,7 +75,7 @@ public class AccountServiceTest {
 
     @Test
     public void retrieveMockOnHoldDto() throws Exception {
-        String pbaCode = "pba0003_ON_HOLD";
+        String pbaCode = "PBA0003_ON_HOLD";
         AccountDto expectedDto = new AccountDto(pbaCode, "CAERPHILLY COUNTY BOROUGH COUNCIL", new BigDecimal(28879),
             new BigDecimal(30000), AccountStatus.ON_HOLD, null);
         assertEquals(expectedDto, accountServiceImpl.retrieve(pbaCode));
