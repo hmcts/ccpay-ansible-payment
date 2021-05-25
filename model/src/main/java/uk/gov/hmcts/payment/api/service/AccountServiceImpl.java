@@ -32,6 +32,9 @@ public class AccountServiceImpl implements AccountService<AccountDto, String> {
     @Value("${liberata.api.mock}")
     private Boolean mockLiberata;
 
+    @Value("${liberat.api.mock.account}")
+    private String accounts;
+
     @Override
     @HystrixCommand(commandKey = "retrievePbaAccount", commandProperties = {
         @HystrixProperty(name = "execution.timeout.enabled", value = "false")
@@ -51,12 +54,8 @@ public class AccountServiceImpl implements AccountService<AccountDto, String> {
     }
 
     private AccountStatus getAccountStatus(String pbaCode) {
-        if (pbaCode.equalsIgnoreCase("pba0001_ACTIVE")) {
-            return AccountStatus.ACTIVE;
-        } else if (pbaCode.equalsIgnoreCase("pba0002_DELETED")) {
-            return AccountStatus.DELETED;
-        } else if(pbaCode.equalsIgnoreCase("pba0003_ON_HOLD")) {
-            return AccountStatus.ON_HOLD;
+        if (accounts.contains(pbaCode)) {
+            return AccountStatus.valueOf(pbaCode.replaceAll("^.+?_", ""));
         }
         throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "UnKnown test pba account number");
     }

@@ -37,11 +37,14 @@ public class AccountServiceTest {
     private String baseUrl;
     @Value("${liberata.api.mock}")
     private Boolean mockLiberata;
+    @Value("${liberat.api.mock.account}")
+    private String accounts;
 
     @Before
     public void setup() throws Exception {
         FieldSetter.setField(accountServiceImpl, accountServiceImpl.getClass().getDeclaredField("baseUrl"), baseUrl);
         FieldSetter.setField(accountServiceImpl, accountServiceImpl.getClass().getDeclaredField("mockLiberata"), mockLiberata);
+        FieldSetter.setField(accountServiceImpl, accountServiceImpl.getClass().getDeclaredField("accounts"), accounts);
     }
 
     @Test
