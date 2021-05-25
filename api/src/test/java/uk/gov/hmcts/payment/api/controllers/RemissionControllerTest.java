@@ -1,4 +1,4 @@
-package uk.gov.hmcts.payment.api.componenttests;
+package uk.gov.hmcts.payment.api.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
@@ -13,6 +13,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
+import uk.gov.hmcts.payment.api.componenttests.PaymentDbBackdoor;
+import uk.gov.hmcts.payment.api.componenttests.PaymentFeeDbBackdoor;
+import uk.gov.hmcts.payment.api.componenttests.RemissionDbBackdoor;
 import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;

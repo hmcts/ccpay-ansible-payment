@@ -166,7 +166,7 @@ public class CreditAccountPaymentController {
         if (apportionFeature) {
             Payment pbaPayment = paymentFeeLink.getPayments().get(0);
             pbaPayment.setPaymentLink(paymentFeeLink);
-            feePayApportionService.processApportion(pbaPayment, false);
+            feePayApportionService.processApportion(pbaPayment);
 
             // Update Fee Amount Due as Payment Status received from PBA Payment as SUCCESS
             if (Lists.newArrayList("success", "pending").contains(pbaPayment.getPaymentStatus().getName().toLowerCase())) {

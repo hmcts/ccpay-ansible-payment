@@ -11,18 +11,21 @@ import uk.gov.hmcts.payment.api.contract.PaymentAllocationDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.RetrieveOrderPaymentDto;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.domain.service.FeeDomainService;
-import uk.gov.hmcts.payment.api.domain.service.PaymentDomainService;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
 import uk.gov.hmcts.payment.api.dto.RemissionDto;
-import uk.gov.hmcts.payment.api.dto.RetrieveOrderPaymentGroupDto;
-import uk.gov.hmcts.payment.api.model.*;
+import uk.gov.hmcts.payment.api.model.Payment;
+import uk.gov.hmcts.payment.api.model.PaymentAllocation;
+import uk.gov.hmcts.payment.api.model.PaymentFee;
+import uk.gov.hmcts.payment.api.model.PaymentFeeLink;
+import uk.gov.hmcts.payment.api.model.PaymentFeeRepository;
+import uk.gov.hmcts.payment.api.model.Remission;
 import uk.gov.hmcts.payment.api.reports.FeesService;
 import uk.gov.hmcts.payment.api.util.PayStatusToPayHubStatus;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -33,13 +36,7 @@ public class PaymentGroupDtoMapper {
     private FeesService feesService;
 
     @Autowired
-    private FeeDomainService feeDomainService;
-
-    @Autowired
     private LaunchDarklyFeatureToggler featureToggler;
-
-    @Autowired
-    private PaymentDomainService paymentDomainService;
 
     @Autowired
     private PaymentFeeRepository paymentFeeRepository;

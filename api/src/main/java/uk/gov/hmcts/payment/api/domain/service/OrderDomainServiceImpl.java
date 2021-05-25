@@ -150,7 +150,7 @@ public class OrderDomainServiceImpl implements OrderDomainService {
             //get first successful payment
             Payment pbaPayment = getFirstSuccessPayment.apply(order);
             pbaPayment.setPaymentLink(order);
-            feePayApportionService.processApportion(pbaPayment, true);
+            feePayApportionService.processApportion(pbaPayment);
 
             // Update Fee Amount Due as Payment Status received from PBA Payment as SUCCESS
             if (Lists.newArrayList("success", "pending").contains(pbaPayment.getPaymentStatus().getName().toLowerCase())) {

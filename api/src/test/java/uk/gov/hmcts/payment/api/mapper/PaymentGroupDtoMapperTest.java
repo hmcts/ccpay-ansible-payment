@@ -44,15 +44,8 @@ public class PaymentGroupDtoMapperTest {
     @Mock
     FeesService feesService;
 
-
     @Mock
     LaunchDarklyFeatureToggler featureToggler;
-
-    @Mock
-    FeeDomainService feeDomainService;
-
-    @Mock
-    PaymentDomainService paymentDomainService;
 
     @InjectMocks
     PaymentGroupDtoMapper paymentGroupDtoMapper = new PaymentGroupDtoMapper();

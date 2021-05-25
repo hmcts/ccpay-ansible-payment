@@ -37,23 +37,18 @@ public class PaymentBarPerformanceLiberataTest {
 
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final Logger LOG = LoggerFactory.getLogger(PaymentBarPerformanceLiberataTest.class);
-
+    private static String USER_TOKEN;
+    private static String SERVICE_TOKEN;
+    private static boolean TOKENS_INITIALIZED = false;
+    private static DateTimeZone zoneUTC = DateTimeZone.UTC;
     @Autowired
     private TestConfigProperties testProps;
-
     @Autowired
     private PaymentsTestDsl dsl;
-
     @Autowired
     private IdamService idamService;
     @Autowired
     private S2sTokenService s2sTokenService;
-
-    private static String USER_TOKEN;
-    private static String SERVICE_TOKEN;
-    private static boolean TOKENS_INITIALIZED = false;
-
-    private static DateTimeZone zoneUTC = DateTimeZone.UTC;
 
     @Before
     public void setUp() throws Exception {
@@ -61,9 +56,8 @@ public class PaymentBarPerformanceLiberataTest {
             USER_TOKEN = idamService.createUserWith(CMC_CITIZEN_GROUP, "citizen").getAuthorisationToken();
             SERVICE_TOKEN = s2sTokenService.getS2sToken(testProps.s2sServiceName, testProps.s2sServiceSecret);
             TOKENS_INITIALIZED = true;
-        }
+             }
     }
-
 
     @Test
     public void createPaymentRecordAndValidateSearchResults() throws Exception {
@@ -147,7 +141,7 @@ public class PaymentBarPerformanceLiberataTest {
             .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .giroSlipNo("312131")
-            .reportedDateOffline(DateTime.now().toString())
+            .reportedDateOffline(DateTime.now(zoneUTC).toString())
             .siteId("AA01")
             .fees(
                 Arrays.asList(
@@ -249,7 +243,7 @@ public class PaymentBarPerformanceLiberataTest {
             .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .giroSlipNo("312131")
-            .reportedDateOffline(DateTime.now().toString())
+            .reportedDateOffline(DateTime.now(zoneUTC).toString())
             .siteId("Y431")
             .fees(
                 Arrays.asList(

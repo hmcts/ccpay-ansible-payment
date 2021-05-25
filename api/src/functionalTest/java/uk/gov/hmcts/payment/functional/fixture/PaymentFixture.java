@@ -55,14 +55,14 @@ public class PaymentFixture {
     }
 
     public static CardPaymentRequest cardPaymentRequestall(String amountString, String service) {
-        String ccdCaseNumber = "1111-CC12-" + RandomUtils.nextInt();
+        String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
         return CardPaymentRequest.createCardPaymentRequestDtoWith()
             .amount(new BigDecimal(amountString))
             .description("description")
             .caseReference("telRefNumber")
             .ccdCaseNumber(ccdCaseNumber)
             .service(service)
-            .siteId("string")
+            .siteId("AA07")
             .currency(CurrencyCode.GBP)
             .fees(Lists.newArrayList(
                 FeeDto.feeDtoWith()

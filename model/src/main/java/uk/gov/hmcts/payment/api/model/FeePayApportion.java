@@ -16,6 +16,7 @@ import java.util.Date;
 @Builder(builderMethodName = "feePayApportionWith")
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Table(name = "fee_pay_apportion")
 public class FeePayApportion extends Auditable<String> {
     @Id

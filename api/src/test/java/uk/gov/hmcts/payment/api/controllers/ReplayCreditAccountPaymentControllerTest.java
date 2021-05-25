@@ -123,7 +123,7 @@ public class ReplayCreditAccountPaymentControllerTest extends PaymentsDataUtil {
             Map<String, CreditAccountPaymentRequest> csvParseMap = new HashMap<>();
 
             //Create 10 PBA payments
-            createCreditAccountPayments(csvParseMap, 50);
+            createCreditAccountPayments(csvParseMap, 10);
 
             //Create CSV
             createCSV(csvParseMap,"paymentsToReplay.csv");

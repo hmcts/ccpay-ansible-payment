@@ -11,11 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
-import uk.gov.hmcts.payment.api.contract.TelephonyCardPaymentsRequest;
 import uk.gov.hmcts.payment.api.contract.TelephonyPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
@@ -79,7 +77,7 @@ public class PaymentTelephonyLiberataPerformanceTest {
     @Test
     public void telephonyPaymentLiberataValidation() throws Exception {
 
-        String ccdCaseNumber = "1111-CC12-" + RandomUtils.nextInt();
+        String ccdCaseNumber = "11112212" + RandomUtils.nextInt();
         FeeDto feeDto = FeeDto.feeDtoWith()
             .calculatedAmount(new BigDecimal("550.00"))
             .ccdCaseNumber(ccdCaseNumber)
@@ -89,10 +87,14 @@ public class PaymentTelephonyLiberataPerformanceTest {
             .build();
 
         TelephonyPaymentRequest telephonyPaymentRequest = TelephonyPaymentRequest.createTelephonyPaymentRequestDtoWith()
-            .amount(new BigDecimal("550"))
+            .amount(new BigDecimal("550.00"))
             .ccdCaseNumber(ccdCaseNumber)
+            .caseReference("ref124586")
             .currency(CurrencyCode.GBP)
+            .description("Filing an application for a divorce, nullity or civil partnership dissolution")
             .caseType("DIVORCE")
+            .channel("telephony")
+            .provider("pci pal")
             .build();
 
         PaymentGroupDto groupDto = PaymentGroupDto.paymentGroupDtoWith()
@@ -110,7 +112,7 @@ public class PaymentTelephonyLiberataPerformanceTest {
 
             dsl.given().userToken(USER_TOKEN)
                 .s2sToken(SERVICE_TOKEN)
-                .returnUrl("https://www.moneyclaims.service.gov.uk")
+                .returnUrl("https://www.moneyclaims.service.hmcts.net")
                 .when().createTelephonyCardPayment(telephonyPaymentRequest, paymentGroupReference)
                 .then().gotCreated(PaymentDto.class, paymentDto -> {
                 assertThat(paymentDto).isNotNull();
@@ -157,7 +159,7 @@ public class PaymentTelephonyLiberataPerformanceTest {
             Java6Assertions.assertThat(liberataResponseApproach1.getPayments().get(0).getMethod()).isEqualTo("card");
             Java6Assertions.assertThat(liberataResponseApproach1.getPayments().get(0).getExternalProvider()).isEqualTo("pci pal");
             Java6Assertions.assertThat(liberataResponseApproach1.getPayments().get(0).getStatus()).isEqualTo("success");
-            Java6Assertions.assertThat(liberataResponseApproach1.getPayments().get(0).getSiteId()).isEqualTo("AA07");
+            Java6Assertions.assertThat(liberataResponseApproach1.getPayments().get(0).getSiteId()).isEqualTo("ABA1");
             Java6Assertions.assertThat(liberataResponseApproach1.getPayments().get(0).getServiceName()).isEqualTo("Divorce");
             Java6Assertions.assertThat(liberataResponseApproach1.getPayments().get(0).getFees().get(0).getApportionedPayment()).isEqualTo("550.00");
             Java6Assertions.assertThat(liberataResponseApproach1.getPayments().get(0).getFees().get(0).getCalculatedAmount()).isEqualTo("550.00");

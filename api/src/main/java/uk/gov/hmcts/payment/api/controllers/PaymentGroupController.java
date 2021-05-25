@@ -227,7 +227,7 @@ public class PaymentGroupController {
         boolean apportionFeature = featureToggler.getBooleanValue(APPORTION_FEATURE, false);
         LOG.info("ApportionFeature Flag Value in CardPaymentController : {}", apportionFeature);
         if (apportionFeature) {
-            feePayApportionService.processApportion(payment, false);
+            feePayApportionService.processApportion(payment);
         }
 
         return new ResponseEntity<>(paymentDto, HttpStatus.CREATED);
@@ -282,7 +282,7 @@ public class PaymentGroupController {
         boolean apportionFeature = featureToggler.getBooleanValue(APPORTION_FEATURE, false);
         LOG.info("ApportionFeature Flag Value in CardPaymentController : {}", apportionFeature);
         if (apportionFeature) {
-            feePayApportionService.processApportion(newPayment, false);
+            feePayApportionService.processApportion(newPayment);
 
             // Update Fee Amount Due as Payment Status received from Bulk Scan Payment as SUCCESS
             if (newPayment.getPaymentStatus().getName().equalsIgnoreCase("success")) {
@@ -403,7 +403,7 @@ public class PaymentGroupController {
             boolean apportionFeature = featureToggler.getBooleanValue(APPORTION_FEATURE, false);
             LOG.info("ApportionFeature Flag Value in PaymentGroupController  RecordBulkScanPaymentStrategic: {}", apportionFeature);
             if (apportionFeature) {
-                feePayApportionService.processApportion(newPayment, false);
+                feePayApportionService.processApportion(newPayment);
 
                 // Update Fee Amount Due as Payment Status received from Bulk Scan Payment as SUCCESS
                 if (newPayment.getPaymentStatus().getName().equalsIgnoreCase("success")) {
@@ -526,7 +526,7 @@ public class PaymentGroupController {
         Map<String, String> params = new HashMap<>();
         params.put("dcn", dcn);
         params.put("status", status);
-
+//        return new ResponseEntity<String>("new ArrayList<>()", HttpStatus.OK);
         LOG.info("Calling Bulk scan api to mark payment as processed from Payment Api");
         return restTemplatePaymentGroup.exchange(bulkScanPaymentsProcessedUrl + "/bulk-scan-payments/{dcn}/status/{status}", HttpMethod.PATCH, entity, String.class, params);
     }
@@ -575,7 +575,7 @@ public class PaymentGroupController {
             boolean apportionFeature = featureToggler.getBooleanValue(APPORTION_FEATURE, false);
             LOG.info("ApportionFeature Flag Value in CardPaymentController : {}", apportionFeature);
             if (apportionFeature) {
-                feePayApportionService.processApportion(payment, false);
+                feePayApportionService.processApportion(payment);
             }
             return new ResponseEntity<>(telephonyCardPaymentsResponse, HttpStatus.CREATED);
         } else {

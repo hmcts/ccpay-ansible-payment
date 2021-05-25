@@ -385,7 +385,7 @@ public class OrderControllerTest {
         assertFalse(orderPaymentDto.equals(orderDto));
 
         //Hashcode coverage
-        assertNotNull(orderPaymentDto.hashCode());
+        assertTrue(Integer.valueOf(orderPaymentDto.hashCode()) instanceof Integer);
 
     }
 

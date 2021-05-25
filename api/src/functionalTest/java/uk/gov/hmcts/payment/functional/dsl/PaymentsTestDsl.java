@@ -219,11 +219,11 @@ public class PaymentsTestDsl {
 
         public PaymentWhenDsl searchPaymentsBetweenDatesPaymentMethodServiceName(String startDate, String endDate, String paymentMethod) {
             if (startDate != null && endDate != null) {
-                response = newRequest().get("/payments?start_date=" + startDate + "&end_date=" + endDate + "&service_name=DIGITAL_BAR" + "&payment_method=" + paymentMethod);
+                response = newRequest().get("/payments?start_date=" + startDate + "&end_date=" + endDate + "&service_name=Digital Bar" + "&payment_method=" + paymentMethod);
             } else if (startDate != null) {
-                response = newRequest().get("/payments?start_date=" + startDate + "&service_name=DIGITAL_BAR" + "&payment_method=" + paymentMethod);
+                response = newRequest().get("/payments?start_date=" + startDate + "&service_name=Digital Bar" + "&payment_method=" + paymentMethod);
             } else if (endDate != null) {
-                response = newRequest().get("/payments?end_date=" + endDate + "&service_name=DIGITAL_BAR" + "&payment_method=" + paymentMethod);
+                response = newRequest().get("/payments?end_date=" + endDate + "&service_name=Digital Bar" + "&payment_method=" + paymentMethod);
             }
 
             return this;
@@ -231,11 +231,11 @@ public class PaymentsTestDsl {
 
         public PaymentWhenDsl searchPaymentsBetweenDatesPaymentMethodServiceNameApproach1(String startDate, String endDate, String paymentMethod) {
             if (startDate != null && endDate != null) {
-                response = newRequest().get("/reconciliation-payments?start_date=" + startDate + "&end_date=" + endDate + "&service_name=DIGITAL_BAR" + "&payment_method=" + paymentMethod);
+                response = newRequest().get("/reconciliation-payments?start_date=" + startDate + "&end_date=" + endDate + "&service_name=Digital Bar" + "&payment_method=" + paymentMethod);
             } else if (startDate != null) {
-                response = newRequest().get("/reconciliation-payments?start_date=" + startDate + "&service_name=DIGITAL_BAR" + "&payment_method=" + paymentMethod);
+                response = newRequest().get("/reconciliation-payments?start_date=" + startDate + "&service_name=Digital Bar" + "&payment_method=" + paymentMethod);
             } else if (endDate != null) {
-                response = newRequest().get("/reconciliation-payments?end_date=" + endDate + "&service_name=DIGITAL_BAR" + "&payment_method=" + paymentMethod);
+                response = newRequest().get("/reconciliation-payments?end_date=" + endDate + "&service_name=Digital Bar" + "&payment_method=" + paymentMethod);
             }
 
             return this;

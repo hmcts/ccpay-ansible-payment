@@ -112,7 +112,7 @@ public class CardPaymentController {
             );
         }
 
-        LOG.info("Case Type: {} ",request.getCaseType());
+        LOG.info("Case Type: {} ", request.getCaseType());
 
         if (StringUtils.isNotBlank(request.getCaseType())) {
             OrganisationalServiceDto organisationalServiceDto = referenceDataService.getOrganisationalDetail(request.getCaseType(), headers);
@@ -125,7 +125,7 @@ public class CardPaymentController {
             request.setService(paymentService.getServiceNameByCode(request.getService()));
         }
 
-        LOG.info("Service Name : {} ",request.getService());
+        LOG.info("Service Name : {} ", request.getService());
 
         PaymentServiceRequest paymentServiceRequest = PaymentServiceRequest.paymentServiceRequestWith()
             .paymentGroupReference(paymentGroupReference)
@@ -155,7 +155,7 @@ public class CardPaymentController {
         boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature", false);
         LOG.info("ApportionFeature Flag Value in CardPaymentController : {}", apportionFeature);
         if (apportionFeature) {
-            feePayApportionService.processApportion(paymentLink.getPayments().get(0), false);
+            feePayApportionService.processApportion(paymentLink.getPayments().get(0));
         }
         return new ResponseEntity<>(paymentDto, CREATED);
     }
