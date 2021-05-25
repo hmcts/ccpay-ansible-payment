@@ -290,11 +290,11 @@ public class PBAPaymentFunctionalTest {
     }
 
     @Test
-    public void makeAndRetrievePbaPaymentByUnspecService() throws InterruptedException {
+    public void makeAndRetrievePbaPaymentByCivilService() throws InterruptedException {
 
         String startDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT);
         String accountNumber = testProps.existingAccountNumber;
-        CreditAccountPaymentRequest accountPaymentRequest = PaymentFixture.aPbaPaymentRequestForUnspec("90.00", Service.UNSPEC);
+        CreditAccountPaymentRequest accountPaymentRequest = PaymentFixture.aPbaPaymentRequestForCivil("90.00", Service.CIVIL);
         accountPaymentRequest.setAccountNumber(accountNumber);
         paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest)
             .then()
@@ -305,7 +305,7 @@ public class PBAPaymentFunctionalTest {
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
-            .when().searchPaymentsByServiceBetweenDates(Service.UNSPEC, startDate, endDate)
+            .when().searchPaymentsByServiceBetweenDates(Service.CIVIL, startDate, endDate)
             .then().getPayments((paymentsResponse -> {
             Assertions.assertThat(paymentsResponse.getPayments().size()).isEqualTo(1);
         }));

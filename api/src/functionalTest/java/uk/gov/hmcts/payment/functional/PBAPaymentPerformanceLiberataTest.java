@@ -1,6 +1,7 @@
 package uk.gov.hmcts.payment.functional;
 
 import io.restassured.response.Response;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -27,8 +28,8 @@ import java.util.HashSet;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 import static uk.gov.hmcts.payment.functional.idam.IdamService.CMC_CASE_WORKER_GROUP;
 import static uk.gov.hmcts.payment.functional.idam.IdamService.CMC_CITIZEN_GROUP;
 
@@ -57,7 +58,7 @@ public class PBAPaymentPerformanceLiberataTest {
     private static String SERVICE_TOKEN;
     private static boolean TOKENS_INITIALIZED = false;
 
-
+    private static DateTimeZone zoneUTC = DateTimeZone.UTC;
     private static final String DATE_TIME_FORMAT = "dd-MM-yyyy HH:mm:ss";
     private static final Logger LOG = LoggerFactory.getLogger(PBAPaymentPerformanceLiberataTest.class);
 
@@ -84,7 +85,7 @@ public class PBAPaymentPerformanceLiberataTest {
         CreditAccountPaymentRequest[] accountPaymentRequest = new CreditAccountPaymentRequest[PaymentCount];
             String accountNumber = testProps.existingAccountNumber;
 
-        String startDate = formatter.format(LocalDateTime.now().minusMinutes(5).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
             accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForProbateForSuccessLiberataValidation("215.00", Service.PROBATE);
@@ -96,7 +97,7 @@ public class PBAPaymentPerformanceLiberataTest {
         }
 
         Thread.sleep(5000);
-        String endDate = formatter.format(LocalDateTime.now().toDate());
+        String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
 
 
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, responseTime * 3)
@@ -135,7 +136,7 @@ public class PBAPaymentPerformanceLiberataTest {
         CreditAccountPaymentRequest[] accountPaymentRequest = new CreditAccountPaymentRequest[PaymentCount];
         String accountNumber = testProps.existingAccountNumber;
 
-        String startDate = formatter.format(LocalDateTime.now().minusMinutes(5).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
             accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForProbateForSuccessLiberataValidation("215.00", Service.PROBATE);
@@ -147,7 +148,7 @@ public class PBAPaymentPerformanceLiberataTest {
         }
 
         Thread.sleep(5000);
-        String endDate = formatter.format(LocalDateTime.now().toDate());
+        String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
 
 
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, responseTime * 3)
@@ -186,7 +187,7 @@ public class PBAPaymentPerformanceLiberataTest {
         CreditAccountPaymentRequest[] accountPaymentRequest = new CreditAccountPaymentRequest[PaymentCount];
         String accountNumber = testProps.existingAccountNumber;
 
-        String startDate = formatter.format(LocalDateTime.now().minusMinutes(5).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
             accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequest("215.00", Service.FINREM);
@@ -198,7 +199,7 @@ public class PBAPaymentPerformanceLiberataTest {
         }
 
         Thread.sleep(5000);
-        String endDate = formatter.format(LocalDateTime.now().toDate());
+        String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
 
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, responseTime * 3)
             .statusCode(OK.value()).extract().as(PaymentsResponse.class);
@@ -237,7 +238,7 @@ public class PBAPaymentPerformanceLiberataTest {
         CreditAccountPaymentRequest[] accountPaymentRequest = new CreditAccountPaymentRequest[PaymentCount];
         String accountNumber = testProps.existingAccountNumber;
 
-        String startDate = formatter.format(LocalDateTime.now().minusMinutes(5).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
             accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequest("215.00", Service.FINREM);
@@ -249,7 +250,7 @@ public class PBAPaymentPerformanceLiberataTest {
         }
 
         Thread.sleep(5000);
-        String endDate = formatter.format(LocalDateTime.now().toDate());
+        String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
 
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, responseTime * 3)
             .statusCode(OK.value()).extract().as(PaymentsResponse.class);
@@ -288,7 +289,7 @@ public class PBAPaymentPerformanceLiberataTest {
         CreditAccountPaymentRequest[] accountPaymentRequest = new CreditAccountPaymentRequest[PaymentCount];
         String accountNumber = testProps.existingAccountNumber;
 
-        String startDate = formatter.format(LocalDateTime.now().minusMinutes(5).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
             accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForDivorce("455.00", Service.DIVORCE);
@@ -300,7 +301,7 @@ public class PBAPaymentPerformanceLiberataTest {
         }
 
         Thread.sleep(5000);
-        String endDate = formatter.format(LocalDateTime.now().toDate());
+        String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
 
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, responseTime * 3)
             .statusCode(OK.value()).extract().as(PaymentsResponse.class);
@@ -339,7 +340,7 @@ public class PBAPaymentPerformanceLiberataTest {
         CreditAccountPaymentRequest[] accountPaymentRequest = new CreditAccountPaymentRequest[PaymentCount];
         String accountNumber = testProps.existingAccountNumber;
 
-        String startDate = formatter.format(LocalDateTime.now().minusMinutes(5).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
             accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForDivorce("455.00", Service.DIVORCE);
@@ -351,7 +352,7 @@ public class PBAPaymentPerformanceLiberataTest {
         }
 
         Thread.sleep(5000);
-        String endDate = formatter.format(LocalDateTime.now().toDate());
+        String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
 
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, responseTime * 3)
             .statusCode(OK.value()).extract().as(PaymentsResponse.class);
@@ -390,7 +391,7 @@ public class PBAPaymentPerformanceLiberataTest {
         CreditAccountPaymentRequest[] accountPaymentRequest = new CreditAccountPaymentRequest[PaymentCount];
         String accountNumber = testProps.existingAccountNumber;
 
-        String startDate = formatter.format(LocalDateTime.now().minusMinutes(5).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
             accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequest("215.00", Service.CMC);
@@ -403,7 +404,7 @@ public class PBAPaymentPerformanceLiberataTest {
 
         Thread.sleep(5000);
 
-        String endDate = formatter.format(LocalDateTime.now().toDate());
+        String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, responseTime * 3)
             .statusCode(OK.value()).extract().as(PaymentsResponse.class);
 
@@ -440,7 +441,7 @@ public class PBAPaymentPerformanceLiberataTest {
         CreditAccountPaymentRequest[] accountPaymentRequest = new CreditAccountPaymentRequest[PaymentCount];
         String accountNumber = testProps.existingAccountNumber;
 
-        String startDate = formatter.format(LocalDateTime.now().minusMinutes(5).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
             accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequest("215.00", Service.CMC);
@@ -453,7 +454,7 @@ public class PBAPaymentPerformanceLiberataTest {
 
         Thread.sleep(5000);
 
-        String endDate = formatter.format(LocalDateTime.now().toDate());
+        String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, responseTime * 3)
             .statusCode(OK.value()).extract().as(PaymentsResponse.class);
 
@@ -489,7 +490,7 @@ public class PBAPaymentPerformanceLiberataTest {
         CreditAccountPaymentRequest[] accountPaymentRequest = new CreditAccountPaymentRequest[PaymentCount];
         String accountNumber = testProps.existingAccountNumber;
 
-        String startDate = formatter.format(LocalDateTime.now().minusMinutes(5).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
             accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForFPL("215.00", Service.FPL);
@@ -501,7 +502,7 @@ public class PBAPaymentPerformanceLiberataTest {
         }
 
         Thread.sleep(5000);
-        String endDate = formatter.format(LocalDateTime.now().toDate());
+        String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
 
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, 30L)
             .statusCode(OK.value()).extract().as(PaymentsResponse.class);
@@ -540,7 +541,7 @@ public class PBAPaymentPerformanceLiberataTest {
         CreditAccountPaymentRequest[] accountPaymentRequest = new CreditAccountPaymentRequest[PaymentCount];
         String accountNumber = testProps.existingAccountNumber;
 
-        String startDate = formatter.format(LocalDateTime.now().minusMinutes(5).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
             accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForFPL("215.00", Service.FPL);
@@ -552,7 +553,7 @@ public class PBAPaymentPerformanceLiberataTest {
         }
 
         Thread.sleep(5000);
-        String endDate = formatter.format(LocalDateTime.now().toDate());
+        String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
 
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, 30L)
             .statusCode(OK.value()).extract().as(PaymentsResponse.class);
@@ -583,7 +584,7 @@ public class PBAPaymentPerformanceLiberataTest {
     }
 
     @Test
-    public void makeAndRetrieveResponseTime5PbaPaymentsByUnspecFromLiberata() throws InterruptedException {
+    public void makeAndRetrieveResponseTime5PbaPaymentsByCivilFromLiberata() throws InterruptedException {
         // create PBA payments
         final Integer PaymentCount = 5;
         SimpleDateFormat formatter= new SimpleDateFormat(DATE_TIME_FORMAT);
@@ -591,10 +592,10 @@ public class PBAPaymentPerformanceLiberataTest {
         CreditAccountPaymentRequest[] accountPaymentRequest = new CreditAccountPaymentRequest[PaymentCount];
         String accountNumber = testProps.existingAccountNumber;
 
-        String startDate = formatter.format(LocalDateTime.now().minusMinutes(5).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForUnspec("215.00", Service.UNSPEC);
+            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForCivil("215.00", Service.CIVIL);
             accountPaymentRequest[i].setAccountNumber(accountNumber);
             paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest[i])
                 .then()
@@ -603,7 +604,7 @@ public class PBAPaymentPerformanceLiberataTest {
         }
 
         Thread.sleep(5000);
-        String endDate = formatter.format(LocalDateTime.now().toDate());
+        String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
 
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, 30L)
             .statusCode(OK.value()).extract().as(PaymentsResponse.class);
@@ -642,7 +643,7 @@ public class PBAPaymentPerformanceLiberataTest {
         CreditAccountPaymentRequest[] accountPaymentRequest = new CreditAccountPaymentRequest[PaymentCount];
         String accountNumber = testProps.existingAccountNumber;
 
-        String startDate = formatter.format(LocalDateTime.now().minusMinutes(5).toDate());
+        String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
             accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForIAC("215.00", Service.IAC);
@@ -654,7 +655,7 @@ public class PBAPaymentPerformanceLiberataTest {
         }
 
         Thread.sleep(5000);
-        String endDate = formatter.format(LocalDateTime.now().toDate());
+        String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
 
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, 30L)
             .statusCode(OK.value()).extract().as(PaymentsResponse.class);

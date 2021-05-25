@@ -98,7 +98,7 @@ public class PaymentFixture {
             .build();
     }
 
-    public static CreditAccountPaymentRequest aPbaPaymentRequestForUnspec(String amountString, Service service) {
+    public static CreditAccountPaymentRequest aPbaPaymentRequestForCivil(String amountString, Service service) {
         String ccdCaseNumber = "1111-CC12-" + RandomUtils.nextInt();
         return CreditAccountPaymentRequest.createCreditAccountPaymentRequestDtoWith()
             .amount(new BigDecimal(amountString))

@@ -56,14 +56,14 @@ public class CreditAccountPaymentRequestTest {
     }
 
     @Test
-    public void testValidateSiteIdForUnspecCmc(){
+    public void testValidateSiteIdForCivil(){
         CreditAccountPaymentRequest request = new CreditAccountPaymentRequest();
         request.setService(Service.CMC);
         request.setSiteId("invalid-site-id");
         Set<ConstraintViolation<CreditAccountPaymentRequest>> violations = validator.validate(request);
         violations.stream().forEach(v->{
-                if(v.getMessage().equals("Invalid Site ID (URN) provided for UNSPEC CMC. Accepted values are AAA7")){
-                    assertEquals("Invalid Site ID (URN) provided for UNSPEC CMC. Accepted values are AAA7",v.getMessage());
+                if(v.getMessage().equals("Invalid Site ID (URN) provided for Civil. Accepted values are AAA7")){
+                    assertEquals("Invalid Site ID (URN) provided for Civil. Accepted values are AAA7",v.getMessage());
                 }
             }
         );

@@ -710,9 +710,9 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
-    public void checkPBAPaymentsFor_Unspec_Service() throws Exception {
+    public void checkPBAPaymentsFor_Civil_Service() throws Exception {
 
-        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithUnSpec_Json().getBytes(), CreditAccountPaymentRequest.class);
+        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithCivil_Json().getBytes(), CreditAccountPaymentRequest.class);
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
         Mockito.when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
@@ -736,9 +736,9 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
-    public void checkPBAPaymentsErrorWithDifferentSiteIdFor_Unspec_Service() throws Exception {
+    public void checkPBAPaymentsErrorWithDifferentSiteIdFor_Civil_Service() throws Exception {
 
-        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithDifferentSiteIdForUnSpec_Json().getBytes(), CreditAccountPaymentRequest.class);
+        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithDifferentSiteIdForCivil_Json().getBytes(), CreditAccountPaymentRequest.class);
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
         Mockito.when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
@@ -750,9 +750,9 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
-    public void checkPBAPaymentsErrorWithNoServiceNameFor_Unspec_Service() throws Exception {
+    public void checkPBAPaymentsErrorWithNoServiceNameFor_Civil_Service() throws Exception {
 
-        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithNoServiceNameForUnSpec_Json().getBytes(), CreditAccountPaymentRequest.class);
+        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithNoServiceNameForCivil_Json().getBytes(), CreditAccountPaymentRequest.class);
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
         Mockito.when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
@@ -1423,13 +1423,13 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             "}";
     }
 
-    private String creditAccountPaymentRequestJsonWithUnSpec_Json() {
+    private String creditAccountPaymentRequestJsonWithCivil_Json() {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
             "  \"ccd_case_number\": \"CCD101\",\n" +
             "  \"case_reference\": \"12345\",\n" +
-            "  \"service\": \"UNSPEC\",\n" +
+            "  \"service\": \"CIVIL\",\n" +
             "  \"currency\": \"GBP\",\n" +
             "  \"site_id\": \"AAA7\",\n" +
             "  \"customer_reference\": \"CUST101\",\n" +
@@ -1445,13 +1445,13 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             "}";
     }
 
-    private String creditAccountPaymentRequestJsonWithDifferentSiteIdForUnSpec_Json() {
+    private String creditAccountPaymentRequestJsonWithDifferentSiteIdForCivil_Json() {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
             "  \"ccd_case_number\": \"CCD101\",\n" +
             "  \"case_reference\": \"12345\",\n" +
-            "  \"service\": \"UNSPEC\",\n" +
+            "  \"service\": \"CIVIL\",\n" +
             "  \"currency\": \"GBP\",\n" +
             "  \"site_id\": \"A000\",\n" +
             "  \"customer_reference\": \"CUST101\",\n" +
@@ -1467,7 +1467,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             "}";
     }
 
-    private String creditAccountPaymentRequestJsonWithNoServiceNameForUnSpec_Json() {
+    private String creditAccountPaymentRequestJsonWithNoServiceNameForCivil_Json() {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
