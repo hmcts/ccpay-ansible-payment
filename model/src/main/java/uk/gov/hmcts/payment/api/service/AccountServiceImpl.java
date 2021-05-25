@@ -33,7 +33,7 @@ public class AccountServiceImpl implements AccountService<AccountDto, String> {
     private Boolean mockLiberata;
 
     @Value("${liberat.api.mock.account}")
-    private String accounts;
+    private String mockPbaAccounts;
 
     @Override
     @HystrixCommand(commandKey = "retrievePbaAccount", commandProperties = {
@@ -54,7 +54,7 @@ public class AccountServiceImpl implements AccountService<AccountDto, String> {
     }
 
     private AccountStatus getAccountStatus(String pbaCode) {
-        if (accounts.contains(pbaCode)) {
+        if (mockPbaAccounts.contains(pbaCode)) {
             return AccountStatus.valueOf(pbaCode.replaceAll("^.+?_", ""));
         }
         throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "UnKnown test pba account number");
