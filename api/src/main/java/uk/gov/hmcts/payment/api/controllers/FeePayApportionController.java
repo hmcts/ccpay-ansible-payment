@@ -51,6 +51,9 @@ public class FeePayApportionController {
     private static final Logger LOG = LoggerFactory.getLogger(FeePayApportionController.class);
 
     @Autowired
+    private PaymentDomainService paymentDomainService;
+
+    @Autowired
     public FeePayApportionController(PaymentService<PaymentFeeLink, String> paymentService,PaymentFeeRepository paymentFeeRepository,PaymentGroupDtoMapper paymentGroupDtoMapper,LaunchDarklyFeatureToggler featureToggler) {
         this.paymentService = paymentService;
         this.paymentFeeRepository = paymentFeeRepository;

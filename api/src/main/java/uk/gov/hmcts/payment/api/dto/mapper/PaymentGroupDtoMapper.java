@@ -11,8 +11,12 @@ import uk.gov.hmcts.payment.api.contract.PaymentAllocationDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.RetrieveOrderPaymentDto;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
+import uk.gov.hmcts.payment.api.domain.service.FeeDomainService;
+import uk.gov.hmcts.payment.api.domain.service.PaymentDomainService;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
 import uk.gov.hmcts.payment.api.dto.RemissionDto;
+import uk.gov.hmcts.payment.api.dto.RetrieveOrderPaymentGroupDto;
+import uk.gov.hmcts.payment.api.model.FeePayApportion;
 import uk.gov.hmcts.payment.api.model.Payment;
 import uk.gov.hmcts.payment.api.model.PaymentAllocation;
 import uk.gov.hmcts.payment.api.model.PaymentFee;
@@ -24,8 +28,11 @@ import uk.gov.hmcts.payment.api.util.PayStatusToPayHubStatus;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -40,6 +47,12 @@ public class PaymentGroupDtoMapper {
 
     @Autowired
     private PaymentFeeRepository paymentFeeRepository;
+
+    @Autowired
+    private PaymentDomainService paymentDomainService;
+
+    @Autowired
+    private FeeDomainService feeDomainService;
 
     public PaymentGroupDto toPaymentGroupDto(PaymentFeeLink paymentFeeLink) {
         return PaymentGroupDto.paymentGroupDtoWith()
@@ -82,7 +95,7 @@ public class PaymentGroupDtoMapper {
         return retrieveOrderPaymentGroupDto;
 
     }
-    
+
 
 
     private List<PaymentDto> toPaymentDtos(List<Payment> payments) {
@@ -237,7 +250,7 @@ public class PaymentGroupDtoMapper {
 
     private List<Remission> getRemissionsForGivenFees(List<PaymentFee> paymentFees){
         return paymentFees.stream().flatMap(fee->
-             fee.getRemissions()!=null&&fee.getRemissions().size()>0?fee.getRemissions().stream():Collections.<Remission>emptyList().stream()
+             fee.getRemissions()!=null&&fee.getRemissions().size()>0?fee.getRemissions().stream(): Collections.<Remission>emptyList().stream()
         ).collect(Collectors.toList());
     }
 

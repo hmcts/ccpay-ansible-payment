@@ -50,6 +50,12 @@ public class PaymentGroupDtoMapperTest {
     @InjectMocks
     PaymentGroupDtoMapper paymentGroupDtoMapper = new PaymentGroupDtoMapper();
 
+    @Mock
+    FeeDomainService feeDomainService;
+
+    @Mock
+    PaymentDomainService paymentDomainService;
+
     PaymentFeeLink feeLink;
 
     @Before
