@@ -3,6 +3,7 @@ package uk.gov.hmcts.payment.api.controllers;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -10,6 +11,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,12 +25,14 @@ import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.payment.api.componenttests.PaymentDbBackdoor;
 import uk.gov.hmcts.payment.api.componenttests.PaymentFeeDbBackdoor;
 import uk.gov.hmcts.payment.api.componenttests.util.PaymentsDataUtil;
+import uk.gov.hmcts.payment.api.contract.CasePaymentDto;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
-import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
 import uk.gov.hmcts.payment.api.domain.service.FeeDomainService;
 import uk.gov.hmcts.payment.api.domain.service.OrderDomainService;
 import uk.gov.hmcts.payment.api.domain.service.PaymentDomainService;
+import uk.gov.hmcts.payment.api.dto.CasePaymentResponse;
+import uk.gov.hmcts.payment.api.dto.OrderPaymentGroupResponse;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupResponse;
 import uk.gov.hmcts.payment.api.dto.RemissionRequest;
@@ -110,8 +114,13 @@ public class CaseControllerTest extends PaymentsDataUtil {
     private FeesService feesService;
     @Autowired
     private ObjectMapper objectMapper;
+
     @MockBean
     private OrderDomainService orderDomainService;
+
+    @InjectMocks
+    private CaseController caseController;
+
     @MockBean
     private FeeDomainService feeDomainService;
     @MockBean
@@ -151,23 +160,30 @@ public class CaseControllerTest extends PaymentsDataUtil {
     @Transactional
     public void searchAllPaymentsWithCcdCaseNumberShouldReturnRequiredFieldsForVisualComponent() throws Exception {
 
-        populateCardPaymentToDb("1");
+        populateCardPaymentToDb("123");
+
+        when(orderDomainService.findByCcdCaseNumber(anyString())).thenReturn(Collections.singletonList(getPaymentFeeLink()));
+
+        when(feeDomainService.getFeePayApportionsByFee(Mockito.any(PaymentFee.class))).thenReturn(Arrays.asList(getFeePayApportion()));
+
+        when(paymentDomainService.getPaymentByApportionment(Mockito.any(FeePayApportion.class))).thenReturn(getPayment());
+
 
         MvcResult result = restActions
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .get("/cases/ccdCaseNumber1/payments")
+            .get("/orderpoc/cases/ccdCaseNumber123/payments")
             .andExpect(status().isOk())
             .andReturn();
 
-        PaymentsResponse payments = objectMapper.readValue(result.getResponse().getContentAsByteArray(), new TypeReference<PaymentsResponse>() {
+        CasePaymentResponse payments = objectMapper.readValue(result.getResponse().getContentAsByteArray(), new TypeReference<CasePaymentResponse>() {
         });
 
         assertThat(payments.getPayments().size()).isEqualTo(1);
 
-        PaymentDto payment = payments.getPayments().get(0);
+        CasePaymentDto payment = payments.getPayments().get(0);
 
-        assertThat(payment.getCcdCaseNumber()).isEqualTo("ccdCaseNumber1");
+        assertThat(payment.getCcdCaseNumber()).isEqualTo("1607065108455502");
 
         assertThat(payment.getReference()).isNotBlank();
         assertThat(payment.getAmount()).isPositive();
@@ -181,7 +197,7 @@ public class CaseControllerTest extends PaymentsDataUtil {
     @Test
     @Transactional
     public void shouldReturnStatusHistoryWithErrorCodeForSearchByCaseReference() throws Exception {
-        String number = "1";
+        String number = "123";
         StatusHistory statusHistory = StatusHistory.statusHistoryWith().status("Failed").externalStatus("failed")
             .errorCode("P0200")
             .message("Payment not found")
@@ -210,16 +226,16 @@ public class CaseControllerTest extends PaymentsDataUtil {
         MvcResult result = restActions
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .get("/cases/ccdCaseNumber1/payments")
+            .get("/orderpoc/cases/ccdCaseNumber123/payments")
             .andExpect(status().isOk())
             .andReturn();
 
-        PaymentsResponse payments = objectMapper.readValue(result.getResponse().getContentAsByteArray(), new TypeReference<PaymentsResponse>() {
+        CasePaymentResponse payments = objectMapper.readValue(result.getResponse().getContentAsByteArray(), new TypeReference<CasePaymentResponse>() {
         });
 
         assertThat(payments.getPayments().size()).isEqualTo(1);
 
-        PaymentDto paymentDto = payments.getPayments().get(0);
+        CasePaymentDto paymentDto = payments.getPayments().get(0);
 
         assertThat(paymentDto.getCcdCaseNumber()).isEqualTo("ccdCaseNumber1");
 
@@ -619,7 +635,7 @@ public class CaseControllerTest extends PaymentsDataUtil {
             .get("/orderpoc/cases/1607065108455502/paymentgroups")
             .andExpect(status().isOk())
             .andReturn();
-        PaymentGroupResponse paymentGroupResponse = objectMapper.readValue(result2.getResponse().getContentAsString(), PaymentGroupResponse.class);
+        OrderPaymentGroupResponse paymentGroupResponse = objectMapper.readValue(result2.getResponse().getContentAsString(), OrderPaymentGroupResponse.class);
 
         BigDecimal actualAmount = paymentGroupResponse.getPaymentGroups().get(0).getPayments().get(0).getAmount();
         String actualFeeCode = paymentGroupResponse.getPaymentGroups().get(0).getFees().get(0).getCode();
@@ -729,6 +745,7 @@ public class CaseControllerTest extends PaymentsDataUtil {
             .enterpriseServiceName("enterprise-service-name")
             .paymentReference("payment-ref")
             .ccdCaseNumber("1607065108455502")
+            .payments(Collections.singletonList(getPayment()))
             .fees(Arrays.asList(PaymentFee.feeWith().calculatedAmount(new BigDecimal("99.99")).version("1").code("FEE0001").volume(1).build()))
             .build();
     }
@@ -750,6 +767,8 @@ public class CaseControllerTest extends PaymentsDataUtil {
             .paymentStatus(PaymentStatus.paymentStatusWith().name("created").build())
             .externalReference("e2kkddts5215h9qqoeuth5c0v")
             .reference("RC-1519-9028-2432-0001")
+            .dateCreated(new DateTime().toDate())
+            .statusHistories(Collections.singletonList(StatusHistory.statusHistoryWith().status("Initiated").externalStatus("created").build()))
             .build();
     }
 

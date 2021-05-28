@@ -89,7 +89,7 @@ public class PaymentsDataUtil {
     public Payment populateCardPaymentToDb(String number) throws Exception {
         //Create a payment in remissionDbBackdoor
         StatusHistory statusHistory = StatusHistory.statusHistoryWith().status("Initiated").externalStatus("created").build();
-        Payment payment = Payment.paymentWith()
+        Payment payment = paymentWith()
             .amount(new BigDecimal("99.99"))
             .caseReference("Reference" + number)
             .ccdCaseNumber("ccdCaseNumber" + number)

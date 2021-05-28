@@ -15,14 +15,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.payment.api.contract.CasePaymentDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
-import uk.gov.hmcts.payment.api.contract.RetrieveOrderPaymentDto;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
-import uk.gov.hmcts.payment.api.contract.OrderPaymentsResponse;
 import uk.gov.hmcts.payment.api.domain.service.FeeDomainService;
 import uk.gov.hmcts.payment.api.domain.service.OrderDomainService;
 import uk.gov.hmcts.payment.api.domain.service.PaymentDomainService;
-import uk.gov.hmcts.payment.api.dto.*;
+import uk.gov.hmcts.payment.api.dto.CasePaymentResponse;
+import uk.gov.hmcts.payment.api.dto.OrderPaymentGroupResponse;
+import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
+import uk.gov.hmcts.payment.api.dto.PaymentGroupResponse;
+import uk.gov.hmcts.payment.api.dto.PaymentSearchCriteria;
+import uk.gov.hmcts.payment.api.dto.RetrieveOrderPaymentGroupDto;
 import uk.gov.hmcts.payment.api.dto.mapper.PaymentDtoMapper;
 import uk.gov.hmcts.payment.api.dto.mapper.PaymentGroupDtoMapper;
 import uk.gov.hmcts.payment.api.model.FeePayApportion;
@@ -142,25 +146,24 @@ public class CaseController {
         @ApiResponse(code = 400, message = "Bad request")
     })
     @GetMapping(value = "/orderpoc/cases/{case}/payments")
-    @PaymentExternalAPI
-    public OrderPaymentsResponse retrieveCasePaymentsByOrders(@PathVariable(name = "case") @Size(max = 16, min = 16, message = "CcdCaseNumber should be 16 digits") String ccdCaseNumber) {
+    public CasePaymentResponse retrieveCasePaymentsByOrders(@PathVariable(name = "case") @Size(max = 16, min = 16, message = "CcdCaseNumber should be 16 digits") String ccdCaseNumber) {
         List<PaymentFeeLink> paymentFeeLinks = orderDomainService.findByCcdCaseNumber(ccdCaseNumber);
-        List<RetrieveOrderPaymentDto> payments = paymentFeeLinks.stream().flatMap(link -> toReconciliationResponseDtoForOrders(link).stream())
+        List<CasePaymentDto> payments = paymentFeeLinks.stream().flatMap(link -> toReconciliationResponseDtoForOrders(link).stream())
             .collect(Collectors.toList());
         if (payments == null || payments.isEmpty()) {
             throw new PaymentNotFoundException();
         }
 
-        return new OrderPaymentsResponse(payments);
+        return new CasePaymentResponse(payments);
     }
 
-    private List<RetrieveOrderPaymentDto> toReconciliationResponseDtoForOrders(PaymentFeeLink paymentFeeLink) {
+    private List<CasePaymentDto> toReconciliationResponseDtoForOrders(PaymentFeeLink paymentFeeLink) {
         List<FeePayApportion> feePayApportions = paymentFeeLink.getFees()
             .stream()
             .flatMap(fee ->
                 feeDomainService.getFeePayApportionsByFee(fee).stream())
             .collect(Collectors.toList());
-        Set<RetrieveOrderPaymentDto> paymentDtos = feePayApportions
+        Set<CasePaymentDto> paymentDtos = feePayApportions
             .stream()
             .map(feePayApportion ->
                 paymentDtoMapper.toPaymentDto(paymentDomainService.getPaymentByApportionment(feePayApportion), paymentFeeLink))

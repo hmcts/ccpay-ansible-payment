@@ -259,8 +259,8 @@ public class PaymentDtoMapper {
 
 
 
-    public RetrieveOrderPaymentDto toPaymentDto(Payment payment, PaymentFeeLink paymentFeeLink){
-        RetrieveOrderPaymentDto paymentDto = RetrieveOrderPaymentDto.payment2DtoWith()
+    public CasePaymentDto toPaymentDto(Payment payment, PaymentFeeLink paymentFeeLink){
+        CasePaymentDto paymentDto = CasePaymentDto.casePaymentDtoWith()
             .paymentReference(payment.getReference())
             .paymentGroupReference(paymentFeeLink.getPaymentReference())
             .serviceName(payment.getServiceType())
@@ -329,7 +329,7 @@ public class PaymentDtoMapper {
     }
 
 
-    private RetrieveOrderPaymentDto enrichWithFeeData(RetrieveOrderPaymentDto paymentDto) {
+    private CasePaymentDto enrichWithFeeData(CasePaymentDto paymentDto) {
         LOG.info("Start of enrichWithFeeData!!!");
         paymentDto.getFees().forEach(fee -> {
             Optional<Map<String, Fee2Dto>> optFrFeeMap = Optional.ofNullable(feesService.getFeesDtoMap());
