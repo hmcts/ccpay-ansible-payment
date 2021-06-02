@@ -82,7 +82,6 @@ public class PaymentDomainServiceImpl implements PaymentDomainService {
 
     }
 
-
     public ReconcilePaymentResponse retrievePayments(Optional<String> startDateTimeString, Optional<String> endDateTimeString, Optional<String> paymentMethodType, Optional<String> serviceType, String pbaNumber, String ccdCaseNumber) {
 
 

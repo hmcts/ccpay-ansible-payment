@@ -27,6 +27,7 @@ import uk.gov.hmcts.payment.api.componenttests.PaymentFeeDbBackdoor;
 import uk.gov.hmcts.payment.api.componenttests.util.PaymentsDataUtil;
 import uk.gov.hmcts.payment.api.contract.CasePaymentDto;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
+import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
 import uk.gov.hmcts.payment.api.domain.service.FeeDomainService;
 import uk.gov.hmcts.payment.api.domain.service.OrderDomainService;
@@ -197,7 +198,7 @@ public class CaseControllerTest extends PaymentsDataUtil {
     @Test
     @Transactional
     public void shouldReturnStatusHistoryWithErrorCodeForSearchByCaseReference() throws Exception {
-        String number = "123";
+        String number = "1";
         StatusHistory statusHistory = StatusHistory.statusHistoryWith().status("Failed").externalStatus("failed")
             .errorCode("P0200")
             .message("Payment not found")
@@ -226,22 +227,22 @@ public class CaseControllerTest extends PaymentsDataUtil {
         MvcResult result = restActions
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .get("/orderpoc/cases/ccdCaseNumber123/payments")
+            .get("/cases/ccdCaseNumber1/payments")
             .andExpect(status().isOk())
             .andReturn();
 
-        CasePaymentResponse payments = objectMapper.readValue(result.getResponse().getContentAsByteArray(), new TypeReference<CasePaymentResponse>() {
-        });
+        PaymentsResponse payments = objectMapper.readValue(result.getResponse().getContentAsByteArray(), new TypeReference<PaymentsResponse>(){});
 
         assertThat(payments.getPayments().size()).isEqualTo(1);
 
-        CasePaymentDto paymentDto = payments.getPayments().get(0);
+        PaymentDto paymentDto = payments.getPayments().get(0);
 
         assertThat(paymentDto.getCcdCaseNumber()).isEqualTo("ccdCaseNumber1");
 
         Assert.assertThat(paymentDto.getStatusHistories(), hasItem(hasProperty("status", is("Failed"))));
-        Assert.assertThat(paymentDto.getStatusHistories(), hasItem(hasProperty("errorCode", is("P0200"))));
-        Assert.assertThat(paymentDto.getStatusHistories(), hasItem(hasProperty("errorMessage", is("Payment not found"))));
+        Assert.assertThat(paymentDto.getStatusHistories(), hasItem(hasProperty("errorCode",is("P0200"))));
+        Assert.assertThat(paymentDto.getStatusHistories(), hasItem(hasProperty("errorMessage",is("Payment not found"))));
+
     }
 
 

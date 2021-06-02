@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import uk.gov.hmcts.payment.api.contract.CasePaymentDto;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
+import uk.gov.hmcts.payment.api.contract.RetrieveOrderPaymentDto;
 
 import javax.validation.Valid;
 import java.util.Date;
@@ -32,7 +33,7 @@ public class RetrieveOrderPaymentGroupDto {
 
     private Date dateUpdated;
 
-    private List<CasePaymentDto> payments;
+    private List<RetrieveOrderPaymentDto> payments;
 
     private List<RemissionDto> remissions;
 
