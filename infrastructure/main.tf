@@ -2,6 +2,12 @@ provider "azurerm" {
   features {}
 }
 
+provider "azurerm" {
+  alias = "sendgrid"
+  features {}
+  subscription_id = var.env != "prod" ? local.sendgrid_subscription.nonprod : local.sendgrid_subscription.prod
+}
+
 locals {
 
   vaultName = join("-", [var.core_product, var.env])
@@ -14,6 +20,11 @@ locals {
   api_policy = "${replace(file("template/api-policy.xml"), "ALLOWED_CERTIFICATE_THUMBPRINTS", local.thumbprints_in_quotes_str)}"
   api_base_path = "telephony-api"
   # endregion
+
+  sendgrid_subscription = {
+    prod = "8999dec3-0104-4a27-94ee-6588559729d1"
+    nonprod = "1c4f0704-a29e-403d-b719-b90c34ef14c9"
+  }
 }
 
 data "azurerm_key_vault" "payment_key_vault" {
@@ -79,6 +90,28 @@ resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
 resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   name      = join("-", [var.component, "POSTGRES-DATABASE"])
   value     = module.payment-database-v11.postgresql_database
+  key_vault_id = data.azurerm_key_vault.payment_key_vault.id
+}
+
+# Populate Vault with SendGrid API token
+
+data "azurerm_key_vault" "sendgrid" {
+  provider = azurerm.sendgrid
+
+  name                = var.env != "prod" ? "sendgridnonprod" : "sendgridprod"
+  resource_group_name = var.env != "prod" ? "SendGrid-nonprod" : "SendGrid-prod"
+}
+
+data "azurerm_key_vault_secret" "sendgrid-api-key" {
+  provider = azurerm.sendgrid
+  
+  name         = "hmcts-payment-api-key"
+  key_vault_id = data.azurerm_key_vault.sendgrid.id
+}
+
+resource "azurerm_key_vault_secret" "spring-mail-password" {
+  name         = "spring-mail-password"
+  value        = data.azurerm_key_vault_secret.sendgrid-api-key.value
   key_vault_id = data.azurerm_key_vault.payment_key_vault.id
 }
 

@@ -62,7 +62,7 @@ public class PBAPaymentFunctionalTest {
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String DATE_TIME_FORMAT_T_HH_MM_SS = "yyyy-MM-dd'T'HH:mm:ss";
 
-   @Before
+    @Before
     public void setUp() {
         if (!TOKENS_INITIALIZED) {
             USER_TOKEN = idamService.createUserWith(CMC_CASE_WORKER_GROUP, "caseworker-cmc-solicitor").getAuthorisationToken();
@@ -244,10 +244,10 @@ public class PBAPaymentFunctionalTest {
         if(liberataResponse.getPayments().get(0).getFees().get(0).getCode().equalsIgnoreCase("FEE0271")) {
             assertThat(liberataResponse.getPayments().get(0).getFees().get(0).getApportionedPayment()).isEqualTo("20.00");
             assertThat(liberataResponse.getPayments().get(0).getFees().get(0).getCalculatedAmount()).isEqualTo("20.00");
-            assertThat(liberataResponse.getPayments().get(0).getFees().get(0).getMemoLine()).isEqualTo("RECEIPT OF FEES - Family GA other");
-            assertThat(liberataResponse.getPayments().get(0).getFees().get(0).getNaturalAccountCode()).isEqualTo("4481102165");
-            assertThat(liberataResponse.getPayments().get(0).getFees().get(0).getJurisdiction1()).isEqualTo("family");
-            assertThat(liberataResponse.getPayments().get(0).getFees().get(0).getJurisdiction2()).isEqualTo("family court");
+            assertThat(liberataResponse.getPayments().get(0).getFees().get(0).getMemoLine()).isEqualTo("RECEIPT OF FEES - Tribunal issue other");
+            assertThat(liberataResponse.getPayments().get(0).getFees().get(0).getNaturalAccountCode()).isEqualTo("4481102178");
+            assertThat(liberataResponse.getPayments().get(0).getFees().get(0).getJurisdiction1()).isEqualTo("tribunal");
+            assertThat(liberataResponse.getPayments().get(0).getFees().get(0).getJurisdiction2()).isEqualTo("property chamber");
         }
         if(liberataResponse.getPayments().get(0).getFees().get(1).getCode().equalsIgnoreCase("FEE0272")) {
             assertThat(liberataResponse.getPayments().get(0).getFees().get(1).getApportionedPayment()).isEqualTo("40.00");
@@ -260,10 +260,10 @@ public class PBAPaymentFunctionalTest {
         if(liberataResponse.getPayments().get(0).getFees().get(2).getCode().equalsIgnoreCase("FEE0273")) {
             assertThat(liberataResponse.getPayments().get(0).getFees().get(2).getApportionedPayment()).isEqualTo("60.00");
             assertThat(liberataResponse.getPayments().get(0).getFees().get(2).getCalculatedAmount()).isEqualTo("60.00");
-            assertThat(liberataResponse.getPayments().get(0).getFees().get(2).getMemoLine()).isEqualTo("RECEIPT OF FEES - Tribunal issue other");
-            assertThat(liberataResponse.getPayments().get(0).getFees().get(2).getNaturalAccountCode()).isEqualTo("4481102178");
-            assertThat(liberataResponse.getPayments().get(0).getFees().get(2).getJurisdiction1()).isEqualTo("tribunal");
-            assertThat(liberataResponse.getPayments().get(0).getFees().get(2).getJurisdiction2()).isEqualTo("property chamber");
+            assertThat(liberataResponse.getPayments().get(0).getFees().get(2).getMemoLine()).isEqualTo("RECEIPT OF FEES - Family enforcement other");
+            assertThat(liberataResponse.getPayments().get(0).getFees().get(2).getNaturalAccountCode()).isEqualTo("4481102167");
+            assertThat(liberataResponse.getPayments().get(0).getFees().get(2).getJurisdiction1()).isEqualTo("family");
+            assertThat(liberataResponse.getPayments().get(0).getFees().get(2).getJurisdiction2()).isEqualTo("family court");
         }
     }
 
@@ -278,7 +278,7 @@ public class PBAPaymentFunctionalTest {
             .then()
             .statusCode(CREATED.value())
             .body("status", equalTo("Success"));
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         String endDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
 
         dsl.given().userToken(USER_TOKEN)
@@ -290,22 +290,22 @@ public class PBAPaymentFunctionalTest {
     }
 
     @Test
-    public void makeAndRetrievePbaPaymentByUnspecService() throws InterruptedException {
+    public void makeAndRetrievePbaPaymentByCivilService() throws InterruptedException {
 
         String startDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT);
         String accountNumber = testProps.existingAccountNumber;
-        CreditAccountPaymentRequest accountPaymentRequest = PaymentFixture.aPbaPaymentRequestForUnspec("90.00", Service.UNSPEC);
+        CreditAccountPaymentRequest accountPaymentRequest = PaymentFixture.aPbaPaymentRequestForCivil("90.00", Service.CIVIL);
         accountPaymentRequest.setAccountNumber(accountNumber);
         paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest)
             .then()
             .statusCode(CREATED.value())
             .body("status", equalTo("Success"));
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         String endDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
-            .when().searchPaymentsByServiceBetweenDates(Service.UNSPEC, startDate, endDate)
+            .when().searchPaymentsByServiceBetweenDates(Service.CIVIL, startDate, endDate)
             .then().getPayments((paymentsResponse -> {
             Assertions.assertThat(paymentsResponse.getPayments().size()).isEqualTo(1);
         }));
@@ -323,7 +323,7 @@ public class PBAPaymentFunctionalTest {
             .statusCode(CREATED.value())
             .body("status", equalTo("Success"));
 
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         String endDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
 
         dsl.given().userToken(USER_TOKEN)
@@ -346,7 +346,7 @@ public class PBAPaymentFunctionalTest {
             .statusCode(CREATED.value())
             .body("status", equalTo("Success"));
 
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         String endDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
 
         dsl.given().userToken(USER_TOKEN)

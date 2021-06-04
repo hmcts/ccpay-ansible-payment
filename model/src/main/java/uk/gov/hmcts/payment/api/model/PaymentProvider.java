@@ -17,6 +17,7 @@ import javax.persistence.*;
 public class PaymentProvider {
 
     public final static PaymentProvider GOV_PAY = new PaymentProvider("gov pay","Gov pay");
+    public final static PaymentProvider PCI_PAL = new PaymentProvider("pci pal","PCI PAL");
 
     @Id
     @Column(name = "name", nullable = false)

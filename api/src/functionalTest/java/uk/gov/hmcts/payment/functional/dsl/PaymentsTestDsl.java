@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
-import uk.gov.hmcts.payment.api.contract.FeeDto;
-import uk.gov.hmcts.payment.api.contract.PaymentDto;
-import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
+import uk.gov.hmcts.payment.api.contract.*;
 import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.dto.*;
 import uk.gov.hmcts.payment.functional.idam.IdamService;
@@ -108,6 +105,11 @@ public class PaymentsTestDsl {
             return this;
         }
 
+        public PaymentWhenDsl createTelephonyPayment(TelephonyCardPaymentsRequest telephonyCardPaymentsRequest, String paymentGroupReference) {
+            response = newRequest().contentType(ContentType.JSON).body(telephonyCardPaymentsRequest).post("/payment-groups/{payment-group-reference}/telephony-card-payments", paymentGroupReference);
+            return this;
+        }
+
         public PaymentWhenDsl createTelephonyPayment(PaymentRecordRequest paymentRecordRequest) {
             response = newRequest().contentType(ContentType.JSON).body(paymentRecordRequest).post("/payment-records");
             return this;
@@ -133,6 +135,12 @@ public class PaymentsTestDsl {
         public PaymentWhenDsl createBulkScanPayment(BulkScanPaymentRequest bulkScanPaymentRequest, String paymentGroupReference) {
             response = newRequest().contentType(ContentType.JSON).body(bulkScanPaymentRequest)
                 .post("/payment-groups/{payment-group-reference}/bulk-scan-payments", paymentGroupReference );
+            return this;
+        }
+
+        public PaymentWhenDsl createBulkScanPaymentStrategic(BulkScanPaymentRequest bulkScanPaymentRequest, String paymentGroupReference) {
+            response = newRequest().contentType(ContentType.JSON).body(bulkScanPaymentRequest)
+                .post("/payment-groups/{payment-group-reference}/bulk-scan-payments-strategic", paymentGroupReference );
             return this;
         }
 
@@ -196,6 +204,30 @@ public class PaymentsTestDsl {
                 response = newRequest().get("/payments?start_date=" + startDate);
             } else if (endDate != null) {
                 response = newRequest().get("/payments?end_date=" + endDate);
+            }
+
+            return this;
+        }
+
+        public PaymentWhenDsl searchPaymentsBetweenDatesPaymentMethodServiceName(String startDate, String endDate, String paymentMethod) {
+            if (startDate != null && endDate != null) {
+                response = newRequest().get("/payments?start_date=" + startDate + "&end_date=" + endDate + "&service_name=DIGITAL_BAR" + "&payment_method=" + paymentMethod);
+            } else if (startDate != null) {
+                response = newRequest().get("/payments?start_date=" + startDate + "&service_name=DIGITAL_BAR" + "&payment_method=" + paymentMethod);
+            } else if (endDate != null) {
+                response = newRequest().get("/payments?end_date=" + endDate + "&service_name=DIGITAL_BAR" + "&payment_method=" + paymentMethod);
+            }
+
+            return this;
+        }
+
+        public PaymentWhenDsl searchPaymentsBetweenDatesPaymentMethodServiceNameApproach1(String startDate, String endDate, String paymentMethod) {
+            if (startDate != null && endDate != null) {
+                response = newRequest().get("/reconciliation-payments?start_date=" + startDate + "&end_date=" + endDate + "&service_name=DIGITAL_BAR" + "&payment_method=" + paymentMethod);
+            } else if (startDate != null) {
+                response = newRequest().get("/reconciliation-payments?start_date=" + startDate + "&service_name=DIGITAL_BAR" + "&payment_method=" + paymentMethod);
+            } else if (endDate != null) {
+                response = newRequest().get("/reconciliation-payments?end_date=" + endDate + "&service_name=DIGITAL_BAR" + "&payment_method=" + paymentMethod);
             }
 
             return this;
@@ -282,6 +314,11 @@ public class PaymentsTestDsl {
             PaymentsResponse paymentsResponse = response.then().statusCode(200).extract().as(PaymentsResponse.class);
             paymentsResponseAssertions.accept(paymentsResponse);
             return this;
+        }
+
+        public PaymentsResponse getPayments() {
+            PaymentsResponse paymentsResponse = response.then().statusCode(200).extract().as(PaymentsResponse.class);
+            return paymentsResponse;
         }
 
         public PaymentThenDsl getPaymentGroups(Consumer<PaymentGroupResponse> paymentGroupsResponseAssertions) {

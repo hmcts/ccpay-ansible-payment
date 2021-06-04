@@ -11,6 +11,7 @@ import uk.gov.hmcts.payment.api.external.client.GovPayClient;
 import uk.gov.hmcts.payment.api.external.client.dto.CreatePaymentRequest;
 import uk.gov.hmcts.payment.api.external.client.dto.GovPayPayment;
 import uk.gov.hmcts.payment.api.external.client.dto.Link;
+import uk.gov.hmcts.payment.api.model.Payment;
 import uk.gov.hmcts.payment.api.service.DelegatingPaymentService;
 import uk.gov.hmcts.payment.api.v1.model.ServiceIdSupplier;
 import uk.gov.hmcts.payment.api.v1.model.govpay.GovPayAuthUtil;
@@ -67,6 +68,11 @@ public class GovPayDelegatingPaymentService implements DelegatingPaymentService<
     @Override
     public void cancel(String cancelUrl) {
         govPayClient.cancelPayment(keyForService(), cancelUrl);
+    }
+
+    @Override
+    public List<Payment> searchByCriteria(PaymentSearchCriteria searchCriteria) {
+        return null;
     }
 
     private String hrefFor(Link link) {

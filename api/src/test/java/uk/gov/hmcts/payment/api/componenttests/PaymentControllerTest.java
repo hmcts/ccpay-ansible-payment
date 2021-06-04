@@ -1663,7 +1663,7 @@ public class PaymentControllerTest extends PaymentsDataUtil {
     public void retrievePaymentByReference_shouldThrow404_whenReferenceIsUnknown() throws Exception {
         populateCardPaymentToDb("1");
 
-         restActions
+        restActions
             .get("/payments/" + "some_random")
             .andExpect(status().isNotFound())
             .andReturn();
@@ -1719,6 +1719,30 @@ public class PaymentControllerTest extends PaymentsDataUtil {
         payments = response.getPayments();
         assertNotNull(payments);
         assertThat(payments.size()).isEqualTo(1);
+    }
+
+    @Test
+    @Transactional
+    public void searchPaymentsByApportion_withValidDates_shouldReturnPayments() throws Exception {
+
+        populateCardPaymentToDb("1");
+        populateCreditAccountPaymentToDb("2");
+
+        String startDate = LocalDate.now().minusDays(1).toString(DATE_FORMAT);
+        String endDate = LocalDate.now().toString(DATE_FORMAT);
+
+        restActions
+            .post("/api/ff4j/store/features/payment-search/enable")
+            .andExpect(status().isAccepted());
+
+        MvcResult result = restActions
+            .get("/reconciliation-payments?start_date=" + startDate + "&end_date=" + endDate)
+            .andExpect(status().isOk())
+            .andReturn();
+
+        PaymentsResponse paymentsResponse = objectMapper.readValue(result.getResponse().getContentAsString(), PaymentsResponse.class);
+        assertThat(paymentsResponse.getPayments().size()).isEqualTo(2);
+
     }
 
     private Date parseDate(String date) {

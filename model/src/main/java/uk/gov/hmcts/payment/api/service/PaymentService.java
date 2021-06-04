@@ -23,4 +23,6 @@ public interface PaymentService<T, ID> {
 
     List<FeePayApportion> findByPaymentId(Integer paymentId);
 
+    List<Payment> searchByCriteria(PaymentSearchCriteria searchCriteria);
+
 }

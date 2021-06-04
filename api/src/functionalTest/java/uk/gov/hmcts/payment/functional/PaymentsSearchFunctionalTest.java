@@ -46,6 +46,7 @@ public class PaymentsSearchFunctionalTest {
     private static String USER_TOKEN;
     private static String SERVICE_TOKEN;
     private static boolean TOKENS_INITIALIZED = false;
+    private static DateTimeZone zoneUTC = DateTimeZone.UTC;
 
     @Before
     public void setUp() throws Exception {
@@ -58,8 +59,8 @@ public class PaymentsSearchFunctionalTest {
 
     @Test
     public void givenAnyTwoValidDatesWithFormatYYYYMMDDShouldNotBeAnyErrors() {
-        String startDate = LocalDate.now().toString(DATE_FORMAT);
-        String endDate = LocalDate.now().toString(DATE_FORMAT);
+        String startDate = LocalDate.now(zoneUTC).toString(DATE_FORMAT);
+        String endDate = LocalDate.now(zoneUTC).toString(DATE_FORMAT);
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
@@ -71,8 +72,8 @@ public class PaymentsSearchFunctionalTest {
 
     @Test
     public void givenAnyTwoValidDatesWithFormatDDMMYYYYShouldNotBeAnyErrors() {
-        String startDate = LocalDate.now().toString(DATE_FORMAT_DD_MM_YYYY);
-        String endDate = LocalDate.now().toString(DATE_FORMAT_DD_MM_YYYY);
+        String startDate = LocalDate.now(zoneUTC).toString(DATE_FORMAT_DD_MM_YYYY);
+        String endDate = LocalDate.now(zoneUTC).toString(DATE_FORMAT_DD_MM_YYYY);
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
@@ -85,8 +86,8 @@ public class PaymentsSearchFunctionalTest {
 
     @Test
     public void givenFutureEndDateTheSearchPaymentsShouldFail() {
-        String startDate = LocalDateTime.now().toString(DATE_TIME_FORMAT);
-        String endDate = LocalDateTime.now().plusMinutes(1).toString(DATE_TIME_FORMAT);
+        String startDate = LocalDateTime.now(zoneUTC).toString(DATE_TIME_FORMAT);
+        String endDate = LocalDateTime.now(zoneUTC).plusMinutes(1).toString(DATE_TIME_FORMAT);
 
         Response response =  dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
@@ -98,8 +99,8 @@ public class PaymentsSearchFunctionalTest {
 
     @Test
     public void givenFutureStartDateTheSearchPaymentsShouldFail() {
-        String startDate = LocalDateTime.now().plusDays(1).toString(DATE_TIME_FORMAT);
-        String endDate = LocalDateTime.now().toString(DATE_TIME_FORMAT);
+        String startDate = LocalDateTime.now(zoneUTC).plusDays(1).toString(DATE_TIME_FORMAT);
+        String endDate = LocalDateTime.now(zoneUTC).toString(DATE_TIME_FORMAT);
 
         Response response =  dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
@@ -111,8 +112,8 @@ public class PaymentsSearchFunctionalTest {
 
     @Test
     public void searchPaymentWithStartDateGreaterThanEndDateShouldFail() throws Exception {
-        String startDate = LocalDateTime.now().plusMinutes(1).toString(DATE_TIME_FORMAT);
-        String endDate = LocalDateTime.now().toString(DATE_TIME_FORMAT);
+        String startDate = LocalDateTime.now(zoneUTC).plusMinutes(1).toString(DATE_TIME_FORMAT);
+        String endDate = LocalDateTime.now(zoneUTC).toString(DATE_TIME_FORMAT);
 
         Response response =  dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
@@ -124,7 +125,7 @@ public class PaymentsSearchFunctionalTest {
 
     @Test
     public void givenTwoPaymentsInPeriodWhensearchPaymentsWithStartDateEndDateThenShouldPass() throws InterruptedException {
-        String startDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT);
+        String startDate = LocalDateTime.now(zoneUTC).toString(DATE_TIME_FORMAT);
 
         dsl.given().userToken(USER_TOKEN)
             .s2sToken(SERVICE_TOKEN)
@@ -144,9 +145,9 @@ public class PaymentsSearchFunctionalTest {
             assertEquals("payment status is properly set", "Initiated", paymentDto.getStatus());
         });
 
-        Thread.sleep(1000);
+        Thread.sleep(2000);
 
-        String endDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
+        String endDate = LocalDateTime.now(zoneUTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
 
         // retrieve card payment
         dsl.given().userToken(USER_TOKEN)
