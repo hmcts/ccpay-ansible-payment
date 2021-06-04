@@ -14,20 +14,8 @@ java:
     LAUNCH_DARKLY_USER_NAME_PREFIX: aat
     SPRING_PROFILES_ACTIVE: "liberataMock,callbackMock,ccdMock"
     CALLBACK_PAYMENTS_CUTOFF_TIME_IN_MINUTES: 0
-
-    #Below key required for preview pipeline
-    GOV_PAY_AUTH_KEY_CMC: 8ln764q6jrbgqvvvv40uggsea3h1p602v79gdrt7ni66mrmpk416ulohvd
-    LAUNCH_DARKLY_SDK_KEY: sdk-06456c8b-312c-475c-b154-ca585f5ca063
     CCPAY_BULK_SCANNING_API_URL: http://ccpay-bulkscanning-api-aat.service.core-compute-aat.internal
-    PAYMENT_S2S_SECRET: ETNY5CBN7NR62T6M
-    card.payments.email.to: Krishna.Nuthalapati@hmcts.net
-    bar.payments.email.to: Krishna.Nuthalapati@hmcts.net
-    pba.cmc.payments.email.to: Krishna.Nuthalapati@hmcts.net
-    pba.probate.payments.email.to: Krishna.Nuthalapati@hmcts.net
-    pba.finrem.payments.email.to: Krishna.Nuthalapati@hmcts.net
-    pba.divorce.payments.email.to: Krishna.Nuthalapati@hmcts.net
-    pba.fpl.payments.email.to: Krishna.Nuthalapati@hmcts.net
-
+    PBA_CONFIG1_SERVICE_NAMES: dummy
     PCI_PAL_API_URL: https://ip3cloud.com/clients/hmcts/payments/index.php
   keyVaults:
     "ccpay":

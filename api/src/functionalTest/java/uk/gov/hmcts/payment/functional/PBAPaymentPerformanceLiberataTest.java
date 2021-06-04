@@ -448,7 +448,7 @@ public class PBAPaymentPerformanceLiberataTest {
             paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest[i])
                 .then()
                 .statusCode(CREATED.value())
-                .body("status", equalTo("Pending"));
+                .body("status", equalTo("Success"));
         }
 
         Thread.sleep(5000);
