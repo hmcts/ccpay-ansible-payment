@@ -28,9 +28,33 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @ToString
 public class CasePaymentDto {
 
+    private String paymentReference;
+
+    private String paymentGroupReference;
+
+    private String serviceName;
+
+    private String siteId;
+
     private BigDecimal amount;
 
-    private String description;
+    private String caseReference;
+
+    private String ccdCaseNumber;
+
+    private String accountNumber;
+
+    private String organisationName;
+
+    private String customerReference;
+
+    private String channel;
+
+    private CurrencyCode currency;
+
+    private String status;
+
+    private List<StatusHistoryDto> statusHistories;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT")
     private Date dateCreated;
@@ -38,49 +62,22 @@ public class CasePaymentDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT")
     private Date dateUpdated;
 
-    private String reference;
-
-    private String caseReference;
-
-    private CurrencyCode currency;
-
-    private String ccdCaseNumber;
-
-    private String paymentReference;
-
-    private String channel;
-
-    private String accountNumber;
-
-    private Date bankedDate;
-
-    private String organisationName;
-
-    private String externalReference;
-
     private String method;
-
-    private String externalProvider;
-
-    private String status;
-
-    private String siteId;
-
-    private String serviceName;
-
-    private String customerReference;
-
-    private String paymentGroupReference;
-
-    private Date reportedDateOffline;
 
     private String giroSlipNo;
 
-    private String documentControlNumber;
+    private String externalProvider;
+
+    private String externalReference;
+
+    private Date reportedDateOffline;
 
     private List<FeeDto> fees;
+//    ----
 
-    private List<StatusHistoryDto> statusHistories;
-
-    private List<PaymentAllocationDto> paymentAllocation;
+//    private String description;
+//    private String reference;
+//    private Date bankedDate;
+//    private String documentControlNumber;
+//    private List<PaymentAllocationDto> paymentAllocation;
 }
