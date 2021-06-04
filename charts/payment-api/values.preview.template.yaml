@@ -36,5 +36,7 @@ java:
         - pci-pal-antenna-divorce-flow-id
         - pci-pal-antenna-financial-remedy-flow-id
         - spring-mail-password
+        - paybubble-s2s-secret
+        - paybubble-idam-client-secret
   postgresql:
     enabled: true
