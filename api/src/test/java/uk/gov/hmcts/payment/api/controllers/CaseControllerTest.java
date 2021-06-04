@@ -186,7 +186,6 @@ public class CaseControllerTest extends PaymentsDataUtil {
 
         assertThat(payment.getCcdCaseNumber()).isEqualTo("1607065108455502");
 
-        assertThat(payment.getReference()).isNotBlank();
         assertThat(payment.getAmount()).isPositive();
         assertThat(payment.getDateCreated()).isNotNull();
         assertThat(payment.getCustomerReference()).isNotBlank();

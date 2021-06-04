@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.fees2.register.api.contract.FeeVersionDto;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
-import uk.gov.hmcts.payment.api.contract.FeeDto;
-import uk.gov.hmcts.payment.api.contract.PaymentAllocationDto;
-import uk.gov.hmcts.payment.api.contract.PaymentDto;
-import uk.gov.hmcts.payment.api.contract.RetrieveOrderPaymentDto;
+import uk.gov.hmcts.payment.api.contract.*;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
 import uk.gov.hmcts.payment.api.domain.service.FeeDomainService;
 import uk.gov.hmcts.payment.api.domain.service.PaymentDomainService;
@@ -59,6 +56,32 @@ public class PaymentGroupDtoMapper {
             .payments((!(paymentFeeLink.getPayments() == null) && !paymentFeeLink.getPayments().isEmpty()) ? toPaymentDtos(paymentFeeLink.getPayments()) : null)
             .remissions(!(paymentFeeLink.getRemissions() == null) ? toRemissionDtos(paymentFeeLink.getRemissions()) : null)
             .build();
+    }
+
+    public RetrieveOrderPaymentGroupDto toPaymentGroupDtoForOrders(PaymentFeeLink paymentFeeLink){
+        List<FeeDto> feeDtos = toFeeDtos(paymentFeeLink.getFees());
+        RetrieveOrderPaymentGroupDto retrieveOrderPaymentGroupDto = RetrieveOrderPaymentGroupDto.paymentGroupDtoWith()
+            .paymentGroupReference(paymentFeeLink.getPaymentReference())
+            .dateCreated(paymentFeeLink.getDateCreated())
+            .dateUpdated(paymentFeeLink.getDateUpdated())
+            .fees(feeDtos)
+            .remissions(toRemissionDtos(getRemissionsForGivenFees(paymentFeeLink.getFees())))
+            .payments(getCasePaymentGroupDtos(getPaymentsFromFeesAndApportions(paymentFeeLink.getFees())))
+            .build();
+        return retrieveOrderPaymentGroupDto;
+    }
+
+    private List<CasePaymentGroupDto> getCasePaymentGroupDtos(List<RetrieveOrderPaymentDto> retrieveOrderPaymentDtos){
+        return retrieveOrderPaymentDtos.stream().map(this::getCasePaymentGroupDto).collect(Collectors.toList());
+    }
+
+    private CasePaymentGroupDto getCasePaymentGroupDto(RetrieveOrderPaymentDto retrieveOrderPaymentDto){
+        return CasePaymentGroupDto.casePaymentGroupDtoWith()
+                .reference(retrieveOrderPaymentDto.getReference())
+                .amount(retrieveOrderPaymentDto.getAmount())
+                .currency(retrieveOrderPaymentDto.getCurrency())
+                .caseReference(retrieveOrderPaymentDto.getCaseReference())
+                .build();
     }
 
     public RetrieveOrderPaymentGroupDto toPaymentGroupDtoForFeePayApportionment(RetrieveOrderPaymentGroupDto retrieveOrderPaymentGroupDto, Payment payment){
@@ -227,21 +250,6 @@ public class PaymentGroupDtoMapper {
             .dateCreated(apportionFeature ? timestamp: null)
             .build();
     }
-
-
-    public RetrieveOrderPaymentGroupDto toPaymentGroupDtoForOrders(PaymentFeeLink paymentFeeLink){
-        List<FeeDto> feeDtos = toFeeDtos(paymentFeeLink.getFees());
-        RetrieveOrderPaymentGroupDto retrieveOrderPaymentGroupDto = RetrieveOrderPaymentGroupDto.paymentGroupDtoWith()
-                                                .paymentGroupReference(paymentFeeLink.getPaymentReference())
-                                                .dateCreated(paymentFeeLink.getDateCreated())
-                                                .dateUpdated(paymentFeeLink.getDateUpdated())
-                                                .fees(feeDtos)
-                                                .remissions(toRemissionDtos(getRemissionsForGivenFees(paymentFeeLink.getFees())))
-                                                .payments(getPaymentsFromFeesAndApportions(paymentFeeLink.getFees()))
-                                                .build();
-        return retrieveOrderPaymentGroupDto;
-    }
-
 
 
     private List<Remission> getRemissionsForGivenFees(List<PaymentFee> paymentFees){
