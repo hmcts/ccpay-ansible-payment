@@ -105,9 +105,9 @@ public class CaseController {
         @ApiResponse(code = 404, message = "Payment Groups not found")
     })
     @RequestMapping(value = "/cases/{ccdcasenumber}/paymentgroups", method = GET)
-    public PaymentGroupResponse retrieveCasePaymentGroups(@PathVariable(name = "ccdcasenumber") String ccdCaseNumber) {
+    public OrderPaymentGroupResponse retrieveCasePaymentGroups(@PathVariable(name = "ccdcasenumber") String ccdCaseNumber) {
 
-        List<PaymentGroupDto> paymentGroups = paymentGroupService
+        List<RetrieveOrderPaymentGroupDto> paymentGroups = paymentGroupService
             .search(ccdCaseNumber)
             .stream()
             .map(paymentGroupDtoMapper::toPaymentGroupDto)
@@ -117,7 +117,7 @@ public class CaseController {
             throw new PaymentGroupNotFoundException();
         }
 
-        return new PaymentGroupResponse(paymentGroups);
+        return new OrderPaymentGroupResponse(paymentGroups);
     }
 
     @ApiOperation(value = "Get payment groups for a case using Orders", notes = "Get payment groups for a case using Orders")
@@ -166,7 +166,7 @@ public class CaseController {
         Set<CasePaymentDto> paymentDtos = feePayApportions
             .stream()
             .map(feePayApportion ->
-                paymentDtoMapper.toPaymentDto(paymentDomainService.getPaymentByApportionment(feePayApportion), paymentFeeLink))
+                paymentDtoMapper.toCasePaymentDto(paymentDomainService.getPaymentByApportionment(feePayApportion), paymentFeeLink))
             .collect(Collectors.toSet());
         return paymentDtos.stream().collect(Collectors.toList());
     }

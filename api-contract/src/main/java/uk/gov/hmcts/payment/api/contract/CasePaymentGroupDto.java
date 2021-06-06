@@ -65,6 +65,8 @@ public class CasePaymentGroupDto {
 
     private Date bankedDate;
 
+    private String payerName;
+
     private List<CasePaymentAllocationDto> paymentAllocation;
 
 

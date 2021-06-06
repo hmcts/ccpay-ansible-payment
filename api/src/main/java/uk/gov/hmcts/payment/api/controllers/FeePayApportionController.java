@@ -68,7 +68,7 @@ public class FeePayApportionController {
         @ApiResponse(code = 404, message = "Payment not found")
     })
     @GetMapping(value = "/payment-groups/fee-pay-apportion/{paymentreference}")
-    public ResponseEntity<PaymentGroupDto> retrieveApportionDetails(@PathVariable("paymentreference") String paymentReference) {
+    public ResponseEntity<RetrieveOrderPaymentGroupDto> retrieveApportionDetails(@PathVariable("paymentreference") String paymentReference) {
         LOG.info("Invoking new API in FeePayApportionController");
         PaymentFeeLink paymentFeeLink = paymentService.retrieve(paymentReference);
         boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature",false);

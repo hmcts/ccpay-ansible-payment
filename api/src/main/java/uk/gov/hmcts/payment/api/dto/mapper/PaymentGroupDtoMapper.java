@@ -47,8 +47,8 @@ public class PaymentGroupDtoMapper {
     @Autowired
     private FeeDomainService feeDomainService;
 
-    public PaymentGroupDto toPaymentGroupDto(PaymentFeeLink paymentFeeLink) {
-        return PaymentGroupDto.paymentGroupDtoWith()
+    public RetrieveOrderPaymentGroupDto toPaymentGroupDto(PaymentFeeLink paymentFeeLink) {
+        return RetrieveOrderPaymentGroupDto.paymentGroupDtoWith()
             .paymentGroupReference(paymentFeeLink.getPaymentReference())
             .dateCreated(paymentFeeLink.getDateCreated())
             .dateUpdated(paymentFeeLink.getDateUpdated())
@@ -59,33 +59,19 @@ public class PaymentGroupDtoMapper {
     }
 
     public RetrieveOrderPaymentGroupDto toPaymentGroupDtoForOrders(PaymentFeeLink paymentFeeLink){
-        List<FeeDto> feeDtos = toFeeDtos(paymentFeeLink.getFees());
         RetrieveOrderPaymentGroupDto retrieveOrderPaymentGroupDto = RetrieveOrderPaymentGroupDto.paymentGroupDtoWith()
             .paymentGroupReference(paymentFeeLink.getPaymentReference())
             .dateCreated(paymentFeeLink.getDateCreated())
             .dateUpdated(paymentFeeLink.getDateUpdated())
-            .fees(feeDtos)
+            .fees( toFeeDtos(paymentFeeLink.getFees()))
             .remissions(toRemissionDtos(getRemissionsForGivenFees(paymentFeeLink.getFees())))
-            .payments(getCasePaymentGroupDtos(getPaymentsFromFeesAndApportions(paymentFeeLink.getFees())))
+            .payments(getPaymentsFromFeesAndApportions(paymentFeeLink.getFees()))
             .build();
         return retrieveOrderPaymentGroupDto;
     }
 
-    private List<CasePaymentGroupDto> getCasePaymentGroupDtos(List<RetrieveOrderPaymentDto> retrieveOrderPaymentDtos){
-        return retrieveOrderPaymentDtos.stream().map(this::getCasePaymentGroupDto).collect(Collectors.toList());
-    }
-
-    private CasePaymentGroupDto getCasePaymentGroupDto(RetrieveOrderPaymentDto retrieveOrderPaymentDto){
-        return CasePaymentGroupDto.casePaymentGroupDtoWith()
-                .reference(retrieveOrderPaymentDto.getReference())
-                .amount(retrieveOrderPaymentDto.getAmount())
-                .currency(retrieveOrderPaymentDto.getCurrency())
-                .caseReference(retrieveOrderPaymentDto.getCaseReference())
-                .build();
-    }
-
     public RetrieveOrderPaymentGroupDto toPaymentGroupDtoForFeePayApportionment(RetrieveOrderPaymentGroupDto retrieveOrderPaymentGroupDto, Payment payment){
-        List<RetrieveOrderPaymentDto> retrieveOrderPaymentList = new ArrayList<>();
+        List<CasePaymentGroupDto> retrieveOrderPaymentList = new ArrayList<>();
         //paymentList.add(payment);
         retrieveOrderPaymentList.add(toRetrieveOrderPaymentDto(payment));
         retrieveOrderPaymentGroupDto.setPayments(retrieveOrderPaymentList);
@@ -117,39 +103,39 @@ public class PaymentGroupDtoMapper {
 
 
 
-    private List<PaymentDto> toPaymentDtos(List<Payment> payments) {
-        return payments.stream().map(p -> toPaymentDto(p)).collect(Collectors.toList());
+    private List<CasePaymentGroupDto> toPaymentDtos(List<Payment> payments) {
+        return payments.stream().map(p -> toRetrieveOrderPaymentDto(p)).collect(Collectors.toList());
     }
     //added missing pba account details
-    private PaymentDto toPaymentDto(Payment payment) {
-        return PaymentDto.payment2DtoWith()
-            .reference(payment.getReference())
-            .amount(payment.getAmount())
-            .currency(CurrencyCode.valueOf(payment.getCurrency()))
-            .caseReference(payment.getCaseReference())
-            .ccdCaseNumber(payment.getCcdCaseNumber())
-            .accountNumber(payment.getPbaNumber())
-            .organisationName(payment.getOrganisationName())
-            .customerReference(payment.getCustomerReference())
-            .status(PayStatusToPayHubStatus.valueOf(payment.getPaymentStatus().getName()).getMappedStatus())
-            .serviceName(payment.getServiceType())
-            .siteId(payment.getSiteId())
-            .description(payment.getDescription())
-            .channel(payment.getPaymentChannel() != null ? payment.getPaymentChannel().getName() : null)
-            .method(payment.getPaymentMethod() != null ? payment.getPaymentMethod().getName() : null)
-            .externalReference(payment.getExternalReference())
-            .externalProvider(payment.getPaymentProvider() != null ? payment.getPaymentProvider().getName() : null)
-            .dateCreated(payment.getDateCreated() != null ? payment.getDateCreated() : null)
-            .dateUpdated(payment.getDateUpdated() != null ? payment.getDateUpdated() : null)
-            .documentControlNumber(payment.getDocumentControlNumber())
-            .bankedDate(payment.getBankedDate())
-            .payerName(payment.getPayerName())
-            .paymentAllocation(payment.getPaymentAllocation() !=null ? toPaymentAllocationDtos(payment.getPaymentAllocation()) : null)
-            .build();
-    }
+//    private PaymentDto toPaymentDto(Payment payment) {
+//        return PaymentDto.payment2DtoWith()
+//            .reference(payment.getReference())
+//            .amount(payment.getAmount())
+//            .currency(CurrencyCode.valueOf(payment.getCurrency()))
+//            .caseReference(payment.getCaseReference())
+//            .ccdCaseNumber(payment.getCcdCaseNumber())
+//            .accountNumber(payment.getPbaNumber())
+//            .organisationName(payment.getOrganisationName())
+//            .customerReference(payment.getCustomerReference())
+//            .status(PayStatusToPayHubStatus.valueOf(payment.getPaymentStatus().getName()).getMappedStatus())
+//            .serviceName(payment.getServiceType())
+//            .siteId(payment.getSiteId())
+//            .description(payment.getDescription())
+//            .channel(payment.getPaymentChannel() != null ? payment.getPaymentChannel().getName() : null)
+//            .method(payment.getPaymentMethod() != null ? payment.getPaymentMethod().getName() : null)
+//            .externalReference(payment.getExternalReference())
+//            .externalProvider(payment.getPaymentProvider() != null ? payment.getPaymentProvider().getName() : null)
+//            .dateCreated(payment.getDateCreated() != null ? payment.getDateCreated() : null)
+//            .dateUpdated(payment.getDateUpdated() != null ? payment.getDateUpdated() : null)
+//            .documentControlNumber(payment.getDocumentControlNumber())
+//            .bankedDate(payment.getBankedDate())
+//            .payerName(payment.getPayerName())
+//            .paymentAllocation(payment.getPaymentAllocation() !=null ? toPaymentAllocationDtos(payment.getPaymentAllocation()) : null)
+//            .build();
+//    }
 
-    private RetrieveOrderPaymentDto toRetrieveOrderPaymentDto(Payment payment) {
-        return RetrieveOrderPaymentDto.payment2DtoWith()
+    private CasePaymentGroupDto toRetrieveOrderPaymentDto(Payment payment) {
+        return CasePaymentGroupDto.casePaymentGroupDtoWith()
             .reference(payment.getReference())
             .amount(payment.getAmount())
             .currency(CurrencyCode.valueOf(payment.getCurrency()))
@@ -179,12 +165,12 @@ public class PaymentGroupDtoMapper {
         return remissions.stream().map(r -> toRemissionDto(r)).collect(Collectors.toList());
     }
 
-    private List<PaymentAllocationDto> toPaymentAllocationDtos(List<PaymentAllocation> paymentAllocation) {
+    private List<CasePaymentAllocationDto> toPaymentAllocationDtos(List<PaymentAllocation> paymentAllocation) {
         return paymentAllocation.stream().map(pa -> toPaymentAllocationDto(pa)).collect(Collectors.toList());
     }
 
-    public PaymentAllocationDto toPaymentAllocationDto(PaymentAllocation paymentAllocation){
-        return PaymentAllocationDto.paymentAllocationDtoWith()
+    public CasePaymentAllocationDto toPaymentAllocationDto(PaymentAllocation paymentAllocation){
+        return CasePaymentAllocationDto.casePaymentAllocationDtoWith()
             .allocationStatus(paymentAllocation.getPaymentAllocationStatus().getName())
             .build();
     }
@@ -258,13 +244,13 @@ public class PaymentGroupDtoMapper {
         ).collect(Collectors.toList());
     }
 
-    private List<RetrieveOrderPaymentDto> getPaymentsFromFeesAndApportions(List<PaymentFee> paymentFees){
+    private List<CasePaymentGroupDto> getPaymentsFromFeesAndApportions(List<PaymentFee> paymentFees){
         List<FeePayApportion> feePayApportions =  paymentFees
                                                     .stream()
                                                     .flatMap(fee->
                                                         feeDomainService.getFeePayApportionsByFee(fee).stream())
                                                     .collect(Collectors.toList());
-        Set<RetrieveOrderPaymentDto> retrieveOrderPaymentDto = feePayApportions
+        Set<CasePaymentGroupDto> retrieveOrderPaymentDto = feePayApportions
                                         .stream()
                                         .map(feePayApportion ->
                                             toRetrieveOrderPaymentDto(paymentDomainService.getPaymentByApportionment(feePayApportion)))

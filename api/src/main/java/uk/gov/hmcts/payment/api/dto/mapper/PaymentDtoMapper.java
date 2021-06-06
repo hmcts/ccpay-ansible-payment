@@ -259,7 +259,7 @@ public class PaymentDtoMapper {
 
 
 
-    public CasePaymentDto toPaymentDto(Payment payment, PaymentFeeLink paymentFeeLink){
+    public CasePaymentDto toCasePaymentDto(Payment payment, PaymentFeeLink paymentFeeLink){
         CasePaymentDto paymentDto = CasePaymentDto.casePaymentDtoWith()
             .paymentReference(payment.getReference())
             .paymentGroupReference(paymentFeeLink.getPaymentReference())
