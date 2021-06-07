@@ -117,7 +117,7 @@ public class MaintenanceJobsControllerTest extends PaymentsDataUtil {
                 .withHeader("Content-Type", "application/json")
                 .withBody(contentsOf("gov-pay-responses/create-payment-response.json"))));
 
-        stubFor(get(urlPathMatching("/v1/payments/paymentId"))
+        stubFor(get(urlPathMatching("/v1/payments/ak8gtvb438drmp59cs7ijppr3i"))
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "application/json")
