@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.payment.api.dto.PaymentSearchCriteria;
 import uk.gov.hmcts.payment.api.dto.PaymentServiceRequest;
 import uk.gov.hmcts.payment.api.external.client.GovPayClient;
+import uk.gov.hmcts.payment.api.external.client.dto.CreatePaymentRequest;
 import uk.gov.hmcts.payment.api.external.client.dto.GovPayPayment;
 import uk.gov.hmcts.payment.api.external.client.dto.Link;
 import uk.gov.hmcts.payment.api.model.Payment;
@@ -38,21 +39,21 @@ public class GovPayDelegatingPaymentService implements DelegatingPaymentService<
 
     @Override
     public GovPayPayment create(PaymentServiceRequest paymentServiceRequest) {
-//        String key = keyForService();
-        return GovPayPayment.govPaymentWith()
-            .amount(10000)
-            .state(new uk.gov.hmcts.payment.api.external.client.dto.State("created", false, null, null))
-            .description("description")
-            .reference("reference")
-            .paymentId("paymentId")
-            .paymentProvider("sandbox")
-            .returnUrl("https://www.google.com")
-            .links(GovPayPayment.Links.linksWith().nextUrl(new Link("any", ImmutableMap.of(), "cancelHref", "any")).build())
-            .build();
-//        LOG.info("Language value in GovPayDelegatingPaymentService: {}", paymentServiceRequest.getLanguage());
-//        return govPayClient.createPayment(key, new CreatePaymentRequest(paymentServiceRequest.getAmount().movePointRight(2).intValue(),
-//            paymentServiceRequest.getPaymentReference(), paymentServiceRequest.getDescription(),
-//            paymentServiceRequest.getReturnUrl(),paymentServiceRequest.getLanguage()));
+        String key = keyForService();
+//        return GovPayPayment.govPaymentWith()
+//            .amount(10000)
+//            .state(new uk.gov.hmcts.payment.api.external.client.dto.State("created", false, null, null))
+//            .description("description")
+//            .reference("reference")
+//            .paymentId("paymentId")
+//            .paymentProvider("sandbox")
+//            .returnUrl("https://www.google.com")
+//            .links(GovPayPayment.Links.linksWith().nextUrl(new Link("any", ImmutableMap.of(), "cancelHref", "any")).build())
+//            .build();
+        LOG.info("Language value in GovPayDelegatingPaymentService: {}", paymentServiceRequest.getLanguage());
+        return govPayClient.createPayment(key, new CreatePaymentRequest(paymentServiceRequest.getAmount().movePointRight(2).intValue(),
+            paymentServiceRequest.getPaymentReference(), paymentServiceRequest.getDescription(),
+            paymentServiceRequest.getReturnUrl(),paymentServiceRequest.getLanguage()));
     }
 
     @Override
