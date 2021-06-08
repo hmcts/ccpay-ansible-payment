@@ -110,7 +110,7 @@ public class FeePayApportionController {
         @ApiResponse(code = 403, message = "Payment info forbidden"),
         @ApiResponse(code = 404, message = "Payment not found")
     })
-    @GetMapping(value = "/orderpoc/payment-groups/fee-pay-apportion/{paymentreference}")
+    @GetMapping(value = "/orders/payment-groups/fee-pay-apportion/{paymentreference}")
     public ResponseEntity<OrderPaymentGroupResponse> retrieveApportionDetailsForOrders(@PathVariable("paymentreference") String paymentReference) {
         LOG.info("Invoking new API in FeePayApportionController");
         final RetrieveOrderPaymentGroupDto retrieveOrderPaymentGroupDto = RetrieveOrderPaymentGroupDto.paymentGroupDtoWith().build();

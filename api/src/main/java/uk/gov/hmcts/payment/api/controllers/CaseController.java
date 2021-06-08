@@ -127,7 +127,7 @@ public class CaseController {
         @ApiResponse(code = 403, message = "Payment Info Forbidden"),
         @ApiResponse(code = 404, message = "Payment Groups not found")
     })
-    @GetMapping(value = "/orderpoc/cases/{ccdcasenumber}/paymentgroups")
+    @GetMapping(value = "/orders/cases/{ccdcasenumber}/paymentgroups")
     public OrderPaymentGroupResponse retrieveCasePaymentGroups_NewAPI(@PathVariable(name = "ccdcasenumber") @Size(max = 16, min = 16, message = "CcdCaseNumber should be 16 digits") String ccdCaseNumber) {
         List<PaymentFeeLink> paymentFeeLinks = orderDomainService.findByCcdCaseNumber(ccdCaseNumber);
         List<RetrieveOrderPaymentGroupDto> retrieveOrderPaymentGroupDtoList = paymentFeeLinks.stream().map(paymentGroupDtoMapper::toPaymentGroupDtoForOrders)
@@ -145,7 +145,7 @@ public class CaseController {
         @ApiResponse(code = 200, message = "Payments retrieved"),
         @ApiResponse(code = 400, message = "Bad request")
     })
-    @GetMapping(value = "/orderpoc/cases/{case}/payments")
+    @GetMapping(value = "/orders/cases/{case}/payments")
     public CasePaymentResponse retrieveCasePaymentsByOrders(@PathVariable(name = "case") @Size(max = 16, min = 16, message = "CcdCaseNumber should be 16 digits") String ccdCaseNumber) {
         List<PaymentFeeLink> paymentFeeLinks = orderDomainService.findByCcdCaseNumber(ccdCaseNumber);
         List<CasePaymentDto> payments = paymentFeeLinks.stream().flatMap(link -> toReconciliationResponseDtoForOrders(link).stream())

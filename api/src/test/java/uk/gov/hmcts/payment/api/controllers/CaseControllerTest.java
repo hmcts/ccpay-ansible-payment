@@ -173,7 +173,7 @@ public class CaseControllerTest extends PaymentsDataUtil {
         MvcResult result = restActions
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .get("/orderpoc/cases/ccdCaseNumber123/payments")
+            .get("/orders/cases/ccdCaseNumber123/payments")
             .andExpect(status().isOk())
             .andReturn();
 
@@ -632,7 +632,7 @@ public class CaseControllerTest extends PaymentsDataUtil {
         MvcResult result2 = restActions
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .get("/orderpoc/cases/1607065108455502/paymentgroups")
+            .get("/orders/cases/1607065108455502/paymentgroups")
             .andExpect(status().isOk())
             .andReturn();
         OrderPaymentGroupResponse paymentGroupResponse = objectMapper.readValue(result2.getResponse().getContentAsString(), OrderPaymentGroupResponse.class);
@@ -649,7 +649,7 @@ public class CaseControllerTest extends PaymentsDataUtil {
         MvcResult result2 = restActions
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .get("/orderpoc/cases/11/paymentgroups")
+            .get("/orders/cases/11/paymentgroups")
             .andExpect(status().isBadRequest())
             .andReturn();
     }
@@ -661,7 +661,7 @@ public class CaseControllerTest extends PaymentsDataUtil {
         MvcResult result2 = restActions
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .get("/orderpoc/cases/1607065108000002/paymentgroups")
+            .get("/orders/cases/1607065108000002/paymentgroups")
             .andExpect(status().isNotFound())
             .andReturn();
     }
@@ -673,7 +673,7 @@ public class CaseControllerTest extends PaymentsDataUtil {
         MvcResult result2 = restActions
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .get("/orderpoc/cases/1607065108000002/paymentgroups")
+            .get("/orders/cases/1607065108000002/paymentgroups")
             .andExpect(status().isNotFound())
             .andReturn();
     }
@@ -683,7 +683,7 @@ public class CaseControllerTest extends PaymentsDataUtil {
         MvcResult result2 = restActions
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .get("/orderpoc/cases/11/paymentgroups")
+            .get("/orders/cases/11/paymentgroups")
             .andExpect(status().isBadRequest())
             .andReturn();
     }
@@ -696,7 +696,7 @@ public class CaseControllerTest extends PaymentsDataUtil {
         MvcResult result2 = restActions
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .get("/orderpoc/cases/1607065108000002/payments")
+            .get("/orders/cases/1607065108000002/payments")
             .andExpect(status().isNotFound())
             .andReturn();
     }
@@ -713,7 +713,7 @@ public class CaseControllerTest extends PaymentsDataUtil {
         MvcResult result2 = restActions
             .withAuthorizedUser(USER_ID)
             .withUserId(USER_ID)
-            .get("/orderpoc/cases/1607065108455502/payments")
+            .get("/orders/cases/1607065108455502/payments")
             .andExpect(status().isOk())
             .andReturn();
         PaymentsResponse paymentsResponse = objectMapper.readValue(result2.getResponse().getContentAsString(), PaymentsResponse.class);

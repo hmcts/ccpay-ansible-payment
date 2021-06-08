@@ -224,7 +224,7 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil{
         when(paymentDomainService.getFeePayApportionByPaymentId(any())).thenReturn(getFeePayApportionList());
 
         MvcResult result = restActions
-            .get("/orderpoc/payment-groups/fee-pay-apportion/RC-1603-1374-9345-6197")
+            .get("/orders/payment-groups/fee-pay-apportion/RC-1603-1374-9345-6197")
             .andExpect(status().isOk())
             .andReturn();
         PaymentGroupDto paymentGroupDto = objectMapper.readValue(result.getResponse().getContentAsString(),PaymentGroupDto.class);
@@ -237,7 +237,7 @@ public class FeePayApportionControllerTest extends PaymentsDataUtil{
         Mockito.when(paymentDomainService.getPaymentByReference(anyString())).thenReturn(getPayment());
         Mockito.when(paymentDomainService.getFeePayApportionByPaymentId(anyInt())).thenReturn(Collections.emptyList());
         MvcResult result = restActions
-            .get("/orderpoc/payment-groups/fee-pay-apportion/RC-1603-1374-9345-6197")
+            .get("/orders/payment-groups/fee-pay-apportion/RC-1603-1374-9345-6197")
             .andExpect(status().isOk())
             .andReturn();
         PaymentGroupDto paymentGroupDto = objectMapper.readValue(result.getResponse().getContentAsString(),PaymentGroupDto.class);
