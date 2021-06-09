@@ -2,19 +2,16 @@ package uk.gov.hmcts.payment.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Wither;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import uk.gov.hmcts.payment.api.contract.PaymentAllocationDto;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.model.PaymentChannel;
 import uk.gov.hmcts.payment.api.model.PaymentStatus;
 import uk.gov.hmcts.payment.api.util.PaymentMethodType;
@@ -24,7 +21,7 @@ import java.math.BigDecimal;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(NON_NULL)
 @Data
 @AllArgsConstructor
@@ -40,10 +37,6 @@ public class BulkScanPaymentRequestStrategic {
 
     @NotNull
     private PaymentMethodType paymentMethod;
-
-    @NotNull
-    @JsonProperty("requestor")
-    private Service service;
 
     private String ccdCaseNumber;
 
@@ -66,9 +59,8 @@ public class BulkScanPaymentRequestStrategic {
     @NotNull
     private String bankedDate;
 
-    @NotEmpty
-    @JsonProperty("site_id")
-    private String siteId;
+    @NotBlank
+    private String caseType;
 
     private String payerName;
 

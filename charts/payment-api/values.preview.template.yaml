@@ -16,6 +16,7 @@ java:
     CALLBACK_PAYMENTS_CUTOFF_TIME_IN_MINUTES: 0
     CCPAY_BULK_SCANNING_API_URL: http://ccpay-bulkscanning-api-aat.service.core-compute-aat.internal
     PBA_CONFIG1_SERVICE_NAMES: dummy
+    PCI_PAL_API_URL: https://ip3cloud.com/clients/hmcts/payments/index.php
   keyVaults:
     "ccpay":
       resourceGroup: ccpay

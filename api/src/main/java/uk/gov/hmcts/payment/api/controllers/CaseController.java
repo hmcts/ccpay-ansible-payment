@@ -1,11 +1,22 @@
 package uk.gov.hmcts.payment.api.controllers;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
+import uk.gov.hmcts.payment.api.domain.service.OrderDomainService;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupResponse;
 import uk.gov.hmcts.payment.api.dto.PaymentSearchCriteria;
@@ -26,12 +37,16 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 @RestController
 @Api(tags = {"Case"})
 @SwaggerDefinition(tags = {@Tag(name = "CaseController", description = "Case REST API")})
+@Validated
 public class CaseController {
 
     private final PaymentService<PaymentFeeLink, String> paymentService;
     private final PaymentGroupService<PaymentFeeLink, String> paymentGroupService;
     private final PaymentDtoMapper paymentDtoMapper;
     private final PaymentGroupDtoMapper paymentGroupDtoMapper;
+
+    @Autowired
+    private OrderDomainService orderDomainService;
 
     @Autowired
     public CaseController(PaymentService<PaymentFeeLink, String> paymentService, PaymentGroupService paymentGroupService,
@@ -57,7 +72,7 @@ public class CaseController {
             .map(paymentDtoMapper::toReconciliationResponseDto)
             .collect(Collectors.toList());
 
-        if(payments == null || payments.isEmpty()) {
+        if (payments == null || payments.isEmpty()) {
             throw new PaymentNotFoundException();
         }
 
@@ -81,7 +96,7 @@ public class CaseController {
             .map(paymentGroupDtoMapper::toPaymentGroupDto)
             .collect(Collectors.toList());
 
-        if(paymentGroups == null || paymentGroups.isEmpty()) {
+        if (paymentGroups == null || paymentGroups.isEmpty()) {
             throw new PaymentGroupNotFoundException();
         }
 

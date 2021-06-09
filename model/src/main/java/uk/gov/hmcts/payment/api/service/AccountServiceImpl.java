@@ -23,8 +23,9 @@ public class AccountServiceImpl implements AccountService<AccountDto, String> {
     private String baseUrl;
 
     @Override
-     @HystrixCommand(commandKey = "retrievePbaAccount", commandProperties = {
-        @HystrixProperty(name = "execution.timeout.enabled", value = "false")
+    @HystrixCommand(commandKey = "retrievePbaAccount", commandProperties = {
+        @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "15000"),
+        @HystrixProperty(name = "fallback.enabled", value = "false")
     })
     public AccountDto retrieve(String pbaCode) {
         if(pbaCode.equalsIgnoreCase("PBAFUNC12345")){
@@ -38,4 +39,6 @@ public class AccountServiceImpl implements AccountService<AccountDto, String> {
         }
         return restTemplate.getForObject(baseUrl + "/" + pbaCode, AccountDto.class);
     }
+
+
 }
