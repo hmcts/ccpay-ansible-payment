@@ -28,7 +28,6 @@ import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
 import uk.gov.hmcts.payment.api.contract.UpdatePaymentRequest;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.dto.*;
 import uk.gov.hmcts.payment.api.dto.PaymentSearchCriteria;
 import uk.gov.hmcts.payment.api.dto.mapper.PaymentDtoMapper;
@@ -187,13 +186,13 @@ public class PaymentController {
         populatePaymentDtos(paymentDtos, payments);
 
         Optional<Payment> iacPaymentAny = payments.stream()
-            .filter(p -> p.getServiceType().equalsIgnoreCase(Service.IAC.getName())).findAny();
+            .filter(p -> p.getServiceType().equalsIgnoreCase("IAC")).findAny();
         boolean iacSupplementaryDetailsFeature = featureToggler.getBooleanValue("iac-supplementary-details-feature",false);
         LOG.info("IAC Supplementary Details feature flag in liberata API: {}", iacSupplementaryDetailsFeature);
         LOG.info("Is any IAC payment present: {}", iacPaymentAny.isPresent());
 
         if(iacPaymentAny.isPresent() && iacSupplementaryDetailsFeature){
-            return iacService.getIacSupplementaryInfo(paymentDtos,Service.IAC.getName());
+            return iacService.getIacSupplementaryInfo(paymentDtos,"IAC");
         }
 
         return new ResponseEntity(new PaymentsResponse(paymentDtos),HttpStatus.OK);

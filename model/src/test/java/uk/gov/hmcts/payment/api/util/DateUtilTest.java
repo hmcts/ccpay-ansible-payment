@@ -2,6 +2,7 @@ package uk.gov.hmcts.payment.api.util;
 
 
 
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormatter;
 
 import org.junit.Test;
@@ -19,6 +20,7 @@ public class DateUtilTest {
     GregorianCalendar calendar = new GregorianCalendar(2019, Calendar.FEBRUARY, 20, 18, 9, 22);
     Date SampleDate = calendar.getTime();
     LocalDateTime SampleDateTime = LocalDateTime.of(2019, Month.JULY, 20, 18, 9, 22);
+    private static DateTimeZone zoneUTC = DateTimeZone.UTC;
 
     @Test
     public void getIsoDateTimeFormatterTest(){
