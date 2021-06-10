@@ -17,7 +17,6 @@ import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.external.client.dto.GovPayPayment;
 import uk.gov.hmcts.payment.functional.config.LaunchDarklyFeature;
 import uk.gov.hmcts.payment.functional.config.TestConfigProperties;
@@ -98,7 +97,7 @@ public class CMCCardPaymentFunctionalTest {
             .amount(new BigDecimal("29.34"))
             .description("New passport application")
             .caseReference("aCaseReference")
-            .service(Service.CMC)
+            .service("CMC")
             .currency(CurrencyCode.GBP)
             .siteId("AA101")
             .build();
@@ -211,7 +210,7 @@ public class CMCCardPaymentFunctionalTest {
             .description("description")
             .caseReference("telRefNumber")
             .ccdCaseNumber(ccdCaseNumber)
-            .service(Service.CMC)
+            .service("CMC")
             .currency(CurrencyCode.GBP)
             .siteId("AA08")
             .fees(fees)

@@ -12,7 +12,12 @@ import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
 import uk.gov.hmcts.payment.api.dto.RemissionDto;
-import uk.gov.hmcts.payment.api.model.*;
+import uk.gov.hmcts.payment.api.model.Payment;
+import uk.gov.hmcts.payment.api.model.PaymentAllocation;
+import uk.gov.hmcts.payment.api.model.PaymentFee;
+import uk.gov.hmcts.payment.api.model.PaymentFeeLink;
+import uk.gov.hmcts.payment.api.model.PaymentFeeRepository;
+import uk.gov.hmcts.payment.api.model.Remission;
 import uk.gov.hmcts.payment.api.reports.FeesService;
 import uk.gov.hmcts.payment.api.util.PayStatusToPayHubStatus;
 
@@ -32,6 +37,8 @@ public class PaymentGroupDtoMapper {
     @Autowired
     private LaunchDarklyFeatureToggler featureToggler;
 
+    @Autowired
+    private PaymentFeeRepository paymentFeeRepository;
 
     public PaymentGroupDto toPaymentGroupDto(PaymentFeeLink paymentFeeLink) {
         return PaymentGroupDto.paymentGroupDtoWith()
@@ -150,4 +157,5 @@ public class PaymentGroupDtoMapper {
             .dateCreated(apportionFeature ? timestamp: null)
             .build();
     }
+
 }

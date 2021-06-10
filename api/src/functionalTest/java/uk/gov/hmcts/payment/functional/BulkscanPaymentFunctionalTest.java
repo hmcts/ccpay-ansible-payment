@@ -12,7 +12,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.dto.BulkScanPaymentRequest;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
 import uk.gov.hmcts.payment.api.model.PaymentChannel;
@@ -25,12 +24,13 @@ import uk.gov.hmcts.payment.functional.idam.IdamService;
 import uk.gov.hmcts.payment.functional.s2s.S2sTokenService;
 import java.math.BigDecimal;
 import java.util.Arrays;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.payment.functional.idam.IdamService.CMC_CITIZEN_GROUP;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = TestContextConfiguration.class)
-public class BulkscanPaymentFunctionalTest {
+public class PaymentBulkscanPerformanceLiberataTest {
 
     @Autowired
     private TestConfigProperties testProps;
@@ -72,7 +72,7 @@ public class BulkscanPaymentFunctionalTest {
 
         BulkScanPaymentRequest bulkScanPaymentRequest = BulkScanPaymentRequest.createBulkScanPaymentWith()
             .amount(new BigDecimal(100.00))
-            .service(Service.DIVORCE)
+            .service("DIVORCE")
             .siteId("AA01")
             .currency(CurrencyCode.GBP)
             .documentControlNumber(dcn)

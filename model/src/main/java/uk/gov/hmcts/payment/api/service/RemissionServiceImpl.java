@@ -5,14 +5,16 @@ import org.apache.commons.validator.routines.checkdigit.CheckDigitException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.payment.api.dto.RemissionServiceRequest;
-import uk.gov.hmcts.payment.api.model.*;
+import uk.gov.hmcts.payment.api.model.PaymentFee;
+import uk.gov.hmcts.payment.api.model.PaymentFeeLink;
+import uk.gov.hmcts.payment.api.model.PaymentFeeLinkRepository;
+import uk.gov.hmcts.payment.api.model.Remission;
+import uk.gov.hmcts.payment.api.util.OrderCaseUtil;
 import uk.gov.hmcts.payment.api.util.ReferenceUtil;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.InvalidPaymentGroupReferenceException;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentFeeNotFoundException;
 
 import javax.transaction.Transactional;
-import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
 
 @Service
@@ -21,11 +23,14 @@ public class RemissionServiceImpl implements RemissionService {
     private final PaymentFeeLinkRepository paymentFeeLinkRepository;
     private final ReferenceUtil referenceUtil;
 
+    private final OrderCaseUtil orderCaseUtil;
+
     @Autowired
     public RemissionServiceImpl(PaymentFeeLinkRepository paymentFeeLinkRepository,
-                                ReferenceUtil referenceUtil) {
+                                ReferenceUtil referenceUtil, OrderCaseUtil orderCaseUtil) {
         this.paymentFeeLinkRepository = paymentFeeLinkRepository;
         this.referenceUtil = referenceUtil;
+        this.orderCaseUtil = orderCaseUtil;
     }
 
     @Override
@@ -44,7 +49,7 @@ public class RemissionServiceImpl implements RemissionService {
         remission.setPaymentFeeLink(paymentFeeLink);
         fee.setRemissions(Collections.singletonList(remission));
 
-        return paymentFeeLinkRepository.save(paymentFeeLink);
+        return paymentFeeLinkRepository.save(orderCaseUtil.enhanceWithOrderCaseDetails(paymentFeeLink, remissionServiceRequest));
 
     }
 
@@ -53,6 +58,8 @@ public class RemissionServiceImpl implements RemissionService {
     public PaymentFeeLink createRetrospectiveRemission(RemissionServiceRequest remissionServiceRequest, String paymentGroupReference, Integer feeId) throws CheckDigitException {
         PaymentFeeLink paymentFeeLink = paymentFeeLinkRepository.findByPaymentReference(paymentGroupReference)
             .orElseThrow(() -> new InvalidPaymentGroupReferenceException("Payment group " + paymentGroupReference + " does not exists."));
+
+        orderCaseUtil.updateOrderCaseDetails(paymentFeeLink, remissionServiceRequest);
 
         // Tactical check where feeId is null
         PaymentFee fee = feeId != null ? paymentFeeLink.getFees().stream().filter(f -> f.getId().equals(feeId))
