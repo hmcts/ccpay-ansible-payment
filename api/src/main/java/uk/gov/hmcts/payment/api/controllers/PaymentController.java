@@ -186,7 +186,7 @@ public class PaymentController {
         populatePaymentDtos(paymentDtos, payments);
 
         Optional<Payment> iacPaymentAny = payments.stream()
-            .filter(p -> p.getServiceType().equalsIgnoreCase("IAC")).findAny();
+            .filter(p -> p.getServiceType().equalsIgnoreCase(paymentService.getServiceNameByCode("IAC"))).findAny();
         boolean iacSupplementaryDetailsFeature = featureToggler.getBooleanValue("iac-supplementary-details-feature",false);
         LOG.info("IAC Supplementary Details feature flag in liberata API: {}", iacSupplementaryDetailsFeature);
         LOG.info("Is any IAC payment present: {}", iacPaymentAny.isPresent());

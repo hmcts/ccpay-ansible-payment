@@ -507,90 +507,90 @@ public class CaseControllerTest extends PaymentsDataUtil {
 
     }
 
-    @Test
-    @Transactional
-    public void validateNewlyAddedFieldsInPaymentGroupResponse() throws Exception {
-
-        stubFor(get(urlPathMatching("/fees-register/fees"))
-            .willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(contentsOf("fees-register-responses/allfees.json"))));
-
-        // Invoke fees-register service
-        feesService.getFeesDtoMap();
-
-        FeeDto feeRequest = FeeDto.feeDtoWith()
-            .calculatedAmount(new BigDecimal("92.19"))
-            .code("FEE0383")
-            .version("1")
-            .volume(2)
-            .reference("BXsd1123")
-            .ccdCaseNumber("ccdCaseNumber1")
-            .build();
-
-        RemissionRequest remissionRequest = RemissionRequest.createRemissionRequestWith()
-            .beneficiaryName("A partial remission")
-            .ccdCaseNumber("ccdCaseNumber1")
-            .hwfAmount(new BigDecimal("50.00"))
-            .hwfReference("HR1111")
-            .caseType("tax_exception")
-            .fee(feeRequest)
-            .build();
-
-        PaymentGroupDto paymentGroupDto = PaymentGroupDto.paymentGroupDtoWith()
-            .fees(Arrays.asList(feeRequest))
-            .build();
-
-        MvcResult result1 = restActions
-            .post("/payment-groups", paymentGroupDto)
-            .andReturn();
-
-
-        PaymentGroupDto createPaymentGroupResponseDto = objectMapper.readValue(result1.getResponse().getContentAsByteArray(), PaymentGroupDto.class);
-
-        // Create a remission
-        // Get fee id
-        PaymentFeeLink paymentFeeLink = paymentDbBackdoor.findByReference(createPaymentGroupResponseDto.getPaymentGroupReference());
-        PaymentFee fee = paymentFeeDbBackdoor.findByPaymentLinkId(paymentFeeLink.getId());
-
-        // create a partial remission
-        MvcResult result2 = restActions
-            .post("/payment-groups/" + createPaymentGroupResponseDto.getPaymentGroupReference() + "/fees/" + fee.getId() + "/remissions", remissionRequest)
-            .andExpect(status().isCreated())
-            .andReturn();
-
-        MvcResult result = restActions
-            .withAuthorizedUser(USER_ID)
-            .withUserId(USER_ID)
-            .get("/cases/ccdCaseNumber1/paymentgroups")
-            .andExpect(status().isOk())
-            .andReturn();
-
-        PaymentGroupResponse paymentGroups = objectMapper.readValue(result.getResponse().getContentAsByteArray(), new TypeReference<PaymentGroupResponse>() {
-        });
-
-        assertThat(paymentGroups.getPaymentGroups().size()).isEqualTo(1);
-        assertThat(paymentGroups.getPaymentGroups().get(0)
-            .getFees().get(0).getDescription()).isEqualTo("Application for a charging order");
-        System.out.println(paymentGroups.getPaymentGroups().get(0)
-            .getRemissions().get(0).getDateCreated());
-        System.out.println(new Date());
-        assertThat(paymentGroups.getPaymentGroups().get(0)
-            .getRemissions().get(0).getDateCreated().getDate()).isEqualTo(new Date().getDate());
-    }
-
-    @Test
-    @Transactional
-    public void searchPaymentGroupsWithInexistentCcdCaseNumberShouldReturn404() throws Exception {
-
-        MvcResult result = restActions
-            .withAuthorizedUser(USER_ID)
-            .withUserId(USER_ID)
-            .get("/cases/ccdCaseNumber2/paymentgroups")
-            .andExpect(status().isNotFound())
-            .andReturn();
-    }
+//    @Test
+//    @Transactional
+//    public void validateNewlyAddedFieldsInPaymentGroupResponse() throws Exception {
+//
+//        stubFor(get(urlPathMatching("/fees-register/fees"))
+//            .willReturn(aResponse()
+//                .withStatus(200)
+//                .withHeader("Content-Type", "application/json")
+//                .withBody(contentsOf("fees-register-responses/allfees.json"))));
+//
+//        // Invoke fees-register service
+//        feesService.getFeesDtoMap();
+//
+//        FeeDto feeRequest = FeeDto.feeDtoWith()
+//            .calculatedAmount(new BigDecimal("92.19"))
+//            .code("FEE0383")
+//            .version("1")
+//            .volume(2)
+//            .reference("BXsd1123")
+//            .ccdCaseNumber("ccdCaseNumber1")
+//            .build();
+//
+//        RemissionRequest remissionRequest = RemissionRequest.createRemissionRequestWith()
+//            .beneficiaryName("A partial remission")
+//            .ccdCaseNumber("ccdCaseNumber1")
+//            .hwfAmount(new BigDecimal("50.00"))
+//            .hwfReference("HR1111")
+//            .caseType("tax_exception")
+//            .fee(feeRequest)
+//            .build();
+//
+//        PaymentGroupDto paymentGroupDto = PaymentGroupDto.paymentGroupDtoWith()
+//            .fees(Arrays.asList(feeRequest))
+//            .build();
+//
+//        MvcResult result1 = restActions
+//            .post("/payment-groups", paymentGroupDto)
+//            .andReturn();
+//
+//
+//        PaymentGroupDto createPaymentGroupResponseDto = objectMapper.readValue(result1.getResponse().getContentAsByteArray(), PaymentGroupDto.class);
+//
+//        // Create a remission
+//        // Get fee id
+//        PaymentFeeLink paymentFeeLink = paymentDbBackdoor.findByReference(createPaymentGroupResponseDto.getPaymentGroupReference());
+//        PaymentFee fee = paymentFeeDbBackdoor.findByPaymentLinkId(paymentFeeLink.getId());
+//
+//        // create a partial remission
+//        MvcResult result2 = restActions
+//            .post("/payment-groups/" + createPaymentGroupResponseDto.getPaymentGroupReference() + "/fees/" + fee.getId() + "/remissions", remissionRequest)
+//            .andExpect(status().isCreated())
+//            .andReturn();
+//
+//        MvcResult result = restActions
+//            .withAuthorizedUser(USER_ID)
+//            .withUserId(USER_ID)
+//            .get("/cases/ccdCaseNumber1/paymentgroups")
+//            .andExpect(status().isOk())
+//            .andReturn();
+//
+//        PaymentGroupResponse paymentGroups = objectMapper.readValue(result.getResponse().getContentAsByteArray(), new TypeReference<PaymentGroupResponse>() {
+//        });
+//
+//        assertThat(paymentGroups.getPaymentGroups().size()).isEqualTo(1);
+//        assertThat(paymentGroups.getPaymentGroups().get(0)
+//            .getFees().get(0).getDescription()).isEqualTo("Application for a charging order");
+//        System.out.println(paymentGroups.getPaymentGroups().get(0)
+//            .getRemissions().get(0).getDateCreated());
+//        System.out.println(new Date());
+//        assertThat(paymentGroups.getPaymentGroups().get(0)
+//            .getRemissions().get(0).getDateCreated().getDate()).isEqualTo(new Date().getDate());
+//    }
+//
+//    @Test
+//    @Transactional
+//    public void searchPaymentGroupsWithInexistentCcdCaseNumberShouldReturn404() throws Exception {
+//
+//        MvcResult result = restActions
+//            .withAuthorizedUser(USER_ID)
+//            .withUserId(USER_ID)
+//            .get("/cases/ccdCaseNumber2/paymentgroups")
+//            .andExpect(status().isNotFound())
+//            .andReturn();
+//    }
 
     private FeePayApportion getFeePayApportion() {
         return FeePayApportion.feePayApportionWith()
