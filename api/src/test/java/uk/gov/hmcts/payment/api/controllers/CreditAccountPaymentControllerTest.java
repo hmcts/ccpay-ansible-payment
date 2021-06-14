@@ -98,7 +98,7 @@ public class CreditAccountPaymentControllerTest {
         CreditAccountPaymentRequest creditAccountPaymentRequest = CreditAccountPaymentRequest.createCreditAccountPaymentRequestDtoWith()
                                                                             .amount(BigDecimal.valueOf(100))
                                                                             .description("New passport application")
-                                                                            .ccdCaseNumber("ccd_case_number")
+                                                                            .ccdCaseNumber("1111222233334444")
                                                                             .caseReference("12345")
                                                                             .service(Service.FINREM)
                                                                             .currency(CurrencyCode.GBP)

@@ -2,7 +2,6 @@ package uk.gov.hmcts.payment.api.componenttests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -128,7 +127,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     public void rejectDuplicatePayment_ccdCaseNumber() throws Exception {
         CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithFinRemJson().getBytes(), CreditAccountPaymentRequest.class);
 
-        request.setCcdCaseNumber("CCD105");
+        request.setCcdCaseNumber("1111222233334444");
         request.setCaseReference(null);
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
@@ -148,7 +147,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     public void rejectDuplicatePayment_caseReference() throws Exception {
         CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithFinRemJson().getBytes(), CreditAccountPaymentRequest.class);
 
-        request.setCcdCaseNumber(null);
+        request.setCcdCaseNumber("1111222233334444");
         request.setCaseReference("33333");
 
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
@@ -324,15 +323,13 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
-    public void validateCreateCreditAccountPayment_withoutCcdCaseNumberAndCaseReferenceTest() throws Exception {
-        CreditAccountPaymentRequest request = objectMapper.readValue(jsonRequestWithoutCcdCaseRefAndCaseRef().getBytes(), CreditAccountPaymentRequest.class);
+    public void validateCreateCreditAccountPayment_InvalidCcdCaseNumberTest() throws Exception {
+        CreditAccountPaymentRequest request = objectMapper.readValue(jsonRequestWithInvalidCcdCaseRef().getBytes(), CreditAccountPaymentRequest.class);
 
         MvcResult res = restActions
             .post("/credit-account-payments", request)
             .andExpect(status().isUnprocessableEntity())
             .andReturn();
-
-        assertEquals("eitherOneRequired: Either ccdCaseNumber or caseReference is required.", res.getResponse().getContentAsString());
     }
 
     @Test
@@ -827,7 +824,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     public void createCreditAccountPaymentWithMultipleFee_ExactPayment() throws Exception {
 
-        String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
+        String ccdCaseNumber = "1111222233334444";
 
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
 
@@ -887,7 +884,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     public void createCreditAccountPaymentWithMultipleFee_ShortfallPayment() throws Exception {
 
-        String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
+        String ccdCaseNumber = "1111222233334444";
 
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
 
@@ -947,7 +944,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     public void createCreditAccountPaymentWithMultipleFee_SurplusPayment() throws Exception {
 
-        String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
+        String ccdCaseNumber = "1111222233334444";
 
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
 
@@ -1007,7 +1004,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     public void createCreditAccountPaymentWithMultipleFee_AmountDue() throws Exception {
 
-        String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
+        String ccdCaseNumber = "1111222233334444";
 
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
 
@@ -1067,7 +1064,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     public void createCreditAccountPaymentWithMultipleFee_AmountDue_When_Apportion_Flag_Is_True() throws Exception {
 
-        String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
+        String ccdCaseNumber = "1111222233334444";
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         List<FeeDto> fees = new ArrayList<>();
         fees.add(FeeDto.feeDtoWith().code("FEE0271").ccdCaseNumber(ccdCaseNumber).feeAmount(new BigDecimal(20))
@@ -1122,10 +1119,10 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         assertEquals(BigDecimal.valueOf(20), savedfees.get(2).getAmountDue());
     }
 
-    private String jsonRequestWithoutCcdCaseRefAndCaseRef() {
+    private String jsonRequestWithInvalidCcdCaseRef() {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
-            "  \"description\": \"New passport application\",\n" +
+            "  \"ccd_case_number\": \"1111\",\n" +
             "  \"service\": \"PROBATE\",\n" +
             "  \"currency\": \"GBP\",\n" +
             "  \"site_id\": \"ABA6\",\n" +
@@ -1167,7 +1164,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"PROBATE\",\n" +
             "  \"currency\": \"GBP\",\n" +
@@ -1189,7 +1186,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"FINREM\",\n" +
             "  \"currency\": \"GBP\",\n" +
@@ -1211,7 +1208,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"PROBATE\",\n" +
             "  \"currency\": \"GBP\",\n" +
@@ -1233,7 +1230,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"PROBATE\",\n" +
             "  \"currency\": \"GBP\",\n" +
@@ -1255,7 +1252,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"PROBATE\",\n" +
             "  \"currency\": \"GBP\",\n" +
@@ -1276,7 +1273,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"PROBATE\",\n" +
             "  \"currency\": \"GBP\",\n" +
@@ -1294,7 +1291,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"NO_SERVICE\",\n" +
             "  \"currency\": \"GBP\",\n" +
@@ -1316,7 +1313,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"FPL\",\n" +
             "  \"currency\": \"GBP\",\n" +
@@ -1338,7 +1335,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"FPL\",\n" +
             "  \"currency\": \"GBP\",\n" +
@@ -1360,7 +1357,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"IAC\",\n" +
             "  \"currency\": \"GBP\",\n" +
@@ -1382,7 +1379,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"FPL\",\n" +
             "  \"currency\": \"GBP\",\n" +
@@ -1405,7 +1402,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"IAC\",\n" +
             "  \"currency\": \"GBP\",\n" +
@@ -1427,7 +1424,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"CIVIL\",\n" +
             "  \"currency\": \"GBP\",\n" +
@@ -1449,7 +1446,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"CIVIL\",\n" +
             "  \"currency\": \"GBP\",\n" +
@@ -1471,7 +1468,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"currency\": \"GBP\",\n" +
             "  \"site_id\": \"A000\",\n" +
@@ -1492,7 +1489,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
-            "  \"ccd_case_number\": \"CCD101\",\n" +
+            "  \"ccd_case_number\": \"1111222233334444\",\n" +
             "  \"case_reference\": \"12345\",\n" +
             "  \"service\": \"IAC\",\n" +
             "  \"currency\": \"GBP\",\n" +
