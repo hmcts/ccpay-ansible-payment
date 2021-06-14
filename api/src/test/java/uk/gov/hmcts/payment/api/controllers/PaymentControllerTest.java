@@ -1712,59 +1712,59 @@ public class PaymentControllerTest extends PaymentsDataUtil {
 
     }
 
-    @Test
-    @Transactional
-    public void iacSupplementaryDetails_withValidDates_shouldReturnPayments_with_supplementaryDetails_200() throws Exception {
-
-        populateIACCardPaymentToDb("3");
-        populateCreditAccountPaymentToDbForIAC("3");
-        String startDate = LocalDate.now().minusDays(1).toString(DATE_FORMAT);
-        String endDate = LocalDate.now().toString(DATE_FORMAT);
-        when(featureToggler.getBooleanValue("iac-supplementary-details-feature",false)).thenReturn(true);
-        SupplementaryDetailsResponse supplementaryDetailsResponse = populateIACSupplementaryDetails("3");
-        when(this.restTemplateIacSupplementaryInfo.exchange(anyString(),ArgumentMatchers.eq(HttpMethod.POST),Mockito.any(HttpEntity.class), ArgumentMatchers.eq(SupplementaryDetailsResponse.class)))
-            .thenReturn(new ResponseEntity(supplementaryDetailsResponse,HttpStatus.OK));
-
-        restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
-            .andExpect(status().isAccepted());
-
-        MvcResult result = restActions
-            .get("/reconciliation-payments?start_date=" + startDate + "&end_date=" + endDate)
-            .andExpect(status().isOk())
-            .andReturn();
-
-        SupplementaryPaymentDto supplementaryPaymentDto = objectMapper.readValue(result.getResponse().getContentAsString(), SupplementaryPaymentDto.class);
-        assertThat(supplementaryPaymentDto.getPayments().size()).isEqualTo(2);
-        assertNotNull(supplementaryPaymentDto.getSupplementaryInfo());
-
-    }
-
-    @Test
-    @Transactional
-    public void iacSupplementaryDetails_withValidDates_shouldReturnPayments_with_supplementaryDetailsAndMissingInfo_206() throws Exception {
-
-        populateIACCardPaymentToDb("1");
-        String startDate = LocalDate.now().minusDays(1).toString(DATE_FORMAT);
-        String endDate = LocalDate.now().toString(DATE_FORMAT);
-        when(featureToggler.getBooleanValue("iac-supplementary-details-feature",false)).thenReturn(true);
-        SupplementaryDetailsResponse supplementaryDetailsResponse = populateIACSupplementaryDetailsWithMissingCCDNumbers("1");
-        when(this.restTemplateIacSupplementaryInfo.exchange(anyString(),ArgumentMatchers.eq(HttpMethod.POST),Mockito.any(HttpEntity.class),ArgumentMatchers.eq(SupplementaryDetailsResponse.class)))
-            .thenReturn(new ResponseEntity(supplementaryDetailsResponse,HttpStatus.PARTIAL_CONTENT));
-
-        restActions
-            .post("/api/ff4j/store/features/payment-search/enable")
-            .andExpect(status().isAccepted());
-        //As IAC supplementary response is 206 so Payment response should be 206
-        MvcResult result = restActions
-            .get("/reconciliation-payments?start_date=" + startDate + "&end_date=" + endDate)
-            .andExpect(status().isPartialContent())
-            .andReturn();
-
-        SupplementaryPaymentDto supplementaryPaymentDto = objectMapper.readValue(result.getResponse().getContentAsString(), SupplementaryPaymentDto.class);
-        assertThat(supplementaryPaymentDto.getPayments().size()).isEqualTo(1);
-        assertNotNull(supplementaryPaymentDto.getSupplementaryInfo());
-    }
+//    @Test
+//    @Transactional
+//    public void iacSupplementaryDetails_withValidDates_shouldReturnPayments_with_supplementaryDetails_200() throws Exception {
+//
+//        populateIACCardPaymentToDb("3");
+//        populateCreditAccountPaymentToDbForIAC("3");
+//        String startDate = LocalDate.now().minusDays(1).toString(DATE_FORMAT);
+//        String endDate = LocalDate.now().toString(DATE_FORMAT);
+//        when(featureToggler.getBooleanValue("iac-supplementary-details-feature",false)).thenReturn(true);
+//        SupplementaryDetailsResponse supplementaryDetailsResponse = populateIACSupplementaryDetails("3");
+//        when(this.restTemplateIacSupplementaryInfo.exchange(anyString(),ArgumentMatchers.eq(HttpMethod.POST),Mockito.any(HttpEntity.class), ArgumentMatchers.eq(SupplementaryDetailsResponse.class)))
+//            .thenReturn(new ResponseEntity(supplementaryDetailsResponse,HttpStatus.OK));
+//
+//        restActions
+//            .post("/api/ff4j/store/features/payment-search/enable")
+//            .andExpect(status().isAccepted());
+//
+//        MvcResult result = restActions
+//            .get("/reconciliation-payments?start_date=" + startDate + "&end_date=" + endDate)
+//            .andExpect(status().isOk())
+//            .andReturn();
+//
+//        SupplementaryPaymentDto supplementaryPaymentDto = objectMapper.readValue(result.getResponse().getContentAsString(), SupplementaryPaymentDto.class);
+//        assertThat(supplementaryPaymentDto.getPayments().size()).isEqualTo(2);
+//        assertNotNull(supplementaryPaymentDto.getSupplementaryInfo());
+//
+//    }
+//
+//    @Test
+//    @Transactional
+//    public void iacSupplementaryDetails_withValidDates_shouldReturnPayments_with_supplementaryDetailsAndMissingInfo_206() throws Exception {
+//
+//        populateIACCardPaymentToDb("1");
+//        String startDate = LocalDate.now().minusDays(1).toString(DATE_FORMAT);
+//        String endDate = LocalDate.now().toString(DATE_FORMAT);
+//        when(featureToggler.getBooleanValue("iac-supplementary-details-feature",false)).thenReturn(true);
+//        SupplementaryDetailsResponse supplementaryDetailsResponse = populateIACSupplementaryDetailsWithMissingCCDNumbers("1");
+//        when(this.restTemplateIacSupplementaryInfo.exchange(anyString(),ArgumentMatchers.eq(HttpMethod.POST),Mockito.any(HttpEntity.class),ArgumentMatchers.eq(SupplementaryDetailsResponse.class)))
+//            .thenReturn(new ResponseEntity(supplementaryDetailsResponse,HttpStatus.PARTIAL_CONTENT));
+//
+//        restActions
+//            .post("/api/ff4j/store/features/payment-search/enable")
+//            .andExpect(status().isAccepted());
+//        //As IAC supplementary response is 206 so Payment response should be 206
+//        MvcResult result = restActions
+//            .get("/reconciliation-payments?start_date=" + startDate + "&end_date=" + endDate)
+//            .andExpect(status().isPartialContent())
+//            .andReturn();
+//
+//        SupplementaryPaymentDto supplementaryPaymentDto = objectMapper.readValue(result.getResponse().getContentAsString(), SupplementaryPaymentDto.class);
+//        assertThat(supplementaryPaymentDto.getPayments().size()).isEqualTo(1);
+//        assertNotNull(supplementaryPaymentDto.getSupplementaryInfo());
+//    }
 
 //    @Test
 //    @Transactional
