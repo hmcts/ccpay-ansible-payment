@@ -186,8 +186,8 @@ public class PaymentDtoMapper {
             .build();
     }
 
-    public PaymentDto toPaymentStatusesDto(Payment payment) {
-        return PaymentDto.payment2DtoWith()
+    public PaymentStatusDto toPaymentStatusesDto(Payment payment) {
+        return PaymentStatusDto.paymentStatusDtoWith()
             .reference(payment.getReference())
             .amount(payment.getAmount())
             .paymentGroupReference(payment.getPaymentLink() != null ? payment.getPaymentLink().getPaymentReference() : null)

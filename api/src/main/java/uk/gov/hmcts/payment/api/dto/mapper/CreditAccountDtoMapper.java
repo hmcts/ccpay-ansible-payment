@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
-import uk.gov.hmcts.payment.api.contract.CreditAccountPaymentRequest;
-import uk.gov.hmcts.payment.api.contract.FeeDto;
-import uk.gov.hmcts.payment.api.contract.PaymentDto;
-import uk.gov.hmcts.payment.api.contract.StatusHistoryDto;
+import uk.gov.hmcts.payment.api.contract.*;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
 import uk.gov.hmcts.payment.api.controllers.CreditAccountPaymentController;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
@@ -102,8 +99,8 @@ public class CreditAccountDtoMapper {
             .build();
     }
 
-    public PaymentDto toRetrievePaymentStatusResponse(Payment payment) {
-        return PaymentDto.payment2DtoWith()
+    public CreditPaymentStatusDto toRetrievePaymentStatusResponse(Payment payment) {
+        return CreditPaymentStatusDto.creditPaymentStatusDtoWith()
             .reference(payment.getReference())
             .amount(payment.getAmount())
             .status(PayStatusToPayHubStatus.valueOf(payment.getPaymentStatus().getName()).getMappedStatus())
@@ -111,12 +108,12 @@ public class CreditAccountDtoMapper {
             .build();
     }
 
-    private List<StatusHistoryDto> toStatusHistoryDtos(List<StatusHistory> statusHistories) {
+    private List<CreditStatusHistoryDto> toStatusHistoryDtos(List<StatusHistory> statusHistories) {
         return statusHistories.stream().map(this::toStatusHistoryDto).collect(Collectors.toList());
     }
 
-    private StatusHistoryDto toStatusHistoryDto(StatusHistory statusHistory) {
-        return StatusHistoryDto.statusHistoryDtoWith()
+    private CreditStatusHistoryDto toStatusHistoryDto(StatusHistory statusHistory) {
+        return CreditStatusHistoryDto.creditStatusHistoryDtoWith()
             .status(PayStatusToPayHubStatus.valueOf(statusHistory.getStatus()).getMappedStatus())
             .dateCreated(statusHistory.getDateCreated())
             .build();

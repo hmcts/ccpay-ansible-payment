@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
+import uk.gov.hmcts.payment.api.contract.PaymentStatusDto;
 import uk.gov.hmcts.payment.api.dto.OrganisationalServiceDto;
 import uk.gov.hmcts.payment.api.dto.PaymentServiceRequest;
 import uk.gov.hmcts.payment.api.dto.mapper.PaymentDtoMapper;
@@ -187,7 +188,7 @@ public class CardPaymentController {
         @ApiResponse(code = 404, message = "Payment not found")
     })
     @GetMapping(value = "/card-payments/{reference}/statuses")
-    public PaymentDto retrievePaymentStatus(@PathVariable("reference") String paymentReference) {
+    public PaymentStatusDto retrievePaymentStatus(@PathVariable("reference") String paymentReference) {
         PaymentFeeLink paymentFeeLink = delegatingPaymentService.retrieve(paymentReference);
         Optional<Payment> payment = paymentFeeLink.getPayments().stream()
             .filter(p -> p.getReference().equals(paymentReference)).findAny();

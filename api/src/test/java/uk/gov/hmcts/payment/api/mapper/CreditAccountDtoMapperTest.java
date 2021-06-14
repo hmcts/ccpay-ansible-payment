@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.CreditAccountPaymentRequest;
+import uk.gov.hmcts.payment.api.contract.CreditPaymentStatusDto;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
@@ -139,7 +140,7 @@ public class CreditAccountDtoMapperTest {
 
     @Test
     public void testToRetrievePaymentStatusResponse(){
-        PaymentDto paymentDto = creditAccountDtoMapper.toRetrievePaymentStatusResponse(payment1);
+        CreditPaymentStatusDto paymentDto = creditAccountDtoMapper.toRetrievePaymentStatusResponse(payment1);
         assertEquals(new BigDecimal("100.00"),paymentDto.getAmount());
         assertEquals("RC-1612-3710-5335-6484",paymentDto.getReference());
     }
