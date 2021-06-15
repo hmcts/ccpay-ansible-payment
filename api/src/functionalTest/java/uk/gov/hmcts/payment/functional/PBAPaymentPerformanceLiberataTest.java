@@ -27,8 +27,7 @@ import java.util.HashSet;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 import static uk.gov.hmcts.payment.functional.idam.IdamService.CMC_CASE_WORKER_GROUP;
 import static uk.gov.hmcts.payment.functional.idam.IdamService.CMC_CITIZEN_GROUP;
 
@@ -660,7 +659,7 @@ public class PBAPaymentPerformanceLiberataTest {
             .statusCode(OK.value()).extract().as(PaymentsResponse.class);
 
         PaymentsResponse liberataResponseApproach1 = paymentTestService.getLiberatePullPaymentsByStartAndEndDateApproach1(SERVICE_TOKEN, startDate,endDate, 30L)
-            .statusCode(OK.value()).extract().as(PaymentsResponse.class);
+            .statusCode(PARTIAL_CONTENT.value()).extract().as(PaymentsResponse.class);
 
         //Comparing the response size of old and new approach
         assertThat(liberataResponseOld.getPayments().size()).isGreaterThanOrEqualTo(PaymentCount);
@@ -679,7 +678,7 @@ public class PBAPaymentPerformanceLiberataTest {
 
 
         Response liberataResponseTimeApproach1 = paymentTestService.getLiberatePullPaymentsTimeByStartAndEndDateApproach1(SERVICE_TOKEN, startDate,endDate);
-        assertThat(liberataResponseTimeApproach1.statusCode()).isEqualTo(200);
+        assertThat(liberataResponseTimeApproach1.statusCode()).isEqualTo(206);
         LOG.info("Response time in milliseconds approach 1 api for 5 PBA payment is : {}",liberataResponseTimeApproach1.getTime());
 
     }
