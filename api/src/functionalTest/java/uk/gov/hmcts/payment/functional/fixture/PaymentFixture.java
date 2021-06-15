@@ -15,6 +15,9 @@ import java.math.BigDecimal;
 
 public class PaymentFixture {
 
+    private static final int CCD_CASE_NUMBER_MIN_VALUE = 100000000;
+    private static final int CCD_CASE_NUMBER_MAX_VALUE = 999999999;
+
     public static CardPaymentRequest aCardPaymentRequest(String amountString) {
         String ccdCaseNumber = "1111-CC12-" + RandomUtils.nextInt();
         return CardPaymentRequest.createCardPaymentRequestDtoWith()
@@ -145,7 +148,7 @@ public class PaymentFixture {
     }
 
     public static CreditAccountPaymentRequest aPbaPaymentRequestForIAC(String amountString, Service service) {
-        String ccdCaseNumber = "1111-CC12-" + RandomUtils.nextInt();
+        String ccdCaseNumber = "1111222" + RandomUtils.nextInt(CCD_CASE_NUMBER_MIN_VALUE, CCD_CASE_NUMBER_MAX_VALUE);
         return CreditAccountPaymentRequest.createCreditAccountPaymentRequestDtoWith()
             .amount(new BigDecimal(amountString))
             .description("New passport application")
