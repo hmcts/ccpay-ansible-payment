@@ -163,6 +163,17 @@ databaseChangeLog:
                 VALUES
                   ('order_created', 'Valid order request received and recorded successfully');
 
+  - changeSet:
+      id: 1554989041424-23
+      author: Jennings
+      changes:
+        - sql:
+            splitStatements: true
+            sql: >
+              INSERT INTO audit_events_type (name, description)
+                VALUES
+                  ('order_updated', 'Valid order update request received and recorded successfully as part of data migration');
+
 # Apportionment DB Model Rollback Scripts
 #  - changeSet:
 #      id: 1554989041418-24
