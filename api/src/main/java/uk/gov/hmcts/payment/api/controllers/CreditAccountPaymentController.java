@@ -130,7 +130,7 @@ public class CreditAccountPaymentController {
             feePayApportionService.processApportion(pbaPayment);
 
             // Update Fee Amount Due as Payment Status received from PBA Payment as SUCCESS
-            if (Lists.newArrayList("success", "pending").contains(pbaPayment.getPaymentStatus().getName().toLowerCase())) {
+            if (Lists.newArrayList("success").contains(pbaPayment.getPaymentStatus().getName().toLowerCase())) {
                 LOG.info("Update Fee Amount Due as Payment Status received from PBA Payment as {}" + pbaPayment.getPaymentStatus().getName());
                 feePayApportionService.updateFeeAmountDue(pbaPayment);
             }

@@ -2,6 +2,7 @@ package uk.gov.hmcts.payment.api.v1.componenttests.sugar;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -85,6 +86,18 @@ public class RestActions {
             .accept(APPLICATION_JSON)));
     }
 
+    public ResultActions postWithMultiPartFileData(String urlTemplate, MockMultipartFile mockMultipartFile
+        , String paramName, String paramValue) {
+
+        return translateException(() -> mvc.perform(MockMvcRequestBuilders
+            .multipart(urlTemplate)
+            .file(mockMultipartFile)
+            .headers(httpHeaders)
+            .param(paramName, paramValue)
+            .contentType(MULTIPART_FORM_DATA_VALUE)
+            .accept(APPLICATION_JSON)));
+    }
+
     public ResultActions patch(String urlTemplate) {
         return patch(urlTemplate, null);
     }
@@ -97,11 +110,9 @@ public class RestActions {
             .accept(APPLICATION_JSON)));
     }
 
-
     public ResultActions delete(String urlTemplate) {
         return delete(urlTemplate, null);
     }
-
 
     public ResultActions delete(String urlTemplate, Object requestBody) {
         return translateException(() -> mvc.perform(MockMvcRequestBuilders.delete(urlTemplate)

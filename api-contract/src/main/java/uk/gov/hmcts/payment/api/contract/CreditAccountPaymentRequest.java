@@ -39,7 +39,7 @@ public class CreditAccountPaymentRequest {
     private String description;
 
     @NotNull
-    @Pattern(regexp = "^[0-9]{16}",message = "ccd_case_number should be 16 digit")
+    @Pattern(regexp = "^[0-9]{16}",message = "ccd_case_number should be 16 digit and numeric")
     private String ccdCaseNumber;
 
     private String caseReference;
