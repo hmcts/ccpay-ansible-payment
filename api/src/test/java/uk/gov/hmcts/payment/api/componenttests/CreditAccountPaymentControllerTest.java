@@ -2,6 +2,7 @@ package uk.gov.hmcts.payment.api.componenttests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,6 +60,8 @@ import static uk.gov.hmcts.payment.api.model.PaymentFeeLink.paymentFeeLinkWith;
 public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
     private final static String PAYMENT_REFERENCE_REFEX = "^[RC-]{3}(\\w{4}-){3}(\\w{4})";
+    private static final int CCD_CASE_NUMBER_MIN_VALUE = 100000000;
+    private static final int CCD_CASE_NUMBER_MAX_VALUE = 999999999;
 
     @Autowired
     private ConfigurableListableBeanFactory configurableListableBeanFactory;
@@ -126,8 +129,8 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     public void rejectDuplicatePayment_ccdCaseNumber() throws Exception {
         CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithFinRemJson().getBytes(), CreditAccountPaymentRequest.class);
-
-        request.setCcdCaseNumber("1111222233334444");
+        String ccdCaseNumber = "1111222" + RandomUtils.nextInt(CCD_CASE_NUMBER_MIN_VALUE, CCD_CASE_NUMBER_MAX_VALUE);
+        request.setCcdCaseNumber(ccdCaseNumber);
         request.setCaseReference(null);
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
@@ -146,8 +149,9 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     public void rejectDuplicatePayment_caseReference() throws Exception {
         CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithFinRemJson().getBytes(), CreditAccountPaymentRequest.class);
+        String ccdCaseNumber = "1111222" + RandomUtils.nextInt(CCD_CASE_NUMBER_MIN_VALUE, CCD_CASE_NUMBER_MAX_VALUE);
 
-        request.setCcdCaseNumber("1111222233334444");
+        request.setCcdCaseNumber(ccdCaseNumber);
         request.setCaseReference("33333");
 
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
@@ -824,7 +828,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     public void createCreditAccountPaymentWithMultipleFee_ExactPayment() throws Exception {
 
-        String ccdCaseNumber = "1111222233334444";
+        String ccdCaseNumber = "1111222" + RandomUtils.nextInt(CCD_CASE_NUMBER_MIN_VALUE, CCD_CASE_NUMBER_MAX_VALUE);
 
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
 
@@ -884,7 +888,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     public void createCreditAccountPaymentWithMultipleFee_ShortfallPayment() throws Exception {
 
-        String ccdCaseNumber = "1111222233334444";
+        String ccdCaseNumber = "1111222" + RandomUtils.nextInt(CCD_CASE_NUMBER_MIN_VALUE, CCD_CASE_NUMBER_MAX_VALUE);
 
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
 
@@ -944,7 +948,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     public void createCreditAccountPaymentWithMultipleFee_SurplusPayment() throws Exception {
 
-        String ccdCaseNumber = "1111222233334444";
+        String ccdCaseNumber = "1111222" + RandomUtils.nextInt(CCD_CASE_NUMBER_MIN_VALUE, CCD_CASE_NUMBER_MAX_VALUE);
 
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
 
@@ -1004,7 +1008,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     public void createCreditAccountPaymentWithMultipleFee_AmountDue() throws Exception {
 
-        String ccdCaseNumber = "1111222233334444";
+        String ccdCaseNumber = "1111222" + RandomUtils.nextInt(CCD_CASE_NUMBER_MIN_VALUE, CCD_CASE_NUMBER_MAX_VALUE);
 
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
 
@@ -1064,7 +1068,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     @Test
     public void createCreditAccountPaymentWithMultipleFee_AmountDue_When_Apportion_Flag_Is_True() throws Exception {
 
-        String ccdCaseNumber = "1111222233334444";
+        String ccdCaseNumber = "1111222" + RandomUtils.nextInt(CCD_CASE_NUMBER_MIN_VALUE, CCD_CASE_NUMBER_MAX_VALUE);
         when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
         List<FeeDto> fees = new ArrayList<>();
         fees.add(FeeDto.feeDtoWith().code("FEE0271").ccdCaseNumber(ccdCaseNumber).feeAmount(new BigDecimal(20))
