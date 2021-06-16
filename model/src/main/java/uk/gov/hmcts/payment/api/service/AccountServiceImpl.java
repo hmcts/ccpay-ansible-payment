@@ -32,7 +32,7 @@ public class AccountServiceImpl implements AccountService<AccountDto, String> {
     @Value("${liberata.api.mock}")
     private Boolean mockLiberata;
 
-    @Value("${liberat.api.mock.account}")
+    @Value("${liberata.api.mock.account}")
     private String mockPbaAccounts;
 
     @Override
