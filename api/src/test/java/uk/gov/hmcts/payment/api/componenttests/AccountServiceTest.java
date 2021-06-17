@@ -37,7 +37,7 @@ public class AccountServiceTest {
     private String baseUrl;
     @Value("${liberata.api.mock}")
     private Boolean mockLiberata;
-    @Value("${liberat.api.mock.account}")
+    @Value("${liberata.api.mock.account}")
     private String mockPbaAccounts;
 
     @Before
