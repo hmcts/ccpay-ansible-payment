@@ -7,7 +7,6 @@ import uk.gov.hmcts.payment.api.model.Payment;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 public interface PaymentService<T, ID> {
 
@@ -24,5 +23,11 @@ public interface PaymentService<T, ID> {
     List<FeePayApportion> findByPaymentId(Integer paymentId);
 
     List<Payment> searchByCriteria(PaymentSearchCriteria searchCriteria);
+
+    String getServiceNameByCode(String serviceCode);
+
+    Payment getPaymentById(Integer id);
+
+    Payment findSavedPayment(String reference);
 
 }

@@ -26,6 +26,7 @@ public class AuditEventsType {
     public final static AuditEventsType FEE_REMOVED = new AuditEventsType("fee_removed", "Fee removed successfully");
     public final static AuditEventsType REMISSION_APPLIED = new AuditEventsType("remission_applied", "Valid remission received and applied to fee successfully");
     public final static AuditEventsType PAYMENT_APPORTIONED = new AuditEventsType("payment_apportioned", "Valid payment received and fee apportioned successfully");
+    public final static AuditEventsType ORDER_CREATED = new AuditEventsType("order_created", "Valid Order request received and recorded successfully");
 
     public final static AuditEventsType PAYMENT_ALLOCATION_CREATED = new AuditEventsType("payment_allocation_created", "Valid offline payment allocated successfully");
     public final static AuditEventsType PAYMENT_ALLOCATION_UPDATED = new AuditEventsType("payment_allocation_updated", "Offline Allocated Payment updated successfully");

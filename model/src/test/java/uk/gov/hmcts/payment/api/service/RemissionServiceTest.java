@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.mockito.*;
 import uk.gov.hmcts.payment.api.dto.RemissionServiceRequest;
 import uk.gov.hmcts.payment.api.model.*;
+import uk.gov.hmcts.payment.api.util.OrderCaseUtil;
 import uk.gov.hmcts.payment.api.util.ReferenceUtil;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.InvalidPaymentGroupReferenceException;
 
@@ -30,6 +31,8 @@ public class RemissionServiceTest {
     @Spy
     private ReferenceUtil referenceUtil;
 
+    @Mock
+    private OrderCaseUtil orderCaseUtil;
 
     @Before
     public void setUp() {
@@ -56,6 +59,7 @@ public class RemissionServiceTest {
             .fee(fee)
             .build();
 
+        when(orderCaseUtil.enhanceWithOrderCaseDetails(any(PaymentFeeLink.class), any(RemissionServiceRequest.class))).thenReturn(paymentFeeLink);
         when(paymentFeeLinkRepository.save(any(PaymentFeeLink.class))).thenReturn(paymentFeeLink);
 
         PaymentFeeLink res = remissionService.createRemission(remissionServiceRequest);

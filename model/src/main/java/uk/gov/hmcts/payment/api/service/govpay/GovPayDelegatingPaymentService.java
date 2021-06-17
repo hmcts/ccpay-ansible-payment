@@ -1,5 +1,6 @@
 package uk.gov.hmcts.payment.api.service.govpay;
 
+import com.google.common.collect.ImmutableMap;
 import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,16 @@ public class GovPayDelegatingPaymentService implements DelegatingPaymentService<
     @Override
     public GovPayPayment create(PaymentServiceRequest paymentServiceRequest) {
         String key = keyForService();
+//        return GovPayPayment.govPaymentWith()
+//            .amount(10000)
+//            .state(new uk.gov.hmcts.payment.api.external.client.dto.State("created", false, null, null))
+//            .description("description")
+//            .reference("reference")
+//            .paymentId("paymentId")
+//            .paymentProvider("sandbox")
+//            .returnUrl("https://www.google.com")
+//            .links(GovPayPayment.Links.linksWith().nextUrl(new Link("any", ImmutableMap.of(), "cancelHref", "any")).build())
+//            .build();
         LOG.info("Language value in GovPayDelegatingPaymentService: {}", paymentServiceRequest.getLanguage());
         return govPayClient.createPayment(key, new CreatePaymentRequest(paymentServiceRequest.getAmount().movePointRight(2).intValue(),
             paymentServiceRequest.getPaymentReference(), paymentServiceRequest.getDescription(),

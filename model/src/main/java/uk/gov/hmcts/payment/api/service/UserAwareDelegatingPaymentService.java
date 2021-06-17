@@ -21,6 +21,7 @@ import uk.gov.hmcts.payment.api.external.client.dto.GovPayPayment;
 import uk.gov.hmcts.payment.api.external.client.dto.Link;
 import uk.gov.hmcts.payment.api.external.client.exceptions.GovPayPaymentNotFoundException;
 import uk.gov.hmcts.payment.api.model.*;
+import uk.gov.hmcts.payment.api.util.OrderCaseUtil;
 import uk.gov.hmcts.payment.api.util.PayStatusToPayHubStatus;
 import uk.gov.hmcts.payment.api.util.ReferenceUtil;
 import uk.gov.hmcts.payment.api.v1.model.ServiceIdSupplier;
@@ -32,10 +33,7 @@ import uk.gov.hmcts.payment.api.v1.model.govpay.GovPayAuthUtil;
 import javax.persistence.criteria.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 @Service
 @Primary
@@ -67,6 +65,8 @@ public class UserAwareDelegatingPaymentService implements DelegatingPaymentServi
     private final FeePayApportionService feePayApportionService;
     private final LaunchDarklyFeatureToggler featureToggler;
 
+    private final OrderCaseUtil orderCaseUtil;
+
     private static final Predicate[] REF = new Predicate[0];
 
     @Value("${gov.pay.url}") String govpayUrl;
@@ -89,7 +89,8 @@ public class UserAwareDelegatingPaymentService implements DelegatingPaymentServi
                                              FeePayApportionRepository feePayApportionRepository,
                                              PaymentFeeRepository paymentFeeRepository,
                                              FeePayApportionService feePayApportionService,
-                                             LaunchDarklyFeatureToggler featureToggler) {
+                                             LaunchDarklyFeatureToggler featureToggler,
+                                             OrderCaseUtil orderCaseUtil) {
         this.userIdSupplier = userIdSupplier;
         this.paymentFeeLinkRepository = paymentFeeLinkRepository;
         this.delegateGovPay = delegateGovPay;
@@ -108,6 +109,7 @@ public class UserAwareDelegatingPaymentService implements DelegatingPaymentServi
         this.paymentFeeRepository = paymentFeeRepository;
         this.feePayApportionService = feePayApportionService;
         this.featureToggler = featureToggler;
+        this.orderCaseUtil = orderCaseUtil;
     }
 
     @Override
@@ -146,7 +148,7 @@ public class UserAwareDelegatingPaymentService implements DelegatingPaymentServi
 
         payment.setPaymentLink(paymentFeeLink);
 
-        paymentFeeLink = paymentFeeLinkRepository.save(paymentFeeLink);
+        paymentFeeLink = paymentFeeLinkRepository.save(orderCaseUtil.enhanceWithOrderCaseDetails(paymentFeeLink, payment));
 
         auditRepository.trackPaymentEvent("CREATE_CARD_PAYMENT", payment, paymentServiceRequest.getFees());
         return paymentFeeLink;
@@ -171,9 +173,10 @@ public class UserAwareDelegatingPaymentService implements DelegatingPaymentServi
             throw new MethodNotSupportedException("Only Telephony payments are supported");
         }
 
-
         PaymentFeeLink paymentFeeLink = paymentFeeLinkRepository.findByPaymentReference(paymentServiceRequest.
             getPaymentGroupReference()).orElseThrow(InvalidPaymentGroupReferenceException::new);
+
+        orderCaseUtil.updateOrderCaseDetails(paymentFeeLink, payment);
 
         payment.setPaymentLink(paymentFeeLink);
 

@@ -1,16 +1,10 @@
 package uk.gov.hmcts.payment.api.controllers;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.reports.PaymentsReportFacade;
 import uk.gov.hmcts.payment.api.scheduler.Clock;
 import uk.gov.hmcts.payment.api.util.PaymentMethodType;
@@ -48,11 +42,11 @@ public class PaymentReportController {
                                        @RequestParam(name = "start_date", required = false) Optional<String> startDateString,
                                        @RequestParam(name = "end_date", required = false) Optional<String> endDateString) {
 
-        validator.validate(paymentMethodType, serviceType, startDateString, endDateString);
+        validator.validate(paymentMethodType, startDateString, endDateString);
 
         Date fromDate = startDateString.map(s -> clock.atStartOfDay(s, FORMATTER)).orElseGet(clock::getYesterdayDate);
         Date toDate = endDateString.map(s -> clock.atEndOfDay(s, FORMATTER)).orElseGet(clock::getTodayDate);
-        Service service = serviceType.map(value -> Service.valueOf(value.toUpperCase())).orElse(null);
+        String service = serviceType.isPresent() ? serviceType.get() : null;
         PaymentMethodType paymentMethodTypeName = paymentMethodType.map(value -> PaymentMethodType.valueOf(value.toUpperCase())).orElse(null);
 
         paymentsReportFacade.generateCsvAndSendEmail(fromDate, toDate, paymentMethodTypeName, service);

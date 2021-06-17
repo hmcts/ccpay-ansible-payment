@@ -3,13 +3,16 @@ package uk.gov.hmcts.payment.api.model;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import uk.gov.hmcts.payment.api.jpaaudit.listner.PaymentFeeLinkEntityListener;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
-@Data
+@EntityListeners(PaymentFeeLinkEntityListener.class)
+@Getter
+@Setter
+@ToString
 @Builder(builderMethodName = "paymentFeeLinkWith")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,6 +26,12 @@ public class PaymentFeeLink {
     @Column(name = "payment_reference")
     private String paymentReference;
 
+    @Column(name = "enterprise_service_name")
+    private String enterpriseServiceName;
+
+    @Column(name = "org_id")
+    private String orgId;
+
     @CreationTimestamp
     @Column(name = "date_created", nullable = false)
     private Date dateCreated;
@@ -34,13 +43,13 @@ public class PaymentFeeLink {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "payment_link_id", referencedColumnName = "id", nullable = false)
     @ToString.Exclude
-    private List<Payment> payments;
+    @Builder.Default
+    private List<Payment> payments = new LinkedList<>();
 
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "payment_link_id", referencedColumnName = "id", nullable = false)
     @ToString.Exclude
     private List<PaymentFee> fees;
-
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "payment_link_id", referencedColumnName = "id", nullable = false)
@@ -52,8 +61,16 @@ public class PaymentFeeLink {
     @ToString.Exclude
     private List<FeePayApportion> apportions;
 
+    @ToString.Exclude
+    @Column(name = "ccd_case_number")
+    private String ccdCaseNumber;
+
+    @ToString.Exclude
+    @Column(name = "case_reference")
+    private String caseReference;
+
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return super.hashCode();
     }
 

@@ -152,6 +152,17 @@ databaseChangeLog:
             referencedColumnNames: name
             referencedTableName: audit_events_type
 
+  - changeSet:
+      id: 1554989041423-23
+      author: Vignesh Pushkaran
+      changes:
+        - sql:
+            splitStatements: true
+            sql: >
+              INSERT INTO audit_events_type (name, description)
+                VALUES
+                  ('order_created', 'Valid order request received and recorded successfully');
+
 # Apportionment DB Model Rollback Scripts
 #  - changeSet:
 #      id: 1554989041418-24

@@ -6,14 +6,17 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import uk.gov.hmcts.payment.api.dto.PaymentSearchCriteria;
 import uk.gov.hmcts.payment.api.model.PaymentFeeLink;
+import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentException;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -36,10 +39,10 @@ public class PaymentServiceTest {
 
         PaymentSearchCriteria searchCriteria =
             PaymentSearchCriteria.searchCriteriaWith()
-            .startDate(LocalDateTime.now().minusDays(2).toDate())
-            .endDate(LocalDateTime.now().toDate())
-            .paymentMethod(CARD.getType())
-            .build();
+                .startDate(LocalDateTime.now().minusDays(2).toDate())
+                .endDate(LocalDateTime.now().toDate())
+                .paymentMethod(CARD.getType())
+                .build();
 
         given(delegatingPaymentService.search(eq(searchCriteria)))
             .willReturn(paymentFeeLinks);
@@ -54,10 +57,10 @@ public class PaymentServiceTest {
         // given
         PaymentSearchCriteria searchCriteria =
             PaymentSearchCriteria.searchCriteriaWith()
-            .startDate(LocalDateTime.now().toDate())
-            .endDate(LocalDateTime.now().toDate())
-            .paymentMethod(CARD.getType())
-            .build();
+                .startDate(LocalDateTime.now().toDate())
+                .endDate(LocalDateTime.now().toDate())
+                .paymentMethod(CARD.getType())
+                .build();
 
         // when
         service.search(searchCriteria);
@@ -101,6 +104,13 @@ public class PaymentServiceTest {
         List<PaymentFeeLink> result = service.search(searchCriteria);
         // then
         assertThat(result).isSameAs(paymentFeeLinks);
+    }
+
+    @Test(expected = PaymentException.class)
+    public void shouldThrowExceptionOnInvalidServiceType() {
+        String validServiceName = service.getServiceNameByCode("CMC");
+        assertEquals("Civil Money Claims",validServiceName);
+        service.getServiceNameByCode("Civil");
     }
 
 }

@@ -44,20 +44,20 @@ public class FeePayApportionServiceImpl implements FeePayApportionService {
     public void updateFeeAmountDue(Payment payment) {
         try {
             Optional<List<FeePayApportion>> apportions = feePayApportionRepository.findByPaymentId(payment.getId());
-            if(apportions.isPresent()) {
+            if (apportions.isPresent()) {
                 apportions.get().stream()
                     .forEach(feePayApportion -> {
                         PaymentFee fee = paymentFeeRepository.findById(feePayApportion.getFeeId()).get();
-                        if(feePayApportion.getCallSurplusAmount() == null) {
+                        if (feePayApportion.getCallSurplusAmount() == null) {
                             feePayApportion.setCallSurplusAmount(BigDecimal.valueOf(0));
                         }
                         fee.setAmountDue(fee.getAmountDue().subtract(feePayApportion.getApportionAmount()
                             .add(feePayApportion.getCallSurplusAmount())));
 
-                        if(payment.getPaymentChannel() != null && payment.getPaymentChannel().getName() != null &&
+                        if (payment.getPaymentChannel() != null && payment.getPaymentChannel().getName() != null &&
                             (payment.getPaymentChannel().getName().equalsIgnoreCase("telephony") ||
                                 payment.getPaymentChannel().getName().equalsIgnoreCase("online"))) {
-                            if(fee.getAmountDue() != null && fee.getAmountDue().compareTo(BigDecimal.valueOf(0)) < 0) {
+                            if (fee.getAmountDue() != null && fee.getAmountDue().compareTo(BigDecimal.valueOf(0)) < 0) {
                                 feePayApportion.setCallSurplusAmount(feePayApportion.getCallSurplusAmount().subtract(fee.getAmountDue()));
                                 feePayApportionRepository.save(feePayApportion);
                             }
@@ -73,9 +73,18 @@ public class FeePayApportionServiceImpl implements FeePayApportionService {
     }
 
     @Override
+    public List<FeePayApportion> getFeePayApportionByFeeId(Integer feeId) {
+        return this.feePayApportionRepository.findByFeeId(feeId).orElse(Arrays.asList());
+    }
+
+    @Override
     public void processApportion(Payment payment) {
         try {
-            Optional<List<PaymentFee>> savedFees = paymentFeeRepository.findByCcdCaseNumber(payment.getCcdCaseNumber());
+            Optional<List<PaymentFee>> savedFees;
+
+            //Fees against order / paymentgroup
+            savedFees = paymentFeeRepository.findByPaymentLinkId(payment.getPaymentLink().getId());
+
             if (savedFees.isPresent()) {
 
                 List<PaymentFee> sortedFees = savedFees.get()
@@ -93,7 +102,7 @@ public class FeePayApportionServiceImpl implements FeePayApportionService {
                     }
                 });
                 this.processFeePayApportion(FeePayApportionCCDCase.feePayApportionCCDCaseWith()
-                    .ccdCaseNo(payment.getCcdCaseNumber())
+                    .ccdCaseNo(payment.getPaymentLink().getCcdCaseNumber())
                     .feePayGroups(Collections.singletonList(payment.getPaymentLink()))
                     .fees(sortedFees)
                     .payments(Lists.newArrayList(payment))
@@ -128,7 +137,7 @@ public class FeePayApportionServiceImpl implements FeePayApportionService {
 
                             if (remainingPaymentAmount.compareTo(fee.getAmountDue()) > 0) {
                                 remainingPaymentAmount = remainingPaymentAmount.subtract(fee.getAmountDue());
-                            }else {
+                            } else {
                                 remainingPaymentAmount = BigDecimal.valueOf(0);
                             }
 
@@ -173,7 +182,7 @@ public class FeePayApportionServiceImpl implements FeePayApportionService {
             .paymentLink(payment.getPaymentLink())
             .feeAmount(fee.getNetAmount())
             .paymentAmount(payment.getAmount())
-            .ccdCaseNumber(payment.getCcdCaseNumber())
+            .ccdCaseNumber(payment.getPaymentLink().getCcdCaseNumber())
             .createdBy("SYSTEM")
             .apportionType(ApportionType.AUTO.getName())
             .dateCreated(payment.getDateCreated())

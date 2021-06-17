@@ -3,7 +3,6 @@ package uk.gov.hmcts.payment.api.reports;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.reports.config.PaymentReportConfig;
 import uk.gov.hmcts.payment.api.util.PaymentMethodType;
 
@@ -26,7 +25,7 @@ public class PaymentsReportFacade {
         this.configMap = configMap;
     }
 
-    public void generateCsvAndSendEmail(Date startDate, Date endDate, PaymentMethodType paymentMethodType, Service serviceType) {
+    public void generateCsvAndSendEmail(Date startDate, Date endDate, PaymentMethodType paymentMethodType, String serviceType) {
         PaymentReportConfig reportConfig = configMap.get(PaymentReportType.from(paymentMethodType, serviceType));
         if (reportConfig.isEnabled()) {
             reportService.generateCsvAndSendEmail(startDate, endDate, paymentMethodType, serviceType, reportConfig);
