@@ -1,6 +1,9 @@
 description = 'OTP (One Time Password) utility in Java'
 dependencies {
     compile 'com.amdelamar:jotp:1.2.0'
+    testCompile(group: 'org.springframework.boot', name: 'spring-boot-starter-test') {
+        exclude(module: 'commons-logging')
+    }
 }
 
 task customFatJar(type: Jar) {

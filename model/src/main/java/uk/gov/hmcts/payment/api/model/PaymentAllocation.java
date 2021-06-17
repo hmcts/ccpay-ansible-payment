@@ -61,6 +61,4 @@ public class PaymentAllocation {
     public int hashCode(){
         return super.hashCode();
     }
-
-
 }

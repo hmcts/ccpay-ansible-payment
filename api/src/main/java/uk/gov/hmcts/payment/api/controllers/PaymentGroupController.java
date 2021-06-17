@@ -33,7 +33,10 @@ import uk.gov.hmcts.payment.api.util.ReferenceUtil;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.*;
 import uk.gov.hmcts.payment.referencedata.dto.SiteDTO;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
-
+import uk.gov.hmcts.payment.api.contract.TelephonyCardPaymentsRequest;
+import uk.gov.hmcts.payment.api.contract.TelephonyCardPaymentsResponse;
+import uk.gov.hmcts.payment.api.dto.mapper.TelephonyDtoMapper;
+import uk.gov.hmcts.payment.api.external.client.dto.TelephonyProviderAuthorisationResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,15 +67,15 @@ public class PaymentGroupController {
 
     private final PaymentProviderRepository paymentProviderRepository;
 
-    private final PaymentFeeRepository paymentFeeRepository;
-
     private final FeePayApportionService feePayApportionService;
 
     private final LaunchDarklyFeatureToggler featureToggler;
 
-    private final FeePayApportionRepository feePayApportionRepository;
+    private static final String APPORTION_FEATURE = "apportion-feature";
 
     private final Payment2Repository payment2Repository;
+
+    private final TelephonyDtoMapper telephonyDtoMapper;
 
     @Autowired
     private AuthTokenGenerator authTokenGenerator;
@@ -91,10 +94,8 @@ public class PaymentGroupController {
                                   ReferenceUtil referenceUtil,
                                   ReferenceDataService<SiteDTO> referenceDataService,
                                   PaymentProviderRepository paymentProviderRespository,
-                                  PaymentFeeRepository paymentFeeRepository,
                                   FeePayApportionService feePayApportionService,
-                                  LaunchDarklyFeatureToggler featureToggler,
-                                  FeePayApportionRepository feePayApportionRepository, Payment2Repository payment2Repository){
+                                  LaunchDarklyFeatureToggler featureToggler, Payment2Repository payment2Repository,TelephonyDtoMapper telephonyDtoMapper){
         this.paymentGroupService = paymentGroupService;
         this.paymentGroupDtoMapper = paymentGroupDtoMapper;
         this.delegatingPaymentService = delegatingPaymentService;
@@ -103,11 +104,10 @@ public class PaymentGroupController {
         this.referenceUtil = referenceUtil;
         this.referenceDataService = referenceDataService;
         this.paymentProviderRepository = paymentProviderRespository;
-        this.paymentFeeRepository = paymentFeeRepository;
         this.feePayApportionService = feePayApportionService;
         this.featureToggler = featureToggler;
-        this.feePayApportionRepository = feePayApportionRepository;
         this.payment2Repository = payment2Repository;
+        this.telephonyDtoMapper = telephonyDtoMapper;
     }
 
     @ApiOperation(value = "Get payments/remissions/fees details by payment group reference", notes = "Get payments/remissions/fees details for supplied payment group reference")
@@ -226,7 +226,7 @@ public class PaymentGroupController {
         }
 
         // trigger Apportion based on the launch darkly feature flag
-        boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature",false);
+        boolean apportionFeature = featureToggler.getBooleanValue(APPORTION_FEATURE,false);
         LOG.info("ApportionFeature Flag Value in CardPaymentController : {}", apportionFeature);
         if(apportionFeature) {
             feePayApportionService.processApportion(payment);
@@ -281,7 +281,7 @@ public class PaymentGroupController {
         Payment newPayment = getPayment(paymentFeeLink, payment.getReference());
 
         // trigger Apportion based on the launch darkly feature flag
-        boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature",false);
+        boolean apportionFeature = featureToggler.getBooleanValue(APPORTION_FEATURE,false);
         LOG.info("ApportionFeature Flag Value in CardPaymentController : {}", apportionFeature);
         if(apportionFeature) {
             feePayApportionService.processApportion(newPayment);
@@ -407,7 +407,7 @@ public class PaymentGroupController {
             Payment newPayment = getPayment(paymentFeeLink, payment.getReference());
 
             // trigger Apportion based on the launch darkly feature flag
-            boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature", false);
+            boolean apportionFeature = featureToggler.getBooleanValue(APPORTION_FEATURE, false);
             LOG.info("ApportionFeature Flag Value in PaymentGroupController  RecordBulkScanPaymentStrategic: {}", apportionFeature);
             if (apportionFeature) {
                 feePayApportionService.processApportion(newPayment);
@@ -541,6 +541,59 @@ public class PaymentGroupController {
 
         LOG.info("Calling Bulk scan api to mark payment as processed from Payment Api");
         return restTemplatePaymentGroup.exchange(bulkScanPaymentsProcessedUrl + "/bulk-scan-payments/{dcn}/status/{status}", HttpMethod.PATCH, entity, String.class, params);
+    }
+
+    @ApiOperation(value = "Create telephony card payment in Payment Group", notes = "Create telephony card payment in Payment Group")
+    @ApiResponses(value = {
+        @ApiResponse(code = 201, message = "Payment created"),
+        @ApiResponse(code = 400, message = "Payment creation failed"),
+        @ApiResponse(code = 422, message = "Invalid or missing attribute")
+    })
+    @PostMapping(value = "/payment-groups/{payment-group-reference}/telephony-card-payments")
+    @ResponseBody
+    @Transactional
+    public ResponseEntity<TelephonyCardPaymentsResponse> createTelephonyCardPayment(
+        @PathVariable("payment-group-reference") String paymentGroupReference,
+        @Valid @RequestBody TelephonyCardPaymentsRequest telephonyCardPaymentsRequest) throws CheckDigitException, MethodNotSupportedException {
+
+        boolean antennaFeature = featureToggler.getBooleanValue("pci-pal-antenna-feature",false);
+        LOG.info("Feature Flag Value in CardPaymentController : {}", antennaFeature);
+        if(antennaFeature) {
+            LOG.info("Inside Telephony check!!!");
+            TelephonyProviderAuthorisationResponse telephonyProviderAuthorisationResponse = pciPalPaymentService.getPaymentProviderAutorisationTokens();
+            PaymentServiceRequest paymentServiceRequest = PaymentServiceRequest.paymentServiceRequestWith()
+                .paymentGroupReference(paymentGroupReference)
+                .paymentReference(referenceUtil.getNext("RC"))
+                .ccdCaseNumber(telephonyCardPaymentsRequest.getCcdCaseNumber())
+                .currency(telephonyCardPaymentsRequest.getCurrency().getCode())
+                .siteId(telephonyCardPaymentsRequest.getSiteId())
+                .serviceType(telephonyCardPaymentsRequest.getService().getName())
+                .amount(telephonyCardPaymentsRequest.getAmount())
+                .channel(PaymentChannel.TELEPHONY.getName())
+                .provider(PaymentProvider.PCI_PAL.getName())
+                .build();
+            PaymentFeeLink paymentLink = delegatingPaymentService.update(paymentServiceRequest);
+            Payment payment = getPayment(paymentLink, paymentServiceRequest.getPaymentReference());
+
+            PciPalPaymentRequest pciPalPaymentRequest = PciPalPaymentRequest.pciPalPaymentRequestWith().orderAmount(telephonyCardPaymentsRequest.getAmount().toString()).orderCurrency(telephonyCardPaymentsRequest.getCurrency().getCode())
+                .orderReference(payment.getReference()).build();
+            telephonyProviderAuthorisationResponse = pciPalPaymentService.getTelephonyProviderLink(pciPalPaymentRequest, telephonyProviderAuthorisationResponse, telephonyCardPaymentsRequest.getService().name(),telephonyCardPaymentsRequest.getReturnURL());
+            LOG.info("Next URL Value in PaymentGroupController : {}", telephonyProviderAuthorisationResponse.getNextUrl());
+            TelephonyCardPaymentsResponse telephonyCardPaymentsResponse = telephonyDtoMapper.toTelephonyCardPaymentsResponse(paymentLink, payment, telephonyProviderAuthorisationResponse);
+
+            // trigger Apportion based on the launch darkly feature flag
+            boolean apportionFeature = featureToggler.getBooleanValue(APPORTION_FEATURE, false);
+            LOG.info("ApportionFeature Flag Value in CardPaymentController : {}", apportionFeature);
+            if (apportionFeature) {
+                feePayApportionService.processApportion(payment);
+            }
+            return new ResponseEntity<>(telephonyCardPaymentsResponse, HttpStatus.CREATED);
+        }
+        else
+        {
+            throw new MethodNotSupportedException("This feature is not available to use or invalid request!!!");
+        }
+
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

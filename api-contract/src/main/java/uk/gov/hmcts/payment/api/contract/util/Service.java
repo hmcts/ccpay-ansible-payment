@@ -8,7 +8,8 @@ public enum Service {
     DIGITAL_BAR("Digital Bar"),
     FPL("Family Public Law"),
     IAC("Immigration and Asylum Appeals"),
-    UNSPEC("Unspecified Claim");
+    UNSPEC("Unspecified Claim"),
+    CIVIL("Civil");
 
     private String name;
 

@@ -86,7 +86,7 @@ dependencies {
   compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.10.0'
   compile group: 'io.springfox', name: 'springfox-swagger-ui', version:'2.9.2'
   compile group: 'io.springfox', name: 'springfox-swagger2', version:'2.9.2'
-  compile group: 'uk.gov.hmcts.reform', name: 'liquibase-core', version:'3.8.1'
+    implementation 'com.github.hmcts.liquibase:liquibase-core:3.8.2'
   compile group: 'com.microsoft.azure', name: 'azure-servicebus-spring-boot-starter', version: '2.1.6'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-cache'
   compile group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '2.7.0'
@@ -97,7 +97,7 @@ dependencies {
     compile group: 'org.ff4j', name: 'ff4j-web', version: '1.7.1'
     compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.3'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf'
-    compile(group: 'org.postgresql', name: 'postgresql', version: '42.2.9') {
+    compile(group: 'org.postgresql', name: 'postgresql', version: '42.2.19') {
         exclude(module: 'commons-logging')
         exclude(module: 'slf4j-simple')
     }
@@ -105,8 +105,10 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
     compile group: 'org.springframework.retry', name: 'spring-retry'
     compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.1.RELEASE'
-    compile group: 'uk.gov.hmcts.reform.fees-register', name: 'fees-register-api-contract', version: '2.3.0'
-    compile group: 'uk.gov.hmcts.reform.fees-register', name: 'fees-register-model', version: '2.3.0'
+
+    compile group: 'com.github.hmcts.ccfr-fees-register-app', name: 'fees-register-api-contract', version: '2.3.1'
+    compile group: 'com.github.hmcts.ccfr-fees-register-app', name: 'fees-register-model', version: '2.3.1'
+
     compile group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version: '0.0.4'
     //Added this for spring boot upgrade as swagger was not working with the latest version.
     compile group: 'org.springframework.plugin', name: 'spring-plugin-core', version: '1.2.0.RELEASE'
@@ -125,6 +127,8 @@ dependencies {
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf'
     testCompile group: 'org.testcontainers', name: 'postgresql', version: '1.15.1'
     testCompile 'org.awaitility:awaitility:3.1.6'
+    testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.9'
+    testCompile 'org.powermock:powermock-api-mockito2:2.0.9'
     // smoke
     smokeTestCompile sourceSets.test.runtimeClasspath
     // functional

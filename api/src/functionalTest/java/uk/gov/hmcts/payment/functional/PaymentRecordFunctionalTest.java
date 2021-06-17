@@ -71,6 +71,12 @@ public class PaymentRecordFunctionalTest {
             .then().created(paymentDto -> {
             assertNotNull(paymentDto.getReference());
 
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                LOG.error(e.getMessage());
+            }
+
             String endDate = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
             // search payment and assert the result
             dsl.given().userToken(USER_TOKEN)

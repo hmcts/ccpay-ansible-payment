@@ -3,11 +3,11 @@ appVersion: "1.0"
 description: Helm chart for the HMCTS payment api
 name: payment-api
 home: https://github.com/hmcts/ccpay-payment-app
-version: 2.0.37
+version: 2.0.44
 maintainers:
   - name: HMCTS Fees & Payments Dev Team
     email: ccpay@hmcts.net
 dependencies:
   - name: java
-    version: 3.4.4
+    version: 3.4.5
     repository: '@hmctspublic'
