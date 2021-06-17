@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1559091041418-40
+      author: amitchidrewar
+      changes:
+        - createTable:
+            tableName: idempotency_keys
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+              - column:
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  name: idempotency_key
+                  type: varchar(255)
+              - column:
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  name: request_hashcode
+                  type: int
+              - column:
+                  name: request_body
+                  type: varchar(2000)
+              - column:
+                  name: response_code
+                  type: int
+              - column:
+                  name: response_body
+                  type: varchar(2000)
+              - column:
+                  name: date_created
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: date_updated
+                  type: TIMESTAMP WITHOUT TIME ZONE

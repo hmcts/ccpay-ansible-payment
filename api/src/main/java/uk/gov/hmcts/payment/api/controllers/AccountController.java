@@ -28,8 +28,14 @@ public class AccountController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AccountController.class);
 
+    private final AccountService<AccountDto, String> accountService;
+
     @Autowired
-    private AccountService<AccountDto, String> accountService;
+    public AccountController(
+        AccountService<AccountDto, String> accountService) {
+        this.accountService = accountService;
+    }
+
 
     @ApiOperation(value = "Get the account status and available balance for a PBA account number", notes = "Get the account status and available balance for a PBA account number")
     @ApiResponses(value = {

@@ -11,10 +11,12 @@ import java.util.Date;
 
 @Entity
 @EntityListeners(FeePayApportionEntityListener.class)
-@Data
+@Getter
+@Setter
 @Builder(builderMethodName = "feePayApportionWith")
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Table(name = "fee_pay_apportion")
 public class FeePayApportion extends Auditable<String> {
     @Id

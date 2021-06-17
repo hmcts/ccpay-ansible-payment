@@ -31,6 +31,7 @@ import uk.gov.hmcts.payment.api.model.PaymentMethod;
 import uk.gov.hmcts.payment.api.model.PaymentProvider;
 import uk.gov.hmcts.payment.api.model.PaymentProviderRepository;
 import uk.gov.hmcts.payment.api.service.PaymentRecordService;
+import uk.gov.hmcts.payment.api.service.PaymentService;
 import uk.gov.hmcts.payment.api.service.ReferenceDataService;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentException;
 import uk.gov.hmcts.payment.referencedata.dto.SiteDTO;
@@ -53,6 +54,9 @@ public class PaymentRecordController {
     private final PaymentDtoMapper paymentDtoMapper;
     private final PaymentProviderRepository paymentProviderRespository;
     private final ReferenceDataService<SiteDTO> referenceDataService;
+
+    @Autowired
+    private PaymentService<PaymentFeeLink, String> paymentService;
 
     @Autowired
     public PaymentRecordController(PaymentRecordService<PaymentFeeLink, String> paymentRecordService,
@@ -93,7 +97,7 @@ public class PaymentRecordController {
             .currency(paymentRecordRequest.getCurrency().getCode())
             .paymentProvider(paymentProvider)
             .externalReference(paymentRecordRequest.getExternalReference())
-            .serviceType(paymentRecordRequest.getService().getName())
+            .serviceType(paymentService.getServiceNameByCode(paymentRecordRequest.getService()))
             .paymentMethod(PaymentMethod.paymentMethodWith().name(paymentRecordRequest.getPaymentMethod().getType()).build())
             .siteId(paymentRecordRequest.getSiteId())
             .giroSlipNo(paymentRecordRequest.getGiroSlipNo())

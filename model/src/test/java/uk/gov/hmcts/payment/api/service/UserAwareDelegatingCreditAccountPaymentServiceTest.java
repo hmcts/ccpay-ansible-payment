@@ -7,11 +7,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import uk.gov.hmcts.payment.api.model.*;
+import uk.gov.hmcts.payment.api.util.OrderCaseUtil;
 import uk.gov.hmcts.payment.api.util.ReferenceUtil;
 import uk.gov.hmcts.payment.api.v1.model.ServiceIdSupplier;
 import uk.gov.hmcts.payment.api.v1.model.UserIdSupplier;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
-
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class UserAwareDelegatingCreditAccountPaymentServiceTest {
@@ -46,6 +47,9 @@ public class UserAwareDelegatingCreditAccountPaymentServiceTest {
     private ServiceIdSupplier serviceIdSupplier;
     @Mock
     private UserIdSupplier userIdSupplier;
+
+    @Mock
+    private OrderCaseUtil orderCaseUtil;
 
     @InjectMocks
     private UserAwareDelegatingCreditAccountPaymentService creditAccountPaymentService;
@@ -77,6 +81,7 @@ public class UserAwareDelegatingCreditAccountPaymentServiceTest {
 
         when(paymentStatusRepository.findByNameOrThrow("success")).thenReturn(PaymentStatus.paymentStatusWith().name("success").build());
 
+        when(orderCaseUtil.enhanceWithOrderCaseDetails(any(PaymentFeeLink.class), any(Payment.class))).thenReturn(paymentFeeLink);
         when(paymentFeeLinkRepository.save(paymentFeeLink)).thenReturn(PaymentFeeLink.paymentFeeLinkWith()
             .id(1)
             .paymentReference("2018-1234567890")

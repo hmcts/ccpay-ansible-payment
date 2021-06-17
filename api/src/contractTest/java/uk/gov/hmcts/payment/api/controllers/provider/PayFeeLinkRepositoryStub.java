@@ -1,14 +1,15 @@
 package uk.gov.hmcts.payment.api.controllers.provider;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import uk.gov.hmcts.payment.api.model.PaymentFeeLink;
 import uk.gov.hmcts.payment.api.model.PaymentFeeLinkRepository;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 public class PayFeeLinkRepositoryStub implements PaymentFeeLinkRepository {
     @Override
@@ -78,6 +79,11 @@ public class PayFeeLinkRepositoryStub implements PaymentFeeLinkRepository {
 
     @Override
     public Optional<PaymentFeeLink> findByPaymentReference(String id) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<PaymentFeeLink>> findByCcdCaseNumber(String ccdCaseNumber) {
         return Optional.empty();
     }
 

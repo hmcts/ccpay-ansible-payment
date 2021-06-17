@@ -1,0 +1,38 @@
+{
+  "content": [
+    {
+      "id": "29b192ed-675d-4c60-ab10-c7e1619da34e",
+      "created_timestamp": "2021-03-26T15:24:34.968706",
+      "case_id": 1709243447569253,
+      "action": "action",
+      "responsible_party": "setResponsibleParty",
+      "order_reference": "action1",
+      "created_by": "de2641a3-aee0-4d85-a513-a2429eca5b03"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": true,
+      "unsorted": false,
+      "empty": false
+    },
+    "offset": 2,
+    "page_number": 1,
+    "page_size": 2,
+    "unpaged": false,
+    "paged": true
+  },
+  "last": true,
+  "total_elements": 3,
+  "total_pages": 2,
+  "size": 2,
+  "number_of_elements": 1,
+  "number": 1,
+  "sort": {
+    "sorted": true,
+    "unsorted": false,
+    "empty": false
+  },
+  "first": false,
+  "empty": false
+}
