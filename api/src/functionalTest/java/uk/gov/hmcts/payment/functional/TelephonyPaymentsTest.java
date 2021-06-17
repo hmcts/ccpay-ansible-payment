@@ -8,6 +8,8 @@ import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -52,6 +54,8 @@ public class TelephonyPaymentsTest {
     private static boolean TOKENS_INITIALIZED = false;
     private static final String DATE_TIME_FORMAT_T_HH_MM_SS = "yyyy-MM-dd'T'HH:mm:ss";
     private static final String PAYMENT_REFERENCE_REGEX = "^[RC-]{3}(\\w{4}-){3}(\\w{4})";
+
+    private static final Logger LOG = LoggerFactory.getLogger(TelephonyPaymentsTest.class);
 
     @Before
     public void setUp() throws Exception {
@@ -98,6 +102,11 @@ public class TelephonyPaymentsTest {
                 .when().updatePaymentStatus(referenceNumber, status)
                 .then().noContent();
 
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOG.error(e.getMessage());
+            }
             String endDateTime = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
 
             dsl.given().userToken(USER_TOKEN)
@@ -139,6 +148,11 @@ public class TelephonyPaymentsTest {
                 .when().updatePaymentStatus(referenceNumber, status)
                 .then().noContent();
 
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOG.error(e.getMessage());
+            }
             String endDateTime = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
 
             dsl.given().userToken(USER_TOKEN)
@@ -180,6 +194,13 @@ public class TelephonyPaymentsTest {
                 .returnUrl("https://www.moneyclaims.service.gov.uk")
                 .when().updatePaymentStatus(referenceNumber, status)
                 .then().noContent();
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                LOG.error(e.getMessage());
+            }
+
             String endDateTime = LocalDateTime.now(DateTimeZone.UTC).toString(DATE_TIME_FORMAT_T_HH_MM_SS);
 
             dsl.given().userToken(USER_TOKEN)

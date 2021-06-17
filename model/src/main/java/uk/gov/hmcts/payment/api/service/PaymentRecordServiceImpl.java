@@ -55,6 +55,7 @@ public class PaymentRecordServiceImpl implements PaymentRecordService<PaymentFee
         LOG.debug("Record payment with PaymentGroupReference: {}", paymentGroupReference);
 
         PaymentFeeLink paymentFeeLink = populatePaymentDetails(recordPayment, fees, paymentGroupReference);
+        paymentFeeLink.getPayments().get(0).setPaymentLink(paymentFeeLink);
 
         return  paymentFeeLinkRepository.save(paymentFeeLink);
     }

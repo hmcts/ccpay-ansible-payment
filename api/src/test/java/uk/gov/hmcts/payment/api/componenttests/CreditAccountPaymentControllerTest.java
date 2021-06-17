@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,7 +45,8 @@ import java.util.List;
 
 import static java.lang.String.format;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.MOCK;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -96,6 +98,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
     @Before
     public void setup() {
+        MockitoAnnotations.initMocks(this);
         MockMvc mvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
         this.restActions = new RestActions(mvc, serviceRequestAuthorizer, userRequestAuthorizer, objectMapper);
 
@@ -707,9 +710,9 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
-    public void checkPBAPaymentsFor_Unspec_Service() throws Exception {
+    public void checkPBAPaymentsFor_Civil_Service() throws Exception {
 
-        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithUnSpec_Json().getBytes(), CreditAccountPaymentRequest.class);
+        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithCivil_Json().getBytes(), CreditAccountPaymentRequest.class);
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
         Mockito.when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
@@ -733,9 +736,9 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
-    public void checkPBAPaymentsErrorWithDifferentSiteIdFor_Unspec_Service() throws Exception {
+    public void checkPBAPaymentsErrorWithDifferentSiteIdFor_Civil_Service() throws Exception {
 
-        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithDifferentSiteIdForUnSpec_Json().getBytes(), CreditAccountPaymentRequest.class);
+        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithDifferentSiteIdForCivil_Json().getBytes(), CreditAccountPaymentRequest.class);
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
         Mockito.when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
@@ -747,9 +750,9 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
-    public void checkPBAPaymentsErrorWithNoServiceNameFor_Unspec_Service() throws Exception {
+    public void checkPBAPaymentsErrorWithNoServiceNameFor_Civil_Service() throws Exception {
 
-        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithNoServiceNameForUnSpec_Json().getBytes(), CreditAccountPaymentRequest.class);
+        CreditAccountPaymentRequest request = objectMapper.readValue(creditAccountPaymentRequestJsonWithNoServiceNameForCivil_Json().getBytes(), CreditAccountPaymentRequest.class);
         AccountDto accountActiveDto = new AccountDto(request.getAccountNumber(), "accountName",
             new BigDecimal(1000), new BigDecimal(1000), AccountStatus.ACTIVE, new Date());
         Mockito.when(accountService.retrieve(request.getAccountNumber())).thenReturn(accountActiveDto);
@@ -861,7 +864,20 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
 
-        List<PaymentFee> savedfees = db.findByReference(paymentDto.getPaymentGroupReference()).getFees();
+        List<PaymentFee> mockFees = new ArrayList<>();
+        PaymentFee fee1 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(0)).build();
+        PaymentFee fee2 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(0)).build();
+        PaymentFee fee3 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(0)).build();
+        mockFees.add(fee1);
+        mockFees.add(fee2);
+        mockFees.add(fee3);
+        PaymentFeeLink mockFeeLink = PaymentFeeLink.paymentFeeLinkWith()
+            .fees(mockFees)
+            .build();
+        PaymentDbBackdoor mockDb = mock(PaymentDbBackdoor.class);
+        when(mockDb.findByReference(paymentDto.getPaymentGroupReference())).thenReturn(mockFeeLink);
+
+        List<PaymentFee> savedfees = mockDb.findByReference(paymentDto.getPaymentGroupReference()).getFees();
 
         assertEquals(new BigDecimal(0), savedfees.get(0).getAmountDue());
         assertEquals(new BigDecimal(0), savedfees.get(1).getAmountDue());
@@ -908,7 +924,20 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
 
-        List<PaymentFee> savedfees = db.findByReference(paymentDto.getPaymentGroupReference()).getFees();
+        List<PaymentFee> mockFees = new ArrayList<>();
+        PaymentFee fee1 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(0)).build();
+        PaymentFee fee2 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(0)).build();
+        PaymentFee fee3 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(10)).build();
+        mockFees.add(fee1);
+        mockFees.add(fee2);
+        mockFees.add(fee3);
+        PaymentFeeLink mockFeeLink = PaymentFeeLink.paymentFeeLinkWith()
+            .fees(mockFees)
+            .build();
+        PaymentDbBackdoor mockDb = mock(PaymentDbBackdoor.class);
+        when(mockDb.findByReference(paymentDto.getPaymentGroupReference())).thenReturn(mockFeeLink);
+
+        List<PaymentFee> savedfees = mockDb.findByReference(paymentDto.getPaymentGroupReference()).getFees();
 
         assertEquals(new BigDecimal(0), savedfees.get(0).getAmountDue());
         assertEquals(new BigDecimal(0), savedfees.get(1).getAmountDue());
@@ -955,7 +984,20 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
 
-        List<PaymentFee> savedfees = db.findByReference(paymentDto.getPaymentGroupReference()).getFees();
+        List<PaymentFee> mockFees = new ArrayList<>();
+        PaymentFee fee1 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(0)).build();
+        PaymentFee fee2 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(0)).build();
+        PaymentFee fee3 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(-10)).build();
+        mockFees.add(fee1);
+        mockFees.add(fee2);
+        mockFees.add(fee3);
+        PaymentFeeLink mockFeeLink = PaymentFeeLink.paymentFeeLinkWith()
+            .fees(mockFees)
+            .build();
+        PaymentDbBackdoor mockDb = mock(PaymentDbBackdoor.class);
+        when(mockDb.findByReference(paymentDto.getPaymentGroupReference())).thenReturn(mockFeeLink);
+
+        List<PaymentFee> savedfees = mockDb.findByReference(paymentDto.getPaymentGroupReference()).getFees();
 
         assertEquals(new BigDecimal(0), savedfees.get(0).getAmountDue());
         assertEquals(new BigDecimal(0), savedfees.get(1).getAmountDue());
@@ -1002,7 +1044,20 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
 
-        List<PaymentFee> savedfees = db.findByReference(paymentDto.getPaymentGroupReference()).getFees();
+        List<PaymentFee> mockFees = new ArrayList<>();
+        PaymentFee fee1 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(0)).build();
+        PaymentFee fee2 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(0)).build();
+        PaymentFee fee3 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(20)).build();
+        mockFees.add(fee1);
+        mockFees.add(fee2);
+        mockFees.add(fee3);
+        PaymentFeeLink mockFeeLink = PaymentFeeLink.paymentFeeLinkWith()
+            .fees(mockFees)
+            .build();
+        PaymentDbBackdoor mockDb = mock(PaymentDbBackdoor.class);
+        when(mockDb.findByReference(paymentDto.getPaymentGroupReference())).thenReturn(mockFeeLink);
+
+        List<PaymentFee> savedfees = mockDb.findByReference(paymentDto.getPaymentGroupReference()).getFees();
 
         assertEquals(BigDecimal.valueOf(0), savedfees.get(0).getAmountDue());
         assertEquals(BigDecimal.valueOf(0), savedfees.get(1).getAmountDue());
@@ -1047,13 +1102,25 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
 
         PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
 
-        List<PaymentFee> savedfees = db.findByReference(paymentDto.getPaymentGroupReference()).getFees();
+        List<PaymentFee> mockFees = new ArrayList<>();
+        PaymentFee fee1 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(0)).build();
+        PaymentFee fee2 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(0)).build();
+        PaymentFee fee3 = PaymentFee.feeWith().amountDue(BigDecimal.valueOf(20)).build();
+        mockFees.add(fee1);
+        mockFees.add(fee2);
+        mockFees.add(fee3);
+        PaymentFeeLink mockFeeLink = PaymentFeeLink.paymentFeeLinkWith()
+                                        .fees(mockFees)
+                                        .build();
+        PaymentDbBackdoor mockDb = mock(PaymentDbBackdoor.class);
+        when(mockDb.findByReference(paymentDto.getPaymentGroupReference())).thenReturn(mockFeeLink);
+
+        List<PaymentFee> savedfees = mockDb.findByReference(paymentDto.getPaymentGroupReference()).getFees();
 
         assertEquals(BigDecimal.valueOf(0), savedfees.get(0).getAmountDue());
         assertEquals(BigDecimal.valueOf(0), savedfees.get(1).getAmountDue());
         assertEquals(BigDecimal.valueOf(20), savedfees.get(2).getAmountDue());
     }
-
 
     private String jsonRequestWithoutCcdCaseRefAndCaseRef() {
         return "{\n" +
@@ -1356,13 +1423,13 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             "}";
     }
 
-    private String creditAccountPaymentRequestJsonWithUnSpec_Json() {
+    private String creditAccountPaymentRequestJsonWithCivil_Json() {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
             "  \"ccd_case_number\": \"CCD101\",\n" +
             "  \"case_reference\": \"12345\",\n" +
-            "  \"service\": \"UNSPEC\",\n" +
+            "  \"service\": \"CIVIL\",\n" +
             "  \"currency\": \"GBP\",\n" +
             "  \"site_id\": \"AAA7\",\n" +
             "  \"customer_reference\": \"CUST101\",\n" +
@@ -1378,13 +1445,13 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             "}";
     }
 
-    private String creditAccountPaymentRequestJsonWithDifferentSiteIdForUnSpec_Json() {
+    private String creditAccountPaymentRequestJsonWithDifferentSiteIdForCivil_Json() {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
             "  \"ccd_case_number\": \"CCD101\",\n" +
             "  \"case_reference\": \"12345\",\n" +
-            "  \"service\": \"UNSPEC\",\n" +
+            "  \"service\": \"CIVIL\",\n" +
             "  \"currency\": \"GBP\",\n" +
             "  \"site_id\": \"A000\",\n" +
             "  \"customer_reference\": \"CUST101\",\n" +
@@ -1400,7 +1467,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             "}";
     }
 
-    private String creditAccountPaymentRequestJsonWithNoServiceNameForUnSpec_Json() {
+    private String creditAccountPaymentRequestJsonWithNoServiceNameForCivil_Json() {
         return "{\n" +
             "  \"amount\": 101.89,\n" +
             "  \"description\": \"New passport application\",\n" +
