@@ -133,13 +133,6 @@ public class PaymentDtoMapperTest {
     }
 
     @Test
-    public void testToPciPalCardPaymentDto(){
-        PaymentDto paymentDto = paymentDtoMapper.toPciPalCardPaymentDto(paymentFeeLink,"http://hmcts.internal");
-        assertEquals("group-reference",paymentDto.getPaymentGroupReference());
-        assertEquals("http://hmcts.internal",paymentDto.getLinks().getNextUrl().getHref());
-    }
-
-    @Test
     public void testToPciPalCardPaymentDtoWithPaymentLink(){
         PaymentDto paymentDto = paymentDtoMapper.toPciPalCardPaymentDto(paymentFeeLink,payment1, "http://hmcts.internal");
         assertEquals("group-reference",paymentDto.getPaymentGroupReference());
