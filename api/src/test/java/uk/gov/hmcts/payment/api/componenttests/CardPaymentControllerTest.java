@@ -8,9 +8,15 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,6 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.payment.api.componenttests.util.PaymentsDataUtil;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
+import uk.gov.hmcts.payment.api.configuration.SecurityUtils;
+import uk.gov.hmcts.payment.api.configuration.security.ServiceAndUserAuthFilter;
+import uk.gov.hmcts.payment.api.configuration.security.ServicePaymentFilter;
 import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
@@ -26,10 +35,9 @@ import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
 import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.external.client.dto.CardDetails;
 import uk.gov.hmcts.payment.api.model.*;
-import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.ServiceResolverBackdoor;
-import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.UserResolverBackdoor;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.CustomResultMatcher;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.RestActions;
+import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -47,11 +55,13 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+import static uk.gov.hmcts.payment.api.configuration.security.ServiceAndUserAuthFilterTest.getUserInfoBasedOnUID_Roles;
 import static uk.gov.hmcts.payment.api.model.PaymentFeeLink.paymentFeeLinkWith;
-
 @RunWith(SpringRunner.class)
 @ActiveProfiles({"local", "componenttest"})
 @SpringBootTest(webEnvironment = MOCK)
+@EnableFeignClients
+@AutoConfigureMockMvc
 @Transactional
 public class CardPaymentControllerTest extends PaymentsDataUtil {
 
@@ -66,16 +76,27 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
-    @Autowired
-    private ServiceResolverBackdoor serviceRequestAuthorizer;
+    @MockBean
+    private ClientRegistrationRepository clientRegistrationRepository;
+
+    @MockBean
+    private JwtDecoder jwtDecoder;
 
     @Autowired
-    private UserResolverBackdoor userRequestAuthorizer;
+    private ServiceAuthFilter serviceAuthFilter;
+
+    @InjectMocks
+    private ServiceAndUserAuthFilter serviceAndUserAuthFilter;
+
+    @MockBean
+    private SecurityUtils securityUtils;
+
+    @Autowired
+    private ServicePaymentFilter servicePaymentFilter;
 
     @Autowired
     private PaymentDbBackdoor db;
 
-    private static final String USER_ID = UserResolverBackdoor.CITIZEN_ID;
 
     private RestActions restActions;
 
@@ -92,17 +113,17 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     @Before
     public void setup() {
         MockMvc mvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
-        this.restActions = new RestActions(mvc, serviceRequestAuthorizer, userRequestAuthorizer, objectMapper);
-
+        this.restActions = new RestActions(mvc, objectMapper);
+        when(securityUtils.getUserInfo()).thenReturn(getUserInfoBasedOnUID_Roles("UID123","payments"));
         restActions
             .withAuthorizedService("divorce")
-            .withAuthorizedUser(USER_ID)
-            .withUserId(USER_ID)
-            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
+            .withReturnUrl("https://www.gooooogle.com");
+
 
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     @Transactional
     public void createCardPaymentWithValidInputData_shouldReturnStatusCreatedTest() throws Exception {
 
@@ -145,10 +166,11 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     public void createCardPaymentWithInvalidInputDataShouldReturnStatusBadRequestTest() throws Exception {
         restActions
             .post("/card-payments", cardPaymentInvalidRequestJson())
-            .andExpect(status().isBadRequest());
+            .andExpect(status().is4xxClientError());
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void createCardPayment_withMissingCcdCaseNumberAndCaseReference_shouldReturn422Test() throws Exception {
         CardPaymentRequest cardPaymentRequest = CardPaymentRequest.createCardPaymentRequestDtoWith()
             .amount(new BigDecimal("200.11"))
@@ -172,6 +194,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void retrieveCardPaymentAndMapTheGovPayStatusTest() throws Exception {
         stubFor(get(urlPathMatching("/v1/payments/ia2mv22nl5o880rct0vqfa7k76"))
             .willReturn(aResponse()
@@ -187,7 +210,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             .serviceType("PROBATE")
             .currency("GBP")
             .siteId("AA01")
-            .userId(USER_ID)
+            .userId("1")
             .paymentChannel(PaymentChannel.paymentChannelWith().name("online").build())
             .paymentMethod(PaymentMethod.paymentMethodWith().name("card").build())
             .paymentProvider(PaymentProvider.paymentProviderWith().name("gov pay").build())
@@ -219,6 +242,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void retrieveCardPaymentStatuses_byPaymentReferenceTest() throws Exception {
         stubFor(get(urlPathMatching("/v1/payments/e2kkddts5215h9qqoeuth5c0v3"))
             .willReturn(aResponse()
@@ -235,7 +259,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             .serviceType("PROBATE")
             .currency("GBP")
             .siteId("AA01")
-            .userId(USER_ID)
+            .userId("1")
             .paymentChannel(PaymentChannel.paymentChannelWith().name("online").build())
             .paymentMethod(PaymentMethod.paymentMethodWith().name("card").build())
             .paymentProvider(PaymentProvider.paymentProviderWith().name("gov pay").build())
@@ -268,6 +292,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void retrieveCardDetails_byPaymentReferenceTest() throws Exception {
         stubFor(get(urlPathMatching("/v1/payments/ah0288ctvgqgcmbatdp1viu61j"))
             .willReturn(aResponse()
@@ -284,7 +309,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             .serviceType("PROBATE")
             .currency("GBP")
             .siteId("AA011")
-            .userId(USER_ID)
+            .userId("1")
             .paymentChannel(PaymentChannel.paymentChannelWith().name("online").build())
             .paymentMethod(PaymentMethod.paymentMethodWith().name("card").build())
             .paymentProvider(PaymentProvider.paymentProviderWith().name("gov pay").build())
@@ -314,6 +339,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void retrieveCardDetails_shouldReturn404_ifDetailsNotFoundTest() throws Exception {
         stubFor(get(urlPathMatching("/v1/payments/ia2mv22nl5o880rct0vqfa7k76"))
             .willReturn(aResponse()
@@ -330,7 +356,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             .serviceType("PROBATE")
             .currency("GBP")
             .siteId("AA001")
-            .userId(USER_ID)
+            .userId("1")
             .paymentChannel(PaymentChannel.paymentChannelWith().name("online").build())
             .paymentMethod(PaymentMethod.paymentMethodWith().name("card").build())
             .paymentProvider(PaymentProvider.paymentProviderWith().name("gov pay").build())
@@ -352,6 +378,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void createPaymentWithChannelTelephonyAndProviderPciPal() throws Exception {
         BigDecimal amount = new BigDecimal("100");
         CardPaymentRequest cardPaymentRequest = CardPaymentRequest.createCardPaymentRequestDtoWith()
@@ -395,6 +422,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void retrieveCardPayment_withNonExistingReferenceTest() throws Exception {
         restActions
             .get("/card-payments/" + "RC-1518-9576-1498-8035")
@@ -402,6 +430,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void retrieveCardPayment_andMapGovPayErrorStatusTest() throws Exception {
         stubFor(get(urlPathMatching("/v1/payments/ia2mv22nl5o880rct0vqfa7k76"))
             .willReturn(aResponse()
@@ -418,7 +447,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             .serviceType("PROBATE")
             .currency("GBP")
             .siteId("AA00")
-            .userId(USER_ID)
+            .userId("1")
             .paymentChannel(PaymentChannel.paymentChannelWith().name("online").build())
             .paymentMethod(PaymentMethod.paymentMethodWith().name("card").build())
             .paymentProvider(PaymentProvider.paymentProviderWith().name("gov pay").build())
@@ -454,6 +483,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void createCardPaymentForCMC_withCaseReferenceOnly_shouldReturnStatusCreatedTest() throws Exception {
 
         stubFor(post(urlPathMatching("/v1/payments"))
@@ -475,6 +505,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void creatingCardPaymentWithCcdCaseNumberInsideFeeGetsSavedProperly() throws Exception {
         String testCcdCaseNumber = "test_case_number_1234";
         CardPaymentRequest cardPaymentRequest = CardPaymentRequest.createCardPaymentRequestDtoWith()
@@ -508,6 +539,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void creatingCardPaymentWithCcdCaseNumberOnPaymentLevelOnlySavesCcdCaseNumberInsideFees() throws Exception {
         String testCcdCaseNumber = "test_case_number_1234";
         CardPaymentRequest cardPaymentRequest = CardPaymentRequest.createCardPaymentRequestDtoWith()
@@ -540,6 +572,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void creatingCardPaymentWithCcdCaseNumberOnPaymentLevelOnlySavesCcdCaseNumberInsideFeesAndDoesNotOverwriteAlreadySetCcdCaseNumberInFee() throws Exception {
         String testCcdCaseNumber = "test_case_number_1234";
         String testCcdCaseNumber2 = "test_case_number_4321";
@@ -579,6 +612,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void creatingCardPaymentWithoutFees() throws Exception {
         String testccdCaseNumber = "1212-2323-3434-5454";
         CardPaymentRequest cardPaymentRequest = CardPaymentRequest.createCardPaymentRequestDtoWith()
@@ -605,6 +639,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void creatingCardPaymentWithNullFees() throws Exception {
         String testccdCaseNumber = "1212-2323-3434-5454";
         CardPaymentRequest cardPaymentRequest = CardPaymentRequest.createCardPaymentRequestDtoWith()
@@ -633,6 +668,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void creatingCardPaymentWithWelshLanguage() throws Exception {
         stubFor(post(urlPathMatching("/v1/payments"))
             .willReturn(aResponse()
@@ -666,6 +702,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void createCardPayment_InvalidLanguageAttribute_shouldReturn422Test() throws Exception {
         CardPaymentRequest cardPaymentRequest = CardPaymentRequest.createCardPaymentRequestDtoWith()
             .amount(new BigDecimal("200.11"))
@@ -692,16 +729,17 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void cancelPayment_withFeatureFlagDisabled_shouldReturnValidMessage() throws Exception {
         restActions
-            .post("/api/ff4j/store/features/payment-cancel/disable")
+            .post("/api/ff4j/store/features/payment-cancel/disable","")
             .andExpect(status().isAccepted());
 
         MvcResult result = createMockPayment();
 
         PaymentDto paymentDto = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentDto.class);
 
-        result = restActions.post("/card-payments/" + paymentDto.getReference() + "/cancel")
+        result = restActions.post("/card-payments/" + paymentDto.getReference() + "/cancel","")
             .andExpect(status().isBadRequest())
             .andReturn();
 
@@ -709,10 +747,11 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     @Transactional
     public void cancelPaymentSuccess_shouldReturn204Test() throws Exception {
         restActions
-            .post("/api/ff4j/store/features/payment-cancel/enable")
+            .post("/api/ff4j/store/features/payment-cancel/enable","")
             .andExpect(status().isAccepted());
         MvcResult result = createMockPayment();
 
@@ -723,16 +762,17 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
                 .withStatus(204)
                 .withHeader("Content-Type", "application/json")));
 
-        restActions.post("/card-payments/" + paymentDto.getReference() + "/cancel")
+        restActions.post("/card-payments/" + paymentDto.getReference() + "/cancel","")
             .andExpect(status().isNoContent())
             .andReturn();
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     @Transactional
     public void cancelPaymentBadRequest_shouldReturn400Test() throws Exception {
         restActions
-            .post("/api/ff4j/store/features/payment-cancel/enable")
+            .post("/api/ff4j/store/features/payment-cancel/enable","")
             .andExpect(status().isAccepted());
         MvcResult result = createMockPayment();
 
@@ -743,7 +783,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
                 .withStatus(204)
                 .withHeader("Content-Type", "application/json")));
 
-        restActions.post("/card-payments/" + paymentDto.getReference() + "/cancel")
+        restActions.post("/card-payments/" + paymentDto.getReference() + "/cancel","")
             .andExpect(status().isNoContent())
             .andReturn();
 
@@ -754,16 +794,17 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
                 .withBody("{\"code\":\"P0501\",\"description\":\"Cancellation of payment failed\"}")));
 
         MvcResult result2 = restActions
-            .post("/card-payments/" + paymentDto.getReference() + "/cancel")
+            .post("/card-payments/" + paymentDto.getReference() + "/cancel","")
             .andExpect(status().isBadRequest())
             .andReturn();
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     @Transactional
     public void cancelPaymentIncorrectPaymentRef_shouldReturn404Test() throws Exception {
         restActions
-            .post("/api/ff4j/store/features/payment-cancel/enable")
+            .post("/api/ff4j/store/features/payment-cancel/enable","")
             .andExpect(status().isAccepted());
         MvcResult result = createMockPayment();
 
@@ -775,16 +816,17 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
                 .withHeader("Content-Type", "application/json")
                 .withBody("{\"code\":\"P0200\",\"description\":\"Govpay Payment Not Found\"}")));
 
-        restActions.post("/card-payments/" + paymentDto.getReference() + "/cancel")
+        restActions.post("/card-payments/" + paymentDto.getReference() + "/cancel","")
             .andExpect(status().isNotFound())
             .andReturn();
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     @Transactional
     public void cancelPaymentInternalServerError_shouldReturn500Test() throws Exception {
         restActions
-            .post("/api/ff4j/store/features/payment-cancel/enable")
+            .post("/api/ff4j/store/features/payment-cancel/enable","")
             .andExpect(status().isAccepted());
         MvcResult result = createMockPayment();
 
@@ -796,12 +838,13 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
                 .withHeader("Content-Type", "application/json")
                 .withBody("{\"code\":\"P0198\",\"description\":\"GovPayDownstreamSystemErrorException\"}")));
 
-        restActions.post("/card-payments/" + paymentDto.getReference() + "/cancel")
+        restActions.post("/card-payments/" + paymentDto.getReference() + "/cancel","")
             .andExpect(status().isInternalServerError())
             .andReturn();
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void createCardPaymentWithMultipleFee_ExactPayment() throws Exception {
 
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
@@ -862,6 +905,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void createCardPaymentWithMultipleFee_ShortfallPayment() throws Exception {
 
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
@@ -922,6 +966,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void createCardPaymentWithMultipleFee_SurplusPayment() throws Exception {
 
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
@@ -982,6 +1027,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void createCardPaymentWithMultipleFee_SurplusPayment_When_Apportion_Flag_Is_On() throws Exception {
 
         String ccdCaseNumber = "1111CC12" + RandomUtils.nextInt();
@@ -1040,6 +1086,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void retrieveCardPaymentStatuses_byInvalidPaymentReferenceTest() throws Exception {
         stubFor(get(urlPathMatching("/v1/payments/e2kkddts5215h9qqoeuth5c0v3"))
             .willReturn(aResponse()
@@ -1056,7 +1103,6 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
             .serviceType("PROBATE")
             .currency("GBP")
             .siteId("AA01")
-            .userId(USER_ID)
             .paymentChannel(PaymentChannel.paymentChannelWith().name("online").build())
             .paymentMethod(PaymentMethod.paymentMethodWith().name("card").build())
             .paymentProvider(PaymentProvider.paymentProviderWith().name("gov pay").build())
@@ -1073,6 +1119,7 @@ public class CardPaymentControllerTest extends PaymentsDataUtil {
         Payment savedPayment = paymentFeeLink.getPayments().get(0);
 
         restActions
+            .withReturnUrl("https://www.google.com")
             .get("/card-payments/" + "12345" + "/statuses")
             .andExpect(status().isNotFound())
             .andReturn();

@@ -15,6 +15,10 @@ import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.hateoas.client.LinkDiscoverer;
+import org.springframework.http.MediaType;
+import org.springframework.plugin.core.OrderAwarePluginRegistry;
+import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.scheduling.annotation.EnableAsync;
 import uk.gov.hmcts.payment.api.logging.Markers;
 import org.springframework.hateoas.client.LinkDiscoverer;
@@ -62,10 +66,14 @@ public class PaymentApiApplication {
                     .build()),
             new CaffeineCache("sites", Caffeine.newBuilder()
                 .expireAfterWrite(48, TimeUnit.HOURS)
-                .build())
+                .build()),
+        new CaffeineCache("userInfoCache", Caffeine.newBuilder()
+            .expireAfterWrite(8, TimeUnit.HOURS)
+            .build())
         ));
         return cacheManager;
     }
+
 
     @Bean
     public PluginRegistry<LinkDiscoverer, MediaType> discoverers(

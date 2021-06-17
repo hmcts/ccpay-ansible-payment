@@ -122,6 +122,7 @@ subprojects {
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
         testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
         implementation 'org.springframework.boot:spring-boot-starter-validation'
+        compile 'org.jetbrains:annotations:16.0.2'
         compile(group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: '4.7.3') {
             sourceSets {
                 main {
@@ -131,7 +132,6 @@ subprojects {
                 }
             }
         }
-
     }
 }
 

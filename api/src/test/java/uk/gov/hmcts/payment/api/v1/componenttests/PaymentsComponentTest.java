@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.CustomResultMatcher;
+import uk.gov.hmcts.payment.api.v1.componenttests.sugar.RestActions;
 import uk.gov.hmcts.payment.api.v1.contract.CreatePaymentRequestDto;
 import uk.gov.hmcts.payment.api.v1.contract.PaymentOldDto;
 import uk.gov.hmcts.payment.api.v1.contract.PaymentOldDto.LinksDto;
@@ -12,11 +15,12 @@ import uk.gov.hmcts.payment.api.v1.contract.PaymentOldDto.StateDto;
 import uk.gov.hmcts.payment.api.v1.contract.RefundPaymentRequestDto;
 import uk.gov.hmcts.payment.api.v1.model.PaymentOld;
 
-import static java.lang.String.format;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static java.lang.String.format;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 import static uk.gov.hmcts.payment.api.v1.contract.CreatePaymentRequestDto.createPaymentRequestDtoWith;
 import static uk.gov.hmcts.payment.api.v1.contract.PaymentOldDto.paymentDtoWith;
 import static uk.gov.hmcts.payment.api.v1.contract.RefundPaymentRequestDto.refundPaymentRequestDtoWith;
@@ -29,6 +33,9 @@ public class PaymentsComponentTest extends TestUtil {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
     protected CustomResultMatcher body() {
         return new CustomResultMatcher(objectMapper);
     }
@@ -36,9 +43,8 @@ public class PaymentsComponentTest extends TestUtil {
 
     @Before
     public void setup() {
-        restActions
-            .withAuthorizedService("divorce")
-            .withAuthorizedUser(USER_ID);
+        MockMvc mvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
+        this.restActions = new RestActions(mvc, objectMapper);
 
     }
 

@@ -1,28 +1,19 @@
 package uk.gov.hmcts.payment.api.configuration.security;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.payment.api.v1.model.ServiceIdSupplier;
-import uk.gov.hmcts.reform.auth.checker.spring.serviceanduser.ServiceAndUserDetails;
-import uk.gov.hmcts.reform.auth.checker.spring.serviceonly.ServiceDetails;
 
-import java.util.Optional;
 
 @Component
 public class AuthenticatedServiceIdSupplier implements ServiceIdSupplier {
+
+    @Autowired
+    ServicePaymentFilter servicePaymentFilter;
+
     @Override
     public String get() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return Optional.ofNullable(authentication)
-            .map(a -> getServicename(a))
-            .orElse(null);
+        return servicePaymentFilter.getServiceName();
     }
 
-    private String getServicename(Authentication authentication) {
-        if (authentication.getPrincipal() instanceof ServiceAndUserDetails) {
-            return ((ServiceAndUserDetails) authentication.getPrincipal()).getServicename();
-        }
-        return ((ServiceDetails) authentication.getPrincipal()).getUsername();
-    }
 }

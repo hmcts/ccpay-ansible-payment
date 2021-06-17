@@ -20,7 +20,7 @@ import uk.gov.hmcts.payment.api.model.PaymentProvider;
 import uk.gov.hmcts.payment.api.model.PaymentProviderRepository;
 import uk.gov.hmcts.payment.api.model.PaymentStatus;
 import uk.gov.hmcts.payment.api.model.PaymentStatusRepository;
-import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.UserResolverBackdoor;
+
 
 import java.util.Collections;
 import java.util.List;
@@ -33,8 +33,6 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles({"local", "componenttest"})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 public class PaymentReferenceDataControllerTest {
-
-    private static final String USER_ID = UserResolverBackdoor.AUTHENTICATED_USER_ID;
 
     @ClassRule
     public static WireMockClassRule wireMockRule = new WireMockClassRule(9190);

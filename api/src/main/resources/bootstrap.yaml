@@ -30,6 +30,8 @@ spring:
         pba-finrem-payments-email-to: pba.finrem.payments.email.to
         pba-divorce-payments-email-to: pba.divorce.payments.email.to
         pba-fpl-payments-email-to: pba.fpl.payments.email.to
+        paybubble-s2s-secret: OIDC_S2S_SECRET
+        paybubble-idam-client-secret: OIDC_CLIENT_SECRET
         launch-darkly-sdk-key: launch.darkly.sdk.key
         payment-s2s-secret: PAYMENT_S2S_SECRET
         pci-pal-antenna-tenant-name: pci-pal.antenna.tenant.name

@@ -5,21 +5,27 @@ import lombok.SneakyThrows;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.fees2.register.api.contract.Fee2Dto;
+import uk.gov.hmcts.payment.api.configuration.SecurityUtils;
+import uk.gov.hmcts.payment.api.configuration.security.ServiceAndUserAuthFilter;
 import uk.gov.hmcts.payment.api.reports.FeesService;
 import uk.gov.hmcts.payment.referencedata.model.Site;
 import uk.gov.hmcts.payment.referencedata.service.SiteService;
 import uk.gov.hmcts.payment.referencedata.service.SiteServiceImpl;
+import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -62,6 +68,16 @@ public class FeeCacheTest {
     @Autowired
     private SiteServiceImpl siteService;
 
+    @Autowired
+    private ServiceAuthFilter serviceAuthFilter;
+
+    @InjectMocks
+    private ServiceAndUserAuthFilter serviceAndUserAuthFilter;
+
+    @MockBean
+    private SecurityUtils securityUtils;
+
+
     @Before
     public void setUp() {
         MockMvc mvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
@@ -76,6 +92,7 @@ public class FeeCacheTest {
      *
      * */
     @Test
+    @WithMockUser(authorities = "payments")
     public void testCacheWithValidFees() throws  Exception {
         // Wire-mock fees-register response
         stubFor(get(urlPathMatching("/fees-register/fees"))
@@ -114,6 +131,7 @@ public class FeeCacheTest {
      *
      * */
     @Test
+    @WithMockUser(authorities = "payments")
     public void testCacheWithInValidFeesOrNoFees() throws Exception {
         // Wire-mock fees-register response
         stubFor(get(urlPathMatching("/fees-register/fees"))
@@ -131,6 +149,7 @@ public class FeeCacheTest {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void testCacheForSiteIds() throws Exception {
         // Invoke site service
         siteService.getAllSites();

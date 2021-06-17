@@ -4,9 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -14,16 +20,18 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.payment.api.componenttests.util.PaymentsDataUtil;
+import uk.gov.hmcts.payment.api.configuration.SecurityUtils;
+import uk.gov.hmcts.payment.api.configuration.security.ServiceAndUserAuthFilter;
+import uk.gov.hmcts.payment.api.configuration.security.ServicePaymentFilter;
 import uk.gov.hmcts.payment.api.contract.PaymentAllocationDto;
 import uk.gov.hmcts.payment.api.model.Payment;
 import uk.gov.hmcts.payment.api.model.Payment2Repository;
 import uk.gov.hmcts.payment.api.model.PaymentAllocationStatus;
-import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.ServiceResolverBackdoor;
-import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.UserResolverBackdoor;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.CustomResultMatcher;
 import uk.gov.hmcts.payment.api.v1.componenttests.sugar.RestActions;
 import uk.gov.hmcts.payment.referencedata.model.Site;
 import uk.gov.hmcts.payment.referencedata.service.SiteService;
+import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,36 +46,46 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
-
+import static uk.gov.hmcts.payment.api.configuration.security.ServiceAndUserAuthFilterTest.getUserInfoBasedOnUID_Roles;
 @RunWith(SpringRunner.class)
 @ActiveProfiles({"local", "componenttest"})
 @SpringBootTest(webEnvironment = MOCK)
 @Transactional
+@EnableFeignClients
+@AutoConfigureMockMvc
 public class PaymentAllocationControllerTest extends PaymentsDataUtil {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
-
-    @Autowired
-    private ServiceResolverBackdoor serviceRequestAuthorizer;
-
-    @Autowired
-    private UserResolverBackdoor userRequestAuthorizer;
-
-
-    private static final String USER_ID = UserResolverBackdoor.CITIZEN_ID;
 
     private RestActions restActions;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
+    @MockBean
     private SiteService<Site, String> siteServiceMock;
 
     @MockBean
     private Payment2Repository paymentRepository;
 
+    @MockBean
+    private ClientRegistrationRepository clientRegistrationRepository;
+
+    @MockBean
+    private JwtDecoder jwtDecoder;
+
+    @Autowired
+    private ServiceAuthFilter serviceAuthFilter;
+
+    @Autowired
+    private ServicePaymentFilter servicePaymentFilter;
+
+    @InjectMocks
+    private ServiceAndUserAuthFilter serviceAndUserAuthFilter;
+
+    @MockBean
+    private SecurityUtils securityUtils;
 
     @Autowired
     private PaymentDbBackdoor db;
@@ -81,13 +99,11 @@ public class PaymentAllocationControllerTest extends PaymentsDataUtil {
     @Before
     public void setup() {
         MockMvc mvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
-        this.restActions = new RestActions(mvc, serviceRequestAuthorizer, userRequestAuthorizer, objectMapper);
-
+        this.restActions = new RestActions(mvc, objectMapper);
+        when(securityUtils.getUserInfo()).thenReturn(getUserInfoBasedOnUID_Roles("UID123","payments"));
         restActions
             .withAuthorizedService("divorce")
-            .withAuthorizedUser(USER_ID)
-            .withUserId(USER_ID)
-            .withReturnUrl("https://www.moneyclaims.service.gov.uk");
+            .withReturnUrl("https://www.gooooogle.com");
 
         List<Site> serviceReturn = Arrays.asList(Site.siteWith()
                 .sopReference("sop")
@@ -111,6 +127,7 @@ public class PaymentAllocationControllerTest extends PaymentsDataUtil {
 
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void addInvalidPaymentAllocationTest() throws Exception {
         Payment payment =populateCardPaymentToDbForPaymentAllocation("1");
         PaymentAllocationDto paymentAllocationDto = PaymentAllocationDto.paymentAllocationDtoWith()
@@ -126,6 +143,7 @@ public class PaymentAllocationControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void addPaymentAllocationWithoutPGTest() throws Exception {
         PaymentAllocationDto paymentAllocationDto = PaymentAllocationDto.paymentAllocationDtoWith()
             .paymentReference("RC-23423423")
@@ -139,6 +157,7 @@ public class PaymentAllocationControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void addPaymentAllocationWithoutPaymentTest() throws Exception {
         PaymentAllocationDto paymentAllocationDto = PaymentAllocationDto.paymentAllocationDtoWith()
             .paymentGroupReference("2019-234234923")
@@ -152,6 +171,7 @@ public class PaymentAllocationControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void addPaymentAllocationForSolicitedPaymentTest() throws Exception {
         Payment payment =populateCardPaymentToDbForPaymentAllocation("1");
         PaymentAllocationDto request = PaymentAllocationDto.paymentAllocationDtoWith()
@@ -176,6 +196,7 @@ public class PaymentAllocationControllerTest extends PaymentsDataUtil {
 
 
     @Test
+    @WithMockUser(authorities = "payments")
     @Transactional
     public void addPaymentAllocationForUnsolicitedPaymentTest() throws Exception {
         Payment payment =populateCardPaymentToDbForPaymentAllocation("1");
@@ -206,6 +227,7 @@ public class PaymentAllocationControllerTest extends PaymentsDataUtil {
     }
 
     @Test
+    @WithMockUser(authorities = "payments")
     public void addPaymentAllocationForUnIdentifiedPaymentTest() throws Exception {
         Payment payment =populateCardPaymentToDbForPaymentAllocation("1");
         PaymentAllocationDto request = PaymentAllocationDto.paymentAllocationDtoWith()
@@ -232,6 +254,7 @@ public class PaymentAllocationControllerTest extends PaymentsDataUtil {
 
     }
     @Test
+    @WithMockUser(authorities = "payments")
     public void paymentIsNotFound() throws Exception {
         Payment payment =populateCardPaymentToDbForPaymentAllocation("1");
         PaymentAllocationDto request = PaymentAllocationDto.paymentAllocationDtoWith()
