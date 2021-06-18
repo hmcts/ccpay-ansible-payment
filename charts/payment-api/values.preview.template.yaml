@@ -16,7 +16,7 @@ java:
     CALLBACK_PAYMENTS_CUTOFF_TIME_IN_MINUTES: 0
     CCPAY_BULK_SCANNING_API_URL: http://ccpay-bulkscanning-api-aat.service.core-compute-aat.internal
     PBA_CONFIG1_SERVICE_NAMES: dummy
-    LIBERATA_MOCK_RESPONSE: true
+    LIBERATA_MOCK_RESPONSE: false
   keyVaults:
     "ccpay":
       resourceGroup: ccpay
