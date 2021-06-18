@@ -55,7 +55,6 @@ withPipeline(type, product, app) {
     enableSlackNotifications('#cc-payments-tech')
     disableLegacyDeployment()
 
-    onMaster() {
-        enablePactAs([AppPipelineDsl.PactRoles.PROVIDER])
-    }
+    enablePactAs([AppPipelineDsl.PactRoles.PROVIDER])
+
 }
