@@ -15,6 +15,7 @@ import uk.gov.hmcts.payment.api.dto.AccountDto;
 import uk.gov.hmcts.payment.api.util.AccountStatus;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 @Service
 @Profile("!liberataMock")
@@ -54,7 +55,10 @@ public class AccountServiceImpl implements AccountService<AccountDto, String> {
     }
 
     private AccountStatus getAccountStatus(String pbaCode) {
-        if (mockPbaAccounts.contains(pbaCode)) {
+        if (Arrays.stream(mockPbaAccounts.split(",")).anyMatch(value ->{
+            return value.equals(pbaCode);
+
+        })) {
             return AccountStatus.valueOf(pbaCode.replaceAll("^.+?_", ""));
         }
         throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "UnKnown test pba account number");

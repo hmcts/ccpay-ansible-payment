@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.oauth2.client.OAuth2RestOperations;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.payment.api.dto.AccountDto;
 import uk.gov.hmcts.payment.api.service.AccountServiceImpl;
 import uk.gov.hmcts.payment.api.util.AccountStatus;
@@ -63,6 +64,16 @@ public class AccountServiceTest {
         AccountDto expectedDto = new AccountDto(pbaCode, "CAERPHILLY COUNTY BOROUGH COUNCIL", new BigDecimal(28879),
             new BigDecimal(30000), AccountStatus.ACTIVE, null);
         assertEquals(expectedDto, accountServiceImpl.retrieve(pbaCode));
+    }
+
+    @Test(expected = HttpClientErrorException.class)
+    public void retrieve_mock_exception_when_retrieve_method_invoked_1() throws Exception {
+        accountServiceImpl.retrieve("PBA0001_");
+    }
+
+    @Test(expected = HttpClientErrorException.class)
+    public void retrieve_mock_exception_when_retrieve_method_invok_2() throws Exception {
+        accountServiceImpl.retrieve("PBA");
     }
 
     @Test
