@@ -100,17 +100,17 @@ public class PaymentGroupControllerTest {
     @MockBean
     private SiteService<Site, String> siteServiceMock;
 
-//    @MockBean
-//    private HttpClient httpClient;
-
     @InjectMocks
     private PaymentGroupController paymentGroupController;
 
     @MockBean
     @Qualifier("restTemplatePaymentGroup")
     private RestTemplate restTemplatePaymentGroup;
+
     @MockBean
+    @Qualifier("restTemplateIacSupplementaryInfo")
     private RestTemplate restTemplate;
+
     @MockBean
     private ReferenceDataService referenceDataService;
     @Autowired
