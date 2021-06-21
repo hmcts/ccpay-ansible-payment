@@ -16,10 +16,12 @@ import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
 import uk.gov.hmcts.payment.api.contract.UpdatePaymentRequest;
+import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.dto.PaymentSearchCriteria;
 import uk.gov.hmcts.payment.api.dto.mapper.PaymentDtoMapper;
 import uk.gov.hmcts.payment.api.model.*;
 import uk.gov.hmcts.payment.api.service.CallbackService;
+import uk.gov.hmcts.payment.api.service.IacService;
 import uk.gov.hmcts.payment.api.service.PaymentService;
 import uk.gov.hmcts.payment.api.util.DateUtil;
 import uk.gov.hmcts.payment.api.util.PaymentMethodType;
@@ -47,14 +49,18 @@ public class PaymentController {
     private final FF4j ff4j;
     private final DateTimeFormatter formatter;
     private final PaymentFeeRepository paymentFeeRepository;
-    private final LaunchDarklyFeatureToggler featureToggler;
+
+    @Autowired
+    private LaunchDarklyFeatureToggler featureToggler;
+
+    @Autowired
+    private IacService iacService;
 
     @Autowired
     public PaymentController(PaymentService<PaymentFeeLink, String> paymentService,
                              PaymentStatusRepository paymentStatusRepository, CallbackService callbackService,
                              PaymentDtoMapper paymentDtoMapper, PaymentValidator paymentValidator, FF4j ff4j,
-                             DateUtil dateUtil,PaymentFeeRepository paymentFeeRepository,
-                             LaunchDarklyFeatureToggler featureToggler) {
+                             DateUtil dateUtil, PaymentFeeRepository paymentFeeRepository) {
         this.paymentService = paymentService;
         this.callbackService = callbackService;
         this.paymentStatusRepository = paymentStatusRepository;
@@ -63,7 +69,6 @@ public class PaymentController {
         this.ff4j = ff4j;
         this.formatter = dateUtil.getIsoDateTimeFormatter();
         this.paymentFeeRepository = paymentFeeRepository;
-        this.featureToggler = featureToggler;
     }
 
     @ApiOperation(value = "Update case reference by payment reference", notes = "Update case reference by payment reference")
@@ -129,11 +134,12 @@ public class PaymentController {
         "yyyy-MM-dd HH:mm:ss, dd-MM-yyyy HH:mm:ss, yyyy-MM-dd'T'HH:mm:ss, dd-MM-yyyy'T'HH:mm:ss")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Payments retrieved"),
-        @ApiResponse(code = 400, message = "Bad request")
+        @ApiResponse(code = 400, message = "Bad request"),
+        @ApiResponse(code = 206, message = "Supplementary details partially retrieved"),
     })
     @GetMapping(value = "/reconciliation-payments")
     @PaymentExternalAPI
-    public PaymentsResponse retrievePaymentsWithApportion(@RequestParam(name = "start_date", required = false) Optional<String> startDateTimeString,
+    public ResponseEntity retrievePaymentsWithApportion(@RequestParam(name = "start_date", required = false) Optional<String> startDateTimeString,
                                                         @RequestParam(name = "end_date", required = false) Optional<String> endDateTimeString,
                                                         @RequestParam(name = "payment_method", required = false) Optional<String> paymentMethodType,
                                                         @RequestParam(name = "service_name", required = false) Optional<String> serviceType,
@@ -154,9 +160,20 @@ public class PaymentController {
 
         final List<PaymentDto> paymentDtos = new ArrayList<>();
         LOG.info("No of paymentFeeLinks retrieved for Liberata Pull : {}", payments.size());
-
         populatePaymentDtos(paymentDtos, payments);
-        return new PaymentsResponse(paymentDtos);
+
+        Optional<Payment> iacPaymentAny = payments.stream()
+            .filter(p -> p.getServiceType().equalsIgnoreCase(paymentService.getServiceNameByCode("IAC"))).findAny();
+        boolean iacSupplementaryDetailsFeature = featureToggler.getBooleanValue("iac-supplementary-details-feature",false);
+        LOG.info("IAC Supplementary Details feature flag in liberata API: {}", iacSupplementaryDetailsFeature);
+        LOG.info("Is any IAC payment present: {}", iacPaymentAny.isPresent());
+
+        if(iacPaymentAny.isPresent() && iacSupplementaryDetailsFeature){
+            return iacService.getIacSupplementaryInfo(paymentDtos,paymentService.getServiceNameByCode("IAC"));
+        }
+
+        return new ResponseEntity(new PaymentsResponse(paymentDtos),HttpStatus.OK);
+
     }
 
     @ApiOperation(value = "Update payment status by payment reference", notes = "Update payment status by payment reference")

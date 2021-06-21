@@ -568,6 +568,7 @@ public class PaymentGroupController {
         params.put("status", status);
 
         LOG.info("Calling Bulk scan api to mark payment as processed from Payment Api");
+
         return restTemplatePaymentGroup.exchange(bulkScanPaymentsProcessedUrl + "/bulk-scan-payments/{dcn}/status/{status}", HttpMethod.PATCH, entity, String.class, params);
     }
 
