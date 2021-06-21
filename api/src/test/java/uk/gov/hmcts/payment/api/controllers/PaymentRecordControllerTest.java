@@ -1,4 +1,4 @@
-package uk.gov.hmcts.payment.api.componenttests;
+package uk.gov.hmcts.payment.api.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -25,7 +25,6 @@ import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.dto.PaymentRecordRequest;
 import uk.gov.hmcts.payment.api.util.PaymentMethodType;
 import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.ServiceResolverBackdoor;
@@ -341,7 +340,7 @@ public class PaymentRecordControllerTest {
             .paymentMethod(PaymentMethodType.CASH)
             .reference("ref_123")
             .externalProvider("middle office provider")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .giroSlipNo("12345")
             .reportedDateOffline(DateTime.now().toString())
@@ -368,7 +367,7 @@ public class PaymentRecordControllerTest {
             .paymentMethod(PaymentMethodType.CHEQUE)
             .reference("ref_122")
             .externalProvider("middle office provider")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .externalReference("1000012")
             .giroSlipNo("434567")
@@ -391,7 +390,7 @@ public class PaymentRecordControllerTest {
     private PaymentRecordRequest getRequestWithNoCcdCaseNumberAndCaseReference() {
         return PaymentRecordRequest.createPaymentRecordRequestDtoWith()
             .amount(new BigDecimal("32.19"))
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .giroSlipNo("12345")
             .reportedDateOffline(DateTime.now().toString())
@@ -416,7 +415,7 @@ public class PaymentRecordControllerTest {
             .amount(new BigDecimal("99.99"))
             .paymentMethod(PaymentMethodType.POSTAL_ORDER)
             .reference("ref_122")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .externalProvider("middle office provider")
             .externalReference("postal_1000012")
@@ -442,7 +441,7 @@ public class PaymentRecordControllerTest {
             .amount(new BigDecimal("99.99"))
             .paymentMethod(PaymentMethodType.CARD)
             .reference("ref_122")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .externalProvider("barclaycard")
             .externalReference("bar_card_1000013")
@@ -467,7 +466,7 @@ public class PaymentRecordControllerTest {
             .amount(new BigDecimal("99.99"))
             .paymentMethod(PaymentMethodType.CARD)
             .reference("ref_122")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .externalReference("bar_card_1000013")
             .reportedDateOffline(DateTime.now().toString())
@@ -491,7 +490,7 @@ public class PaymentRecordControllerTest {
             .amount(new BigDecimal("99.99"))
             .paymentMethod(PaymentMethodType.CARD)
             .reference("ref_122")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .externalProvider("barclaycard")
             .externalReference("bar_card_1000013")
@@ -532,7 +531,7 @@ public class PaymentRecordControllerTest {
         String endDate = LocalDate.now().toString(DATE_FORMAT);
 
         MvcResult result2 = restActions
-            .get("/payments?service_name=" + Service.DIGITAL_BAR+"&start_date=" + startDate + "&end_date=" + endDate)
+            .get("/payments?service_name=Digital Bar&start_date=" + startDate + "&end_date=" + endDate)
             .andExpect(status().isOk())
             .andReturn();
 
@@ -565,7 +564,7 @@ public class PaymentRecordControllerTest {
 
         String endDate = DateTime.now().toString("yyyy-MM-dd HH:mm:ss");
         MvcResult result = restActions
-            .get("/payments?service_name=" + Service.DIGITAL_BAR + "&start_date=" + startDate + "&end_date=" + endDate)
+            .get("/payments?service_name=DIGITAL_BAR&start_date=" + startDate + "&end_date=" + endDate)
             .andExpect(status().isOk())
             .andReturn();
         PaymentsResponse paymentsResponse = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentsResponse.class);
@@ -602,7 +601,7 @@ public class PaymentRecordControllerTest {
 
         String endDate = DateTime.now().toString("yyyy-MM-dd HH:mm:ss");
         MvcResult result = restActions
-            .get("/payments?service_name=" + Service.DIGITAL_BAR + "&start_date=" + startDate + "&end_date=" + endDate)
+            .get("/payments?service_name=DIGITAL_BAR&start_date=" + startDate + "&end_date=" + endDate)
             .andExpect(status().isOk())
             .andReturn();
         PaymentsResponse paymentsResponse = objectMapper.readValue(result.getResponse().getContentAsByteArray(), PaymentsResponse.class);
@@ -681,7 +680,7 @@ public class PaymentRecordControllerTest {
             .amount(new BigDecimal("1100.00"))
             .paymentMethod(PaymentMethodType.CHEQUE)
             .reference("REF_123")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .currency(CurrencyCode.GBP)
             .externalReference("1234567")
             .externalProvider("middle office provider")
@@ -713,7 +712,7 @@ public class PaymentRecordControllerTest {
         return PaymentRecordRequest.createPaymentRecordRequestDtoWith()
             .amount(new BigDecimal("217.00"))
             .reference("REF_123")
-            .service(Service.DIGITAL_BAR)
+            .service("DIGITAL_BAR")
             .paymentMethod(PaymentMethodType.CHEQUE)
             .currency(CurrencyCode.GBP)
             .externalReference("1234567")

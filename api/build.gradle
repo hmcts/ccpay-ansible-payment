@@ -54,12 +54,12 @@ sonarqube {
 }
 
 def versions = [
-        pitest      : '1.5.1',
-        gradlePitest: '1.3.0',
-        sonarPitest : '0.5',
-        lombok      : '1.18.12',
-        pact_version: '4.1.7',
-        reformS2sClient    : '3.1.1'
+        pitest         : '1.5.1',
+        gradlePitest   : '1.3.0',
+        sonarPitest    : '0.5',
+        lombok         : '1.18.12',
+        pact_version   : '4.1.7',
+        reformS2sClient: '3.1.1'
 ]
 
 def javaLoggingVersion = '5.1.1'
@@ -147,6 +147,8 @@ dependencies {
     contractTestCompile group: 'au.com.dius.pact.provider', name: 'junit5', version: versions.pact_version
     contractTestCompile group: 'au.com.dius.pact.provider', name: 'spring', version: versions.pact_version
     contractTestCompile group: 'au.com.dius.pact.provider', name: 'junit5spring', version: versions.pact_version
+    contractTestCompile group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact_version
+    contractTestCompile group: 'au.com.dius.pact.consumer', name: 'java8', version: versions.pact_version
     contractTestCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
     contractTestCompile("org.junit.jupiter:junit-jupiter-api:5.3.2")
     contractTestRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
@@ -168,23 +170,72 @@ task functionalTest(type: Test, description: 'Runs the functional tests', group:
     classpath = sourceSets.functionalTest.runtimeClasspath
 }
 
-task contractTest(type: Test) {
-    logger.lifecycle("Runnning contract Tests")
+
+project.ext {
+    pactVersion = getCheckedOutGitCommitHash()
+    pacticipant = 'payment_App'
+    pacticipantVersion = getCheckedOutGitCommitHash()
+}
+
+
+task consumerContractTest(type: Test) {
+    logger.lifecycle("Running consumer contract Tests")
     useJUnitPlatform()
+    include "uk/gov/hmcts/payment/api/controllers/consumer/**"
     testClassesDirs = sourceSets.contractTest.output.classesDirs
     classpath = sourceSets.contractTest.runtimeClasspath
+    systemProperty 'pact.rootDir', "pacts"
+    systemProperty 'pact.provider.version', project.pactVersion
+
+}
+
+task providerContractTest(type: Test) {
+    logger.lifecycle("Running contract provider Tests")
+    useJUnitPlatform()
+    include "uk/gov/hmcts/payment/api/controllers/provider/**"
+    testClassesDirs = sourceSets.contractTest.output.classesDirs
+    classpath = sourceSets.contractTest.runtimeClasspath
+    systemProperty 'pact.rootDir', "pacts"
+    systemProperty 'pact.verifier.publishResults', System.getProperty('pact.verifier.publishResults')
+    systemProperty 'pact.provider.version', project.pactVersion
 
 }
 
 task runProviderPactVerification(type: Test) {
-    logger.lifecycle("Runs pact Tests")
+    logger.lifecycle("Runs pact provider Tests")
     testClassesDirs = sourceSets.contractTest.output.classesDirs
     classpath = sourceSets.contractTest.runtimeClasspath
 }
 
-runProviderPactVerification.dependsOn contractTest
+task runAndPublishConsumerPactTests(type: Test, description: 'Publish pact test to broker.', group: 'Verification') {
+    logger.lifecycle("Runs pact consumer Tests")
+    testClassesDirs = sourceSets.contractTest.output.classesDirs
+    classpath = sourceSets.contractTest.runtimeClasspath
+}
+
+runAndPublishConsumerPactTests.dependsOn consumerContractTest
+
+runAndPublishConsumerPactTests.finalizedBy pactPublish
+
+runProviderPactVerification.dependsOn providerContractTest
 
 runProviderPactVerification.finalizedBy pactVerify
+
+def getCheckedOutGitCommitHash() {
+    'git rev-parse --verify --short HEAD'.execute().text.trim()
+}
+
+pact {
+    broker {
+        pactBrokerUrl = System.getenv("PACT_BROKER_FULL_URL") ?: 'http://localhost:80'
+    }
+    publish {
+        pactDirectory = 'api/pacts'
+        tags = [System.getenv("PACT_BRANCH_NAME") ?: 'Dev']
+        version = project.pactVersion
+    }
+
+}
 
 
 pitest {

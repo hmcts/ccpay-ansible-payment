@@ -16,7 +16,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.functional.config.LaunchDarklyFeature;
 import uk.gov.hmcts.payment.functional.config.TestConfigProperties;
 import uk.gov.hmcts.payment.functional.dsl.PaymentsTestDsl;
@@ -77,7 +76,6 @@ public class CMCCardPaymentPerformanceLiberataTest {
             USER_TOKEN = idamService.createUserWith(CMC_CITIZEN_GROUP, "citizen").getAuthorisationToken();
             USER_TOKEN_PAYMENT = idamService.createUserWith(CMC_CITIZEN_GROUP, "payments").getAuthorisationToken();
             SERVICE_TOKEN = s2sTokenService.getS2sToken(testProps.s2sServiceName, testProps.s2sServiceSecret);
-
             TOKENS_INITIALIZED = true;
         }
     }
@@ -94,7 +92,7 @@ public class CMCCardPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            cardPaymentRequest[i] = PaymentFixture.cardPaymentRequestProbate("215.00", Service.PROBATE);
+            cardPaymentRequest[i] = PaymentFixture.cardPaymentRequestProbate("215.00", "PROBATE");
 
             paymentTestService.postcardPayment(USER_TOKEN, SERVICE_TOKEN, cardPaymentRequest[i])
                 .then()
@@ -148,7 +146,7 @@ public class CMCCardPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            cardPaymentRequest[i] = PaymentFixture.cardPaymentRequestProbate("215.00", Service.PROBATE);
+            cardPaymentRequest[i] = PaymentFixture.cardPaymentRequestProbate("215.00", "PROBATE");
 
             paymentTestService.postcardPayment(USER_TOKEN, SERVICE_TOKEN, cardPaymentRequest[i])
                 .then()
@@ -157,7 +155,7 @@ public class CMCCardPaymentPerformanceLiberataTest {
 
         }
 
-        Thread.sleep(5000);
+        Thread.sleep(10000);
         String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
 
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, responseTime * 3)
@@ -261,7 +259,7 @@ public class CMCCardPaymentPerformanceLiberataTest {
                 .body("status", equalTo("Initiated"));
         }
 
-        Thread.sleep(5000);
+        Thread.sleep(10000);
         String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
 
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, responseTime * 3)
@@ -304,7 +302,7 @@ public class CMCCardPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            cardPaymentRequest[i] = PaymentFixture.cardPaymentRequestall("215.00", Service.FINREM);
+            cardPaymentRequest[i] = PaymentFixture.cardPaymentRequestall("215.00", "FINREM");
 
             paymentTestService.postcardPayment(USER_TOKEN, SERVICE_TOKEN, cardPaymentRequest[i])
                 .then()
@@ -355,7 +353,7 @@ public class CMCCardPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            cardPaymentRequest[i] = PaymentFixture.cardPaymentRequestall("215.00", Service.FINREM);
+            cardPaymentRequest[i] = PaymentFixture.cardPaymentRequestall("215.00", "FINREM");
 
             paymentTestService.postcardPayment(USER_TOKEN, SERVICE_TOKEN, cardPaymentRequest[i])
                 .then()
@@ -363,7 +361,7 @@ public class CMCCardPaymentPerformanceLiberataTest {
                 .body("status", equalTo("Initiated"));
         }
 
-        Thread.sleep(5000);
+        Thread.sleep(10000);
         String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
 
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, responseTime * 3)
@@ -406,7 +404,7 @@ public class CMCCardPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            cardPaymentRequest[i] = PaymentFixture.cardPaymentRequestall("215.00", Service.DIVORCE);
+            cardPaymentRequest[i] = PaymentFixture.cardPaymentRequestall("215.00", "DIVORCE");
 
             paymentTestService.postcardPayment(USER_TOKEN, SERVICE_TOKEN, cardPaymentRequest[i])
                 .then()
@@ -457,7 +455,7 @@ public class CMCCardPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            cardPaymentRequest[i] = PaymentFixture.cardPaymentRequestall("455.00", Service.DIVORCE);
+            cardPaymentRequest[i] = PaymentFixture.cardPaymentRequestall("455.00", "DIVORCE");
 
             paymentTestService.postcardPayment(USER_TOKEN, SERVICE_TOKEN, cardPaymentRequest[i])
                 .then()
@@ -465,7 +463,7 @@ public class CMCCardPaymentPerformanceLiberataTest {
                 .body("status", equalTo("Initiated"));
         }
 
-        Thread.sleep(5000);
+        Thread.sleep(10000);
         String endDate = formatter.format(LocalDateTime.now(zoneUTC).toDate());
 
         PaymentsResponse liberataResponseOld = paymentTestService.getLiberatePullPaymentsByStartAndEndDate(SERVICE_TOKEN, startDate,endDate, responseTime * 3)
@@ -507,7 +505,7 @@ public class CMCCardPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            cardPaymentRequest[i] = PaymentFixture.cardPaymentRequestProbate("215.00", Service.PROBATE);
+            cardPaymentRequest[i] = PaymentFixture.cardPaymentRequestProbate("215.00", "PROBATE");
 
             paymentTestService.postcardPayment(USER_TOKEN, SERVICE_TOKEN, cardPaymentRequest[i])
                 .then()

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.payment.api.componenttests;
+package uk.gov.hmcts.payment.api.controllers;
 
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.controllers.PaymentReportController;
 import uk.gov.hmcts.payment.api.controllers.RestErrorHandler;
 import uk.gov.hmcts.payment.api.exception.ValidationErrorException;
@@ -41,8 +40,10 @@ public class PaymentReportControllerMockTest {
 
     @Mock
     private PaymentsReportFacade paymentsReportFacade;
+
     @Mock
     private PaymentValidator validator;
+
     @Mock
     private Clock clock;
 
@@ -75,10 +76,10 @@ public class PaymentReportControllerMockTest {
         given(clock.getTodayDate()).willReturn(TO_DATE);
         // when & then
         this.mockMvc.perform(post("/jobs/email-pay-reports")
-            .param("service_name", "DIGITAL_BAR"))
+            .param("service_name", "Digital Bar"))
             .andExpect(status().isOk());
 
-        verify(paymentsReportFacade).generateCsvAndSendEmail(FROM_DATE, TO_DATE, null, Service.DIGITAL_BAR);
+        verify(paymentsReportFacade).generateCsvAndSendEmail(FROM_DATE, TO_DATE, null, "Digital Bar");
     }
 
     @Test
@@ -88,10 +89,10 @@ public class PaymentReportControllerMockTest {
         given(clock.getTodayDate()).willReturn(TO_DATE);
         // when & then
         this.mockMvc.perform(post("/jobs/email-pay-reports")
-            .param("service_name", "DIGITAL_BAR").param("start_date", WEEK_AGO_DATE.toString()))
+            .param("service_name", "Digital Bar").param("start_date", WEEK_AGO_DATE.toString()))
             .andExpect(status().isOk());
 
-        verify(paymentsReportFacade).generateCsvAndSendEmail(WEEK_AGO_DATE, TO_DATE, null, Service.DIGITAL_BAR);
+        verify(paymentsReportFacade).generateCsvAndSendEmail(WEEK_AGO_DATE, TO_DATE, null, "Digital Bar");
     }
 
     @Test
@@ -105,10 +106,10 @@ public class PaymentReportControllerMockTest {
             .param("payment_method", "CARD")
             .param("start_date", "2018-06-30")
             .param("end_date", "2018-07-01")
-            .param("service_name", "divorce"))
+            .param("service_name", "Divorce"))
             .andExpect(status().isOk());
 
-        verify(paymentsReportFacade).generateCsvAndSendEmail(FROM_DATE, TO_DATE, PaymentMethodType.CARD, Service.DIVORCE);
+        verify(paymentsReportFacade).generateCsvAndSendEmail(FROM_DATE, TO_DATE, PaymentMethodType.CARD, "Divorce");
     }
 
     @Test
@@ -116,7 +117,7 @@ public class PaymentReportControllerMockTest {
         // given
 
         doThrow(new ValidationErrorException("validation failed", null))
-            .when(validator).validate(Optional.of("CARD"), Optional.of("UNKNOWN"), Optional.of("2018-06-30"), Optional.of("2018-07-01"));
+            .when(validator).validate(Optional.of("CARD"), Optional.of("2018-06-30"), Optional.of("2018-07-01"));
         // when & then
         this.mockMvc.perform(post("/jobs/email-pay-reports")
             .param("payment_method", "CARD")

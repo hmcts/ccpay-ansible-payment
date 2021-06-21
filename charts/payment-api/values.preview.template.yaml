@@ -14,8 +14,9 @@ java:
     LAUNCH_DARKLY_USER_NAME_PREFIX: aat
     SPRING_PROFILES_ACTIVE: "liberataMock,callbackMock,ccdMock"
     CALLBACK_PAYMENTS_CUTOFF_TIME_IN_MINUTES: 0
-    CCPAY_BULK_SCANNING_API_URL: http://ccpay-bulkscanning-api-aat.service.core-compute-aat.internal
+    CCPAY_BULK_SCANNING_API_URL: http://ccpay-bulkscanning-api-pr-285.service.core-compute-preview.internal
     PBA_CONFIG1_SERVICE_NAMES: dummy
+    PCI_PAL_API_URL: https://ip3cloud.com/clients/hmcts/payments/index.php
   keyVaults:
     "ccpay":
       resourceGroup: ccpay

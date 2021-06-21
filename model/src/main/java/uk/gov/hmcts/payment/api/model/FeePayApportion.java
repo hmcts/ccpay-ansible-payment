@@ -11,7 +11,8 @@ import java.util.Date;
 
 @Entity
 @EntityListeners(FeePayApportionEntityListener.class)
-@Data
+@Getter
+@Setter
 @Builder(builderMethodName = "feePayApportionWith")
 @AllArgsConstructor
 @NoArgsConstructor

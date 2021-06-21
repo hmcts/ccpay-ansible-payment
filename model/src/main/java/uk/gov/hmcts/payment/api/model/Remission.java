@@ -12,7 +12,8 @@ import java.util.Date;
 
 @Entity
 @EntityListeners(RemissionEntityListener.class)
-@Data
+@Getter
+@Setter
 @Builder(builderMethodName = "remissionWith")
 @AllArgsConstructor
 @NoArgsConstructor

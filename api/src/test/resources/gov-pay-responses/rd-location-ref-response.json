@@ -1,0 +1,18 @@
+ [
+   {
+    "service_id": 1199,
+    "ccd_service_name": "Tax Appeals",
+    "jurisdiction": "Tax Chamber",
+    "last_update": "2021-01-07T13:58:52.082544",
+    "org_unit": "HMCTS",
+    "service_code": "AA002",
+    "service_description": "Tax Appeals",
+    "business_area": "Civil, Family and Tribunals",
+    "service_short_description": "Tax Appeals",
+    "sub_business_area": "Tribunals",
+    "ccd_case_types": [
+      "tax_exception"
+    ]
+  }
+ ]
+
