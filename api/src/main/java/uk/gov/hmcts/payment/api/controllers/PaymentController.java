@@ -48,9 +48,7 @@ public class PaymentController {
     private final FF4j ff4j;
     private final DateTimeFormatter formatter;
     private final PaymentFeeRepository paymentFeeRepository;
-
-    @Autowired
-    private LaunchDarklyFeatureToggler featureToggler;
+    private final LaunchDarklyFeatureToggler featureToggler;
 
     @Autowired
     private IacService iacService;
@@ -59,7 +57,7 @@ public class PaymentController {
     public PaymentController(PaymentService<PaymentFeeLink, String> paymentService,
                              PaymentStatusRepository paymentStatusRepository, CallbackService callbackService,
                              PaymentDtoMapper paymentDtoMapper, PaymentValidator paymentValidator, FF4j ff4j,
-                             DateUtil dateUtil, PaymentFeeRepository paymentFeeRepository) {
+                             DateUtil dateUtil, PaymentFeeRepository paymentFeeRepository, LaunchDarklyFeatureToggler featureToggler) {
         this.paymentService = paymentService;
         this.callbackService = callbackService;
         this.paymentStatusRepository = paymentStatusRepository;
@@ -68,6 +66,7 @@ public class PaymentController {
         this.ff4j = ff4j;
         this.formatter = dateUtil.getIsoDateTimeFormatter();
         this.paymentFeeRepository = paymentFeeRepository;
+        this.featureToggler = featureToggler;
     }
 
     @ApiOperation(value = "Update case reference by payment reference", notes = "Update case reference by payment reference")
