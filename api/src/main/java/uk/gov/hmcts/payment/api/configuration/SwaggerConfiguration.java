@@ -78,6 +78,19 @@ public class SwaggerConfiguration {
     }
 
     @Bean
+    public Docket RefundApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
+            .groupName("refund")
+            .globalOperationParameters(getGlobalOperationParameters())
+            .useDefaultResponseMessages(false)
+            .apiInfo(paymentApiInfo())
+            .select()
+            .apis(packagesLike("uk.gov.hmcts.payment.api.refund.controller"))
+            .paths(PathSelectors.any())
+            .build();
+    }
+
+    @Bean
     public Docket paymentReferenceDataApi() {
         return new Docket(DocumentationType.SWAGGER_2)
             .groupName("reference-data")
