@@ -334,6 +334,7 @@ public class CreditAccountPaymentControllerTest extends PaymentsDataUtil {
             .post("/credit-account-payments", request)
             .andExpect(status().isUnprocessableEntity())
             .andReturn();
+        assertEquals("Invalid or missing attribute", res.getResponse().getErrorMessage());
     }
 
     @Test
