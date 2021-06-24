@@ -36,7 +36,7 @@ java:
         - pci-pal-antenna-cmc-flow-id
         - pci-pal-antenna-probate-flow-id
         - pci-pal-antenna-divorce-flow-id
-        - pci-pal-antenna-financial-remedy-flow-id
+        - pci-pal-antenna-strategic-flow-id
         - spring-mail-password
   postgresql:
     enabled: true
