@@ -10,11 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.payment.api.contract.CardPaymentRequest;
-import uk.gov.hmcts.payment.api.contract.PaymentDto;
-import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
-import uk.gov.hmcts.payment.api.contract.TelephonyCardPaymentsRequest;
-import uk.gov.hmcts.payment.api.contract.TelephonyPaymentRequest;
+import uk.gov.hmcts.payment.api.contract.*;
 import uk.gov.hmcts.payment.api.dto.AccountDto;
 import uk.gov.hmcts.payment.api.dto.BulkScanPaymentRequest;
 import uk.gov.hmcts.payment.api.dto.PaymentGroupDto;
@@ -88,6 +84,11 @@ public class PaymentsTestDsl {
             return RestAssured.given().relaxedHTTPSValidation().baseUri(baseURL).contentType(ContentType.JSON).headers(headers);
         }
 
+        public PaymentWhenDsl getPaymentGroupByReference(String reference) {
+            response = newRequest().get("/payment-groups/{reference}", reference);
+            return this;
+        }
+
         public PaymentWhenDsl getPayment(String userId, String paymentId) {
             response = newRequest().get("/users/{userToken}/payments/{paymentId}", userId, paymentId);
             return this;
@@ -131,6 +132,18 @@ public class PaymentsTestDsl {
         public PaymentWhenDsl createRetrospectiveRemission(RemissionRequest remissionRequest, String paymentGroup, Integer feeId) {
             response = newRequest().contentType(ContentType.JSON).body(remissionRequest)
                 .post("/payment-groups/{payment-group-reference}/fees/{unique_fee_id}/remissions", paymentGroup, feeId);
+            return this;
+        }
+
+        public PaymentWhenDsl addNewPaymentGroup(PaymentGroupDto paymentGroupFeeRequest) {
+            response = newRequest().contentType(ContentType.JSON).body(paymentGroupFeeRequest)
+                .post("/payment-groups");
+            return this;
+        }
+
+        public PaymentWhenDsl addNewFeeToPaymentGroup(PaymentGroupDto paymentGroupFeeRequest) {
+            response = newRequest().contentType(ContentType.JSON).body(paymentGroupFeeRequest)
+                .put("/payment-groups");
             return this;
         }
 
@@ -277,6 +290,15 @@ public class PaymentsTestDsl {
             return this;
         }
 
+        public PaymentThenDsl created() {
+            response.then().statusCode(201);
+            return this;
+        }
+
+        public PaymentGroupDto createdWithContent(int statusCode) {
+            return response.then().statusCode(statusCode).extract().as(PaymentGroupDto.class);
+        }
+
         public PaymentThenDsl created(Consumer<PaymentDto> payment) {
             PaymentDto paymentDto = response.then().statusCode(201).extract().as(PaymentDto.class);
             payment.accept(paymentDto);
@@ -314,6 +336,10 @@ public class PaymentsTestDsl {
             return response.then().statusCode(statusCode).extract().as(PaymentDto.class);
         }
 
+        public PaymentGroupDto getPaymentGroupDtoByStatusCode(int statusCode) {
+            return response.then().statusCode(statusCode).extract().as(PaymentGroupDto.class);
+        }
+
         public AccountDto getAccount() {
             return response.then().statusCode(200).extract().as(AccountDto.class);
         }
@@ -324,6 +350,10 @@ public class PaymentsTestDsl {
             return this;
         }
 
+        public TelephonyCardPaymentsResponse createdTelephoneCardPaymentsResponse() {
+            TelephonyCardPaymentsResponse telephonyCardPaymentsResponse = response.then().statusCode(201).extract().as(TelephonyCardPaymentsResponse.class);
+            return telephonyCardPaymentsResponse;
+        }
         public PaymentsResponse getPayments() {
             PaymentsResponse paymentsResponse = response.then().statusCode(200).extract().as(PaymentsResponse.class);
             return paymentsResponse;

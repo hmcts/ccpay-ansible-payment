@@ -32,6 +32,7 @@ import uk.gov.hmcts.payment.functional.idam.IdamService;
 import uk.gov.hmcts.payment.functional.s2s.S2sTokenService;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,12 +59,16 @@ public class PaymentGroupFunctionalTest {
     private static boolean TOKENS_INITIALIZED = false;
     @Autowired
     private TestConfigProperties testProps;
+
     @Autowired
     private PaymentsTestDsl dsl;
+
     @Autowired
     private IdamService idamService;
+
     @Autowired
     private S2sTokenService s2sTokenService;
+
     @Autowired
     private LaunchDarklyFeature featureToggler;
 
@@ -625,7 +630,6 @@ public class PaymentGroupFunctionalTest {
 
     }
 
-
     private CardPaymentRequest getCardPaymentRequest() {
         return CardPaymentRequest.createCardPaymentRequestDtoWith()
             .amount(new BigDecimal("550"))
@@ -671,5 +675,27 @@ public class PaymentGroupFunctionalTest {
             .build();
     }
 
+    private FeeDto getNewFee(){
+        return FeeDto.feeDtoWith()
+            .calculatedAmount(new BigDecimal("92.19"))
+            .code("FEE312")
+            .version("1")
+            .volume(2)
+            .reference("BXsd1123")
+            .ccdCaseNumber("1111-2222-2222-1111")
+            .build();
 
+    }
+
+    private FeeDto getConsecutiveFee(){
+        return FeeDto.feeDtoWith()
+            .calculatedAmount(new BigDecimal("100.19"))
+            .code("FEE313")
+            .id(1)
+            .version("1")
+            .volume(2)
+            .reference("BXsd11253")
+            .ccdCaseNumber("1111-2222-2222-1111")
+            .build();
+    }
 }

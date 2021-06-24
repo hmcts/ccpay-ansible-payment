@@ -26,7 +26,8 @@ def secrets = [
         secret('citizen-oauth-client-secret', 'OAUTH2_CLIENT_SECRET'),
         secret('freg-idam-generated-user-email-pattern', 'GENERATED_USER_EMAIL_PATTERN'),
         secret('freg-idam-test-user-password', 'TEST_USER_PASSWORD'),
-        secret('gov-pay-keys-cmc', 'GOV_PAY_AUTH_KEY_CMC')
+        secret('gov-pay-keys-cmc', 'GOV_PAY_AUTH_KEY_CMC'),
+        secret('pci-pal-antenna-client-secret', 'PCI_PAL_ANTENNA_CLIENT_SECRET')
     ]
 ]
 

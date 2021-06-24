@@ -46,8 +46,10 @@ public class TelephonyPaymentsTest {
     private static boolean TOKENS_INITIALIZED = false;
     @Autowired
     private TestConfigProperties testProps;
+
     @Autowired
     private PaymentsTestDsl dsl;
+
     @Autowired
     private IdamService idamService;
     @Autowired
@@ -117,8 +119,11 @@ public class TelephonyPaymentsTest {
                 assertTrue("correct payment has been retrieved",
                     paymentsResponse.getPayments().stream()
                         .anyMatch(o -> o.getPaymentReference().equals(referenceNumber)));
-                PaymentDto paymentRetrieved = paymentsResponse.getPayments().stream().filter(o -> o.getPaymentReference().equals(referenceNumber)).findFirst().get();
-                assertEquals("correct payment reference retrieved", paymentRetrieved.getCaseReference(), paymentRecordRequest.getReference());
+                PaymentDto paymentRetrieved =
+                    paymentsResponse.getPayments().stream().filter(o -> o.getPaymentReference().equals(referenceNumber))
+                        .findFirst().get();
+                assertEquals("correct payment reference retrieved", paymentRetrieved.getCaseReference(),
+                    paymentRecordRequest.getReference());
                 assertEquals("payment status is properly set", "success", paymentRetrieved.getStatus());
             });
         });
@@ -163,9 +168,12 @@ public class TelephonyPaymentsTest {
                 assertTrue("correct payment has been retrieved",
                     paymentsResponse.getPayments().stream()
                         .anyMatch(o -> o.getPaymentReference().equals(referenceNumber)));
-                PaymentDto paymentRetrieved = paymentsResponse.getPayments().stream().filter(o -> o.getPaymentReference().equals(referenceNumber)).findFirst().get();
+                PaymentDto paymentRetrieved =
+                    paymentsResponse.getPayments().stream().filter(o -> o.getPaymentReference().equals(referenceNumber))
+                        .findFirst().get();
 
-                assertEquals("correct payment reference retrieved", paymentRetrieved.getCaseReference(), paymentRecordRequest.getReference());
+                assertEquals("correct payment reference retrieved", paymentRetrieved.getCaseReference(),
+                    paymentRecordRequest.getReference());
                 assertEquals("payment status is properly set", "failed", paymentRetrieved.getStatus());
             });
         });
@@ -211,8 +219,11 @@ public class TelephonyPaymentsTest {
                 assertTrue("correct payment has been retrieved",
                     paymentsResponse.getPayments().stream()
                         .anyMatch(o -> o.getPaymentReference().equals(referenceNumber)));
-                PaymentDto paymentRetrieved = paymentsResponse.getPayments().stream().filter(o -> o.getPaymentReference().equals(referenceNumber)).findFirst().get();
-                assertEquals("correct payment reference retrieved", paymentRetrieved.getCaseReference(), paymentRecordRequest.getReference());
+                PaymentDto paymentRetrieved =
+                    paymentsResponse.getPayments().stream().filter(o -> o.getPaymentReference().equals(referenceNumber))
+                        .findFirst().get();
+                assertEquals("correct payment reference retrieved", paymentRetrieved.getCaseReference(),
+                    paymentRecordRequest.getReference());
                 assertEquals("payment status is properly set", "failed", paymentRetrieved.getStatus());
             });
         });
@@ -328,6 +339,4 @@ public class TelephonyPaymentsTest {
                 .volume(2)
                 .build())).build();
     }
-
 }
-
