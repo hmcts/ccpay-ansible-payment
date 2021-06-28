@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.hmcts.payment.api.controllers.PaymentExternalAPI;
 import uk.gov.hmcts.payment.api.domain.model.ApproverAction;
 import uk.gov.hmcts.payment.api.domain.service.RefundDomainService;
 import uk.gov.hmcts.payment.api.dto.RefundDto;
@@ -91,21 +92,21 @@ public class RefundController {
     @ApiResponses(value = {
         @ApiResponse(code = 401, message = "Credentials are required to access this resource"),
         @ApiResponse(code = 403, message = "Forbidden-Access Denied"),
-        @ApiResponse(code = 204, message = "Refund Status Updated Successfully"),
+        @ApiResponse(code = 204, message = "Refund Status[Issued/Rejected] Updated Successfully"),
         @ApiResponse(code = 404, message = "Refund Not Found"),
-        @ApiResponse(code = 400, message = "Bad Request")
+        @ApiResponse(code = 400, message = "Bad Request, Refund Status should be Issued or Rejected")
     })
-    @PutMapping(value = "/refund/{refund-reference}/status-update")
+    @PaymentExternalAPI
+    @PatchMapping(value = "/refund/{refund-reference}")
     @Transactional
     public ResponseEntity<?> updateRefundStatus(
         @PathVariable("refund-reference") String refundReference,
-        @RequestBody(required = false) RefundStatusDto refundStatusDto) {
+        @RequestBody RefundStatusDto refundStatusDto) {
         return new ResponseEntity<>("", HttpStatus.OK);
     }
 }
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@JsonInclude(NON_NULL)
 @Builder(builderMethodName = "refundStatusDtoWith")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -113,7 +114,16 @@ public class RefundController {
 @Setter
 class RefundStatusDto {
 
-    private String status;
+    @NotNull
+    private RefundStatus status;
     private String reason;
+}
 
+enum RefundStatus {
+    Issued,
+    Rejected
+}
+
+class Status {
+    private RefundStatus status;
 }
