@@ -14,7 +14,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.payment.api.contract.CreditAccountPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.PaymentsResponse;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.functional.config.LaunchDarklyFeature;
 import uk.gov.hmcts.payment.functional.config.TestConfigProperties;
 import uk.gov.hmcts.payment.functional.dsl.PaymentsTestDsl;
@@ -28,8 +27,7 @@ import java.util.HashSet;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 import static uk.gov.hmcts.payment.functional.idam.IdamService.CMC_CASE_WORKER_GROUP;
 import static uk.gov.hmcts.payment.functional.idam.IdamService.CMC_CITIZEN_GROUP;
 
@@ -88,7 +86,7 @@ public class PBAPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForProbateForSuccessLiberataValidation("215.00", Service.PROBATE);
+            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForProbateForSuccessLiberataValidation("215.00", "PROBATE");
             accountPaymentRequest[i].setAccountNumber(accountNumber);
             paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest[i])
                 .then()
@@ -139,7 +137,7 @@ public class PBAPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForProbateForSuccessLiberataValidation("215.00", Service.PROBATE);
+            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForProbateForSuccessLiberataValidation("215.00", "PROBATE");
             accountPaymentRequest[i].setAccountNumber(accountNumber);
             paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest[i])
                 .then()
@@ -190,7 +188,7 @@ public class PBAPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequest("215.00", Service.FINREM);
+            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequest("215.00", "FINREM");
             accountPaymentRequest[i].setAccountNumber(accountNumber);
             paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest[i])
                 .then()
@@ -241,7 +239,7 @@ public class PBAPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequest("215.00", Service.FINREM);
+            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequest("215.00", "FINREM");
             accountPaymentRequest[i].setAccountNumber(accountNumber);
             paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest[i])
                 .then()
@@ -292,7 +290,7 @@ public class PBAPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForDivorce("455.00", Service.DIVORCE);
+            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForDivorce("455.00", "DIVORCE");
             accountPaymentRequest[i].setAccountNumber(accountNumber);
             paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest[i])
                 .then()
@@ -343,7 +341,7 @@ public class PBAPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForDivorce("455.00", Service.DIVORCE);
+            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForDivorce("455.00", "DIVORCE");
             accountPaymentRequest[i].setAccountNumber(accountNumber);
             paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest[i])
                 .then()
@@ -394,7 +392,7 @@ public class PBAPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequest("215.00", Service.CMC);
+            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequest("215.00", "CMC");
             accountPaymentRequest[i].setAccountNumber(accountNumber);
             paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest[i])
                 .then()
@@ -444,7 +442,7 @@ public class PBAPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequest("215.00", Service.CMC);
+            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequest("215.00", "CMC");
             accountPaymentRequest[i].setAccountNumber(accountNumber);
             paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest[i])
                 .then()
@@ -493,7 +491,7 @@ public class PBAPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForFPL("215.00", Service.FPL);
+            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForFPL("215.00", "FPL");
             accountPaymentRequest[i].setAccountNumber(accountNumber);
             paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest[i])
                 .then()
@@ -544,7 +542,7 @@ public class PBAPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForFPL("215.00", Service.FPL);
+            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForFPL("215.00", "FPL");
             accountPaymentRequest[i].setAccountNumber(accountNumber);
             paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest[i])
                 .then()
@@ -595,7 +593,7 @@ public class PBAPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForCivil("215.00", Service.CIVIL);
+            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForUnspec("215.00", "UNSPEC");
             accountPaymentRequest[i].setAccountNumber(accountNumber);
             paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest[i])
                 .then()
@@ -646,7 +644,7 @@ public class PBAPaymentPerformanceLiberataTest {
         String startDate = formatter.format(LocalDateTime.now(zoneUTC).minusMinutes(5).toDate());
 
         for(int i=0; i<PaymentCount;i++) {
-            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForIAC("215.00", Service.IAC);
+            accountPaymentRequest[i] = PaymentFixture.aPbaPaymentRequestForIAC("215.00", "IAC");
             accountPaymentRequest[i].setAccountNumber(accountNumber);
             paymentTestService.postPbaPayment(USER_TOKEN, SERVICE_TOKEN, accountPaymentRequest[i])
                 .then()
@@ -661,7 +659,7 @@ public class PBAPaymentPerformanceLiberataTest {
             .statusCode(OK.value()).extract().as(PaymentsResponse.class);
 
         PaymentsResponse liberataResponseApproach1 = paymentTestService.getLiberatePullPaymentsByStartAndEndDateApproach1(SERVICE_TOKEN, startDate,endDate, 30L)
-            .statusCode(OK.value()).extract().as(PaymentsResponse.class);
+            .statusCode(PARTIAL_CONTENT.value()).extract().as(PaymentsResponse.class);
 
         //Comparing the response size of old and new approach
         assertThat(liberataResponseOld.getPayments().size()).isGreaterThanOrEqualTo(PaymentCount);
@@ -680,7 +678,7 @@ public class PBAPaymentPerformanceLiberataTest {
 
 
         Response liberataResponseTimeApproach1 = paymentTestService.getLiberatePullPaymentsTimeByStartAndEndDateApproach1(SERVICE_TOKEN, startDate,endDate);
-        assertThat(liberataResponseTimeApproach1.statusCode()).isEqualTo(200);
+        assertThat(liberataResponseTimeApproach1.statusCode()).isEqualTo(206);
         LOG.info("Response time in milliseconds approach 1 api for 5 PBA payment is : {}",liberataResponseTimeApproach1.getTime());
 
     }

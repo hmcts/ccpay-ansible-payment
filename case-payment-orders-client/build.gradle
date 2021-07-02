@@ -1,0 +1,25 @@
+def versions = [
+        reformS2sClient : '3.1.1',
+        junit           : '5.7.1',
+        junitPlatform   : '1.7.1'
+]
+
+description = 'Managing case payment orders'
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    compile group: 'org.springframework', name: 'spring-context', version: '5.1.3.RELEASE'
+    compile group: 'org.springframework.data', name: 'spring-data-commons', version: '2.4.6'
+    compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: versions.reformS2sClient
+    compile group: 'org.apache.httpcomponents', name: 'httpclient'
+    compile "com.fasterxml.jackson.core:jackson-databind:2.11.4"
+    compile group: 'io.springfox', name: 'springfox-swagger2', version:'2.9.2'
+
+    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
+        exclude group: 'junit', module: 'junit'
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}

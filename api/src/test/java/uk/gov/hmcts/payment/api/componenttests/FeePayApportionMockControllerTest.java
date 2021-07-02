@@ -47,7 +47,7 @@ public class FeePayApportionMockControllerTest {
 
         String ccdCase = "1111222233334444";
 
-        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
+        when(featureToggler.getBooleanValue("apportion-feature", false)).thenReturn(true);
 
         List<BigDecimal> feeAmounts = new ArrayList<>();
         feeAmounts.add(new BigDecimal(100));
@@ -89,7 +89,7 @@ public class FeePayApportionMockControllerTest {
 
         String ccdCase = "1111222233335555";
 
-        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
+        when(featureToggler.getBooleanValue("apportion-feature", false)).thenReturn(true);
 
         List<BigDecimal> feeAmounts = new ArrayList<>();
         feeAmounts.add(new BigDecimal(100));
@@ -131,7 +131,7 @@ public class FeePayApportionMockControllerTest {
 
         String ccdCase = "1111222233336666";
 
-        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
+        when(featureToggler.getBooleanValue("apportion-feature", false)).thenReturn(true);
 
         List<BigDecimal> feeAmounts = new ArrayList<>();
         feeAmounts.add(new BigDecimal(100));
@@ -173,7 +173,7 @@ public class FeePayApportionMockControllerTest {
 
         String ccdCase = "1111222233337777";
 
-        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
+        when(featureToggler.getBooleanValue("apportion-feature", false)).thenReturn(true);
 
         List<BigDecimal> feeAmounts = new ArrayList<>();
         feeAmounts.add(new BigDecimal(100));
@@ -215,7 +215,7 @@ public class FeePayApportionMockControllerTest {
 
         String ccdCase = "1111222233338888";
 
-        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
+        when(featureToggler.getBooleanValue("apportion-feature", false)).thenReturn(true);
 
         List<BigDecimal> feeAmounts = new ArrayList<>();
         feeAmounts.add(new BigDecimal(100));
@@ -259,7 +259,7 @@ public class FeePayApportionMockControllerTest {
 
         String ccdCase = "1111222233339999";
 
-        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
+        when(featureToggler.getBooleanValue("apportion-feature", false)).thenReturn(true);
 
         List<BigDecimal> feeAmounts = new ArrayList<>();
         feeAmounts.add(new BigDecimal(100));
@@ -290,7 +290,7 @@ public class FeePayApportionMockControllerTest {
             .ccdCaseNo(ccdCase)
             .feePayGroups(getPaymentFeeLinks(1))
             .fees(getFees(ccdCase, feeAmounts, remissionAmounts, feeCreatedDates, 3))
-            .payments(getPayments(ccdCase, paymentAmounts, paymentCreatedDates,3))
+            .payments(getPayments(ccdCase, paymentAmounts, paymentCreatedDates, 3))
             .build();
 
         feePayApportionService.processFeePayApportion(feePayApportionCCDCase);
@@ -305,7 +305,7 @@ public class FeePayApportionMockControllerTest {
 
         String ccdCase = "1111222244441111";
 
-        when(featureToggler.getBooleanValue("apportion-feature",false)).thenReturn(true);
+        when(featureToggler.getBooleanValue("apportion-feature", false)).thenReturn(true);
 
         List<BigDecimal> feeAmounts = new ArrayList<>();
         feeAmounts.add(new BigDecimal(500));
@@ -339,7 +339,7 @@ public class FeePayApportionMockControllerTest {
     private List<PaymentFeeLink> getPaymentFeeLinks(int count) throws CheckDigitException {
         List<PaymentFeeLink> paymentFeeLinks = new ArrayList<>();
 
-        for(int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             paymentFeeLinks.add(PaymentFeeLink.paymentFeeLinkWith()
                 .id(RandomUtils.nextInt())
                 .paymentReference(referenceUtil.getNext("GR"))
@@ -351,7 +351,7 @@ public class FeePayApportionMockControllerTest {
     private List<Payment> getPayments(String ccdCase, List<BigDecimal> amounts, List<Date> paymentCreatedDates, int count) throws CheckDigitException {
         List<Payment> payments = new ArrayList<>();
 
-        for(int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             payments.add(Payment.paymentWith()
                 .id(RandomUtils.nextInt(100, 999))
                 .amount(amounts.get(i))
@@ -363,6 +363,7 @@ public class FeePayApportionMockControllerTest {
                 .paymentProvider(PaymentProvider.paymentProviderWith().name("gov pay").build())
                 .serviceType("PROBATE")
                 .ccdCaseNumber(ccdCase)
+                .paymentLink(PaymentFeeLink.paymentFeeLinkWith().ccdCaseNumber(ccdCase).build())
                 .build());
         }
         return payments;
@@ -371,7 +372,7 @@ public class FeePayApportionMockControllerTest {
     private List<PaymentFee> getFees(String ccdCase, List<BigDecimal> amounts, List<BigDecimal> remissionAmounts, List<Timestamp> feeCreatedDates, int count) throws CheckDigitException {
         List<PaymentFee> fees = new ArrayList<>();
 
-        for(int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             PaymentFee fee = PaymentFee.feeWith()
                 .id(RandomUtils.nextInt(100, 999))
                 .code("FEE00" + i)

@@ -25,4 +25,5 @@ public interface Payment2Repository extends CrudRepository<Payment, Integer>, Jp
 
     Optional<List<Payment>> findByCcdCaseNumber(String ccdCaseNumber);
 
+    Optional<List<Payment>> findByPaymentLinkId(Integer id);
 }

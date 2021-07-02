@@ -10,7 +10,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.payment.api.contract.CreditAccountPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.dto.mapper.CreditAccountDtoMapper;
 import uk.gov.hmcts.payment.api.model.Payment;
 import uk.gov.hmcts.payment.api.model.PaymentFee;
@@ -44,7 +43,7 @@ public class CreditAccountPaymentRequestMapperTest {
             .ccdCaseNumber("ccd-case-number-1")
             .caseReference("case-reference")
             .fees(fees)
-            .currency(CurrencyCode.GBP).service(Service.CMC).customerReference("reference").organisationName("org-name")
+            .currency(CurrencyCode.GBP).service("CMC").customerReference("reference").organisationName("org-name")
             .accountNumber("acc-number").siteId("site-id").build();
     }
 

@@ -42,10 +42,6 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 
 // Vars for Kubernetes
 env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
-env.PACT_BROKER_URL = "pact-broker.platform.hmcts.net"
-env.PACT_BROKER_PORT = "443"
-env.PACT_BROKER_SCHEME = "https"
-
 withPipeline(type, product, app) {
     enableAksStagingDeployment()
     overrideVaultEnvironments(vaultOverrides)
@@ -57,6 +53,15 @@ withPipeline(type, product, app) {
     disableLegacyDeployment()
 
     onMaster() {
-        enablePactAs([AppPipelineDsl.PactRoles.PROVIDER])
+        enablePactAs([
+                AppPipelineDsl.PactRoles.CONSUMER,
+                AppPipelineDsl.PactRoles.PROVIDER
+        ])
+    }
+    onPR() {
+        enablePactAs([
+                AppPipelineDsl.PactRoles.CONSUMER,
+                AppPipelineDsl.PactRoles.PROVIDER
+        ])
     }
 }
