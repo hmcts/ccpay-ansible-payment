@@ -1,7 +1,7 @@
 package uk.gov.hmcts.payment.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(NON_NULL)
 @Getter
 @Setter
@@ -42,8 +42,10 @@ public class RemissionRequest {
     @Valid
     private FeeDto fee;
 
-    @NotNull
-    private String siteId;
+    @NotBlank
+    private String caseType;
+
+    private boolean isRetroRemission;
 
     @AssertFalse(message = "Hwf amount cannot be greater than calculated amount.")
     private boolean isHwfAmountInvalid() {

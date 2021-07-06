@@ -22,6 +22,7 @@ spring:
         liberata-keys-oauth2-password: liberata.oauth2.password
         api-POSTGRES-PASS: POSTGRES_PASSWORD
         core-case-data-api-url: core_case_data.api.url
+        case-payment-orders-api-url: case-payment-orders.api.url
         AppInsightsInstrumentationKey: azure.application-insights.instrumentation-key
         card-payments-email-to: card.payments.email.to
         bar-payments-email-to: bar.payments.email.to

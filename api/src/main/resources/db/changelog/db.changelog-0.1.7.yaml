@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1559091041418-38
+      author: vignesh
+      failOnError: true
+      changes:
+        - sql:
+            splitStatements:
+            sql: >
+              ALTER TABLE payment_fee_link ADD COLUMN org_id varchar(255);
+              ALTER TABLE payment_fee_link ADD COLUMN enterprise_service_name varchar(255);
+              ALTER TABLE payment_fee_link ADD COLUMN ccd_case_number varchar(255);
+              ALTER TABLE payment_fee_link ADD COLUMN case_reference varchar(255);

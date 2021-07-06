@@ -12,6 +12,15 @@
     </suppress>
 
     <suppress until="2021-07-07">
+        <notes> The CVE-2021-22118 is due to webflux part of multiple request handing in spring framework. We need to
+            upgrade spring framework to remediate the CVE, Upgrade need separate checks and we be tracked
+            in different ticket.
+            https://tanzu.vmware.com/security/cve-2021-22118
+        </notes>
+        <cve>CVE-2021-22118</cve>
+    </suppress>
+
+    <suppress until="2021-07-07">
         <notes>These CVE's are coming from Dhowden tag library and it impacts only MP3/MP4/OGG/FLAC metadata parsing
             library. Also it is declared as false positive in (https://github.com/jeremylong/DependencyCheck/issues/3043)
         </notes>

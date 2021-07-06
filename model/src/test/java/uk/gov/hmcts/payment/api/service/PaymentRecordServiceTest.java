@@ -3,22 +3,9 @@ package uk.gov.hmcts.payment.api.service;
 import org.apache.commons.validator.routines.checkdigit.CheckDigitException;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
-import uk.gov.hmcts.payment.api.model.Payment;
-import uk.gov.hmcts.payment.api.model.PaymentChannel;
-import uk.gov.hmcts.payment.api.model.PaymentChannelRepository;
-import uk.gov.hmcts.payment.api.model.PaymentFee;
-import uk.gov.hmcts.payment.api.model.PaymentFeeLink;
-import uk.gov.hmcts.payment.api.model.PaymentFeeLinkRepository;
-import uk.gov.hmcts.payment.api.model.PaymentMethod;
-import uk.gov.hmcts.payment.api.model.PaymentMethodRepository;
-import uk.gov.hmcts.payment.api.model.PaymentStatus;
-import uk.gov.hmcts.payment.api.model.PaymentStatusRepository;
+import org.mockito.*;
+import uk.gov.hmcts.payment.api.model.*;
+import uk.gov.hmcts.payment.api.util.OrderCaseUtil;
 import uk.gov.hmcts.payment.api.util.ReferenceUtil;
 import uk.gov.hmcts.payment.api.v1.model.ServiceIdSupplier;
 import uk.gov.hmcts.payment.api.v1.model.UserIdSupplier;
@@ -28,9 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PaymentRecordServiceTest {
 
@@ -63,6 +48,9 @@ public class PaymentRecordServiceTest {
     @Captor
     private ArgumentCaptor<PaymentFeeLink> argumentCaptor;
 
+    @Mock
+    private OrderCaseUtil orderCaseUtil;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -79,6 +67,7 @@ public class PaymentRecordServiceTest {
             .fees(fees)
             .build();
 
+        when(orderCaseUtil.enhanceWithOrderCaseDetails(any(PaymentFeeLink.class), any(Payment.class))).thenReturn(paymentFeeLink);
         when(paymentFeeLinkRepository.save(any(PaymentFeeLink.class))).thenReturn(paymentFeeLink);
         when(paymentStatusRepository.findByNameOrThrow("pending")).thenReturn(PaymentStatus.paymentStatusWith().name("pending").build());
 

@@ -2,28 +2,34 @@ package uk.gov.hmcts.payment.api.contract;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Wither;
+import lombok.With;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@With
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(NON_NULL)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(builderMethodName = "telephonyCardPaymentsRequestWith")
-@Wither
 public class TelephonyCardPaymentsRequest {
 
     @NotNull
@@ -37,18 +43,14 @@ public class TelephonyCardPaymentsRequest {
     @Size(min = 16, max = 16, message = "ccd_case_number length must be 16 digits")
     private String ccdCaseNumber;
 
-    @NotNull
-    private Service service;
+    @JsonProperty("case_type")
+    @NotBlank
+    private String caseType;
 
     @NotNull
     private CurrencyCode currency;
 
     @NotEmpty
-    @JsonProperty("site_id")
-    private String siteId;
-
-    @NotEmpty
     private String returnURL;
-
 
 }

@@ -5,6 +5,7 @@ include ':payment-model'
 include ':payment-api-contract'
 include ':payment-api'
 include ':payment-otp'
+include ':case-payment-orders-client'
 
 project(':payment-reference-data').projectDir = "$rootDir/reference-data" as File
 project(':payment-gov-pay-client').projectDir = "$rootDir/gov-pay-client" as File
@@ -12,3 +13,4 @@ project(':payment-model').projectDir = "$rootDir/model" as File
 project(':payment-api-contract').projectDir = "$rootDir/api-contract" as File
 project(':payment-api').projectDir = "$rootDir/api" as File
 project(':payment-otp').projectDir = "$rootDir/otp" as File
+project(':case-payment-orders-client').projectDir = "$rootDir/case-payment-orders-client" as File
