@@ -9,7 +9,6 @@ import lombok.*;
 import org.joda.time.DateTime;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.model.PaymentChannel;
 import uk.gov.hmcts.payment.api.model.PaymentStatus;
 import uk.gov.hmcts.payment.api.util.PaymentMethodType;
@@ -46,7 +45,7 @@ public class PaymentRecordRequest {
 
     @NotNull
     @JsonProperty("requestor")
-    private Service service;
+    private String service;
 
     private PaymentChannel paymentChannel;
 

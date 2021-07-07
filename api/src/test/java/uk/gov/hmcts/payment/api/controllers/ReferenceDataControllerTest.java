@@ -1,4 +1,4 @@
-package uk.gov.hmcts.payment.api.componenttests;
+package uk.gov.hmcts.payment.api.controllers;
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.junit.ClassRule;

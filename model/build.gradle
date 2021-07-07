@@ -13,6 +13,7 @@ dependencies {
     compile group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: '5.1.1'
     compile group: 'com.netflix.hystrix', name: 'hystrix-javanica', version: '1.5.12'
     compile group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '5.3.0'
+    compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.1'
 
     testCompile(group: 'org.springframework.boot', name: 'spring-boot-starter-test') {
       exclude(module: 'commons-logging')

@@ -42,8 +42,8 @@ public class RemissionRequest {
     @Valid
     private FeeDto fee;
 
-    @NotNull
-    private String siteId;
+    @NotBlank
+    private String caseType;
 
     @AssertFalse(message = "Hwf amount cannot be greater than calculated amount.")
     private boolean isHwfAmountInvalid() {

@@ -13,7 +13,8 @@ import java.util.List;
 
 @Entity
 @EntityListeners(PaymentFeeEntityListener.class)
-@Data
+@Getter
+@Setter
 @Builder(builderMethodName = "feeWith")
 @AllArgsConstructor
 @NoArgsConstructor
