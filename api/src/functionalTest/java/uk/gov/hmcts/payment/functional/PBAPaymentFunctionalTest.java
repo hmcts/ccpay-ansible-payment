@@ -61,6 +61,8 @@ public class PBAPaymentFunctionalTest {
 
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String DATE_TIME_FORMAT_T_HH_MM_SS = "yyyy-MM-dd'T'HH:mm:ss";
+    private static final int CCD_CASE_NUMBER_MIN_VALUE = 100000000;
+    private static final int CCD_CASE_NUMBER_MAX_VALUE = 999999999;
 
     @Before
     public void setUp() {
@@ -95,7 +97,7 @@ public class PBAPaymentFunctionalTest {
     @Test
     public void makeAndRetrievePBAPaymentByProbateTestShouldReturnAutoApportionedFees() {
         String accountNumber = testProps.existingAccountNumber;
-        String ccdCaseNumber = "1111-CC12-" + RandomUtils.nextInt();
+        String ccdCaseNumber = "1111222" + RandomUtils.nextInt(CCD_CASE_NUMBER_MIN_VALUE, CCD_CASE_NUMBER_MAX_VALUE);
         // create card payment
         List<FeeDto> fees = new ArrayList<>();
         fees.add(FeeDto.feeDtoWith().code("FEE0271").ccdCaseNumber(ccdCaseNumber).feeAmount(new BigDecimal(20))
@@ -198,7 +200,7 @@ public class PBAPaymentFunctionalTest {
     @Test
     public void makeAndRetrievePBAPaymentByProbateTestShouldReturnAutoApportionedFeesForSuccessMultipleFeesLiberataValidation() {
         String accountNumber = testProps.existingAccountNumber;
-        String ccdCaseNumber = "1111-CC12-" + RandomUtils.nextInt();
+        String ccdCaseNumber = "1111222" + RandomUtils.nextInt(CCD_CASE_NUMBER_MIN_VALUE, CCD_CASE_NUMBER_MAX_VALUE);
         // create card payment
         List<FeeDto> fees = new ArrayList<>();
         fees.add(FeeDto.feeDtoWith().code("FEE0271").ccdCaseNumber(ccdCaseNumber).feeAmount(new BigDecimal(20))

@@ -38,6 +38,8 @@ public class CreditAccountPaymentRequest {
     @NotEmpty
     private String description;
 
+    @NotNull
+    @Pattern(regexp = "^[0-9]{16}",message = "ccd_case_number should be 16 digit and numeric")
     private String ccdCaseNumber;
 
     private String caseReference;
@@ -64,10 +66,6 @@ public class CreditAccountPaymentRequest {
     @Valid
     private List<FeeDto> fees;
 
-    @AssertFalse(message = "Either ccdCaseNumber or caseReference is required.")
-    private boolean isEitherOneRequired() {
-        return (ccdCaseNumber == null && caseReference == null);
-    }
 
     @AssertFalse(message = "Invalid Site ID (URN) provided for FPL. Accepted values are ABA3")
     private boolean isValidSiteId() {

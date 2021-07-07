@@ -125,7 +125,6 @@ public class PaymentBarPerformanceLiberataTest {
             assertThat(paymentsResponse.getPayments().get(0).getSiteId()).isNotNull();
             assertThat(paymentsResponse.getPayments().get(0).getPaymentGroupReference()).isNotNull();
             assertThat(paymentsResponse.getPayments().get(0).getReportedDateOffline()).isNotNull();
-            assertThat(paymentsResponse.getPayments().get(0).getGiroSlipNo()).isEqualTo("312131");
             FeeDto feeDto = paymentsResponse.getPayments().get(0).getFees().get(0);
             assertThat(feeDto.getCode()).isEqualTo("FEE0002");
             assertThat(feeDto.getVersion()).isEqualTo("4");

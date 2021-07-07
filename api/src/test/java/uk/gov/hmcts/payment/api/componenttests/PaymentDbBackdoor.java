@@ -7,8 +7,6 @@ import uk.gov.hmcts.payment.api.model.FeePayApportion.FeePayApportionBuilder;
 import uk.gov.hmcts.payment.api.model.PaymentFeeLink.PaymentFeeLinkBuilder;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentNotFoundException;
 
-import java.util.List;
-
 @Component
 public class PaymentDbBackdoor {
 
@@ -34,10 +32,5 @@ public class PaymentDbBackdoor {
     {
         return feePayApportionRepository.save(apportionBuilder.build());
     }
-
-    public List<Payment> findByCcdCaseNumber(String ccdCaseNumber) {
-        return paymentRepository.findByCcdCaseNumber(ccdCaseNumber).orElseThrow(PaymentNotFoundException::new);
-    }
-
 
 }

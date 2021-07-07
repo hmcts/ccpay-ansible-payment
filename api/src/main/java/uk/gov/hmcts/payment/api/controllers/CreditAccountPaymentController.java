@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +56,6 @@ public class CreditAccountPaymentController {
     private final LaunchDarklyFeatureToggler featureToggler;
     private final PBAStatusErrorMapper pbaStatusErrorMapper;
     private final CreditAccountPaymentRequestMapper requestMapper;
-    private final List<String> pbaConfig1ServiceNames;
 
 
     @Autowired
@@ -65,9 +63,9 @@ public class CreditAccountPaymentController {
                                           CreditAccountDtoMapper creditAccountDtoMapper,
                                           AccountService<AccountDto, String> accountService,
                                           DuplicatePaymentValidator paymentValidator,
-                                          FeePayApportionService feePayApportionService,LaunchDarklyFeatureToggler featureToggler,
+                                          FeePayApportionService feePayApportionService, LaunchDarklyFeatureToggler featureToggler,
                                           PBAStatusErrorMapper pbaStatusErrorMapper,
-                                          CreditAccountPaymentRequestMapper requestMapper,  @Value("#{'${pba.config1.service.names}'.split(',')}") List<String> pbaConfig1ServiceNames) {
+                                          CreditAccountPaymentRequestMapper requestMapper) {
         this.creditAccountPaymentService = creditAccountPaymentService;
         this.creditAccountDtoMapper = creditAccountDtoMapper;
         this.accountService = accountService;
@@ -76,7 +74,6 @@ public class CreditAccountPaymentController {
         this.featureToggler = featureToggler;
         this.pbaStatusErrorMapper = pbaStatusErrorMapper;
         this.requestMapper = requestMapper;
-        this.pbaConfig1ServiceNames = pbaConfig1ServiceNames;
     }
 
     @ApiOperation(value = "Create credit account payment", notes = "Create credit account payment")
@@ -102,30 +99,21 @@ public class CreditAccountPaymentController {
 
         LOG.info("CreditAccountPayment received for ccdCaseNumber : {} serviceType : {} pbaNumber : {} amount : {} NoOfFees : {}",
             payment.getCcdCaseNumber(), payment.getServiceType(), payment.getPbaNumber(), payment.getAmount(), fees.size());
-        LOG.info("PBA Old Config Service Names : {}", pbaConfig1ServiceNames);
-        if (!pbaConfig1ServiceNames.contains(creditAccountPaymentRequest.getService().toString())) {
-            LOG.info("Checking with Liberata for Service : {}", creditAccountPaymentRequest.getService());
-            AccountDto accountDetails;
-            try {
-                accountDetails = accountService.retrieve(creditAccountPaymentRequest.getAccountNumber());
-                LOG.info("CreditAccountPayment received for ccdCaseNumber : {} Liberata AccountStatus : {}", payment.getCcdCaseNumber(), accountDetails.getStatus());
-            } catch (HttpClientErrorException ex) {
-                LOG.error("Account information could not be found, exception: {}", ex.getMessage());
-                throw new AccountNotFoundException("Account information could not be found");
-            } catch (Exception ex) {
-                LOG.error("Unable to retrieve account information, exception: {}", ex.getMessage());
-                throw new AccountServiceUnavailableException("Unable to retrieve account information, please try again later");
-            }
-
-            pbaStatusErrorMapper.setPaymentStatus(creditAccountPaymentRequest, payment, accountDetails);
-        } else {
-            LOG.info("Setting status to pending");
-            payment.setPaymentStatus(PaymentStatus.paymentStatusWith().name("pending").build());
-            LOG.info("CreditAccountPayment received for ccdCaseNumber : {} PaymentStatus : {} - Account Balance Sufficient!!!", payment.getCcdCaseNumber(), payment.getPaymentStatus().getName());
+        LOG.info("Checking with Liberata for Service : {}", creditAccountPaymentRequest.getService());
+        AccountDto accountDetails;
+        try {
+            accountDetails = accountService.retrieve(creditAccountPaymentRequest.getAccountNumber());
+            LOG.info("CreditAccountPayment received for ccdCaseNumber : {} Liberata AccountStatus : {}", payment.getCcdCaseNumber(), accountDetails.getStatus());
+        } catch (HttpClientErrorException ex) {
+            LOG.error("Account information could not be found, exception: {}", ex.getMessage());
+            throw new AccountNotFoundException("Account information could not be found");
+        } catch (Exception ex) {
+            LOG.error("Unable to retrieve account information, exception: {}", ex.getMessage());
+            throw new AccountServiceUnavailableException("Unable to retrieve account information, please try again later");
         }
 
+        pbaStatusErrorMapper.setPaymentStatus(creditAccountPaymentRequest, payment, accountDetails);
         checkDuplication(payment, fees);
-
         PaymentFeeLink paymentFeeLink = creditAccountPaymentService.create(payment, fees, paymentGroupReference);
 
         if (payment.getPaymentStatus().getName().equals(FAILED)) {
@@ -134,15 +122,15 @@ public class CreditAccountPaymentController {
         }
 
         // trigger Apportion based on the launch darkly feature flag
-        boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature",false);
+        boolean apportionFeature = featureToggler.getBooleanValue("apportion-feature", false);
         LOG.info("ApportionFeature Flag Value in CreditAccountPaymentController : {}", apportionFeature);
-        if(apportionFeature) {
+        if (apportionFeature) {
             Payment pbaPayment = paymentFeeLink.getPayments().get(0);
             pbaPayment.setPaymentLink(paymentFeeLink);
             feePayApportionService.processApportion(pbaPayment);
 
             // Update Fee Amount Due as Payment Status received from PBA Payment as SUCCESS
-            if(Lists.newArrayList("success", "pending").contains(pbaPayment.getPaymentStatus().getName().toLowerCase())) {
+            if (Lists.newArrayList("success", "pending").contains(pbaPayment.getPaymentStatus().getName().toLowerCase())) {
                 LOG.info("Update Fee Amount Due as Payment Status received from PBA Payment as {}" + pbaPayment.getPaymentStatus().getName());
                 feePayApportionService.updateFeeAmountDue(pbaPayment);
             }
