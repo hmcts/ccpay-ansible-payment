@@ -28,6 +28,7 @@ java:
     FEES_REGISTER_URL: http://fees-register-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     PAYBUBBLE_HOME_URL: https://ccpay-bubble-frontend-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     CORE_CASE_DATA_API_URL: http://ccd-data-store-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
+    CASE_PAYMENT_ORDERS_API_URL: http://cpo-case-payment-orders-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     CCPAY_BULK_SCANNING_API_URL: http://ccpay-bulkscanning-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     CALLBACK_PAYMENTS_CUTOFF_TIME_IN_MINUTES: 2
 

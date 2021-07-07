@@ -3,6 +3,7 @@ description = ''
 dependencies {
     compile project(':payment-gov-pay-client')
     compile project(':payment-reference-data')
+    compile project(':case-payment-orders-client')
     compile group: 'net.logstash.logback', name: 'logstash-logback-encoder', version:'5.0'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
