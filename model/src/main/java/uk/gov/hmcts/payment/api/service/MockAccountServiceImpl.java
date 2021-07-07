@@ -10,6 +10,7 @@ import uk.gov.hmcts.payment.api.dto.AccountDto;
 import uk.gov.hmcts.payment.api.util.AccountStatus;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Service
 @Profile("liberataMock")
@@ -20,7 +21,8 @@ public class MockAccountServiceImpl implements AccountService<AccountDto, String
     @Override
     public AccountDto retrieve(String pbaCode) {
         LOG.info("Called mock liberata account service");
-        if ("PBAFUNC12345".equalsIgnoreCase(pbaCode)) {
+        if (Objects.nonNull(pbaCode) &&
+            "PBAFUNC12345".equalsIgnoreCase(pbaCode)) {
             return AccountDto.accountDtoWith()
                 .accountNumber("PBAFUNC12345")
                 .accountName("CAERPHILLY COUNTY BOROUGH COUNCIL")
@@ -29,6 +31,6 @@ public class MockAccountServiceImpl implements AccountService<AccountDto, String
                 .status(AccountStatus.ACTIVE)
                 .build();
         }
-        throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "UnKnown test pba account number");
+        throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Unknown test pba account number");
     }
 }

@@ -77,6 +77,7 @@ java:
     PBA_CONFIG1_SERVICE_NAMES: dummy
     SERVER_SHUTDOWN_STRATEGY: graceful
     TIMEOUT_SERVER_SHUTDOWN_PHASE: 30s
+    LIBERATA_MOCK_RESPONSE: false
 
   keyVaults:
     "ccpay":
