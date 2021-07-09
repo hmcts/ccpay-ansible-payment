@@ -5,7 +5,6 @@ import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.payment.api.contract.exception.ValidationErrorDTO;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.exception.ValidationErrorException;
 import uk.gov.hmcts.payment.api.util.DateUtil;
 import uk.gov.hmcts.payment.api.util.PaymentMethodType;
@@ -26,15 +25,11 @@ public class PaymentValidator {
         this.dateUtil = dateUtil;
     }
 
-    public void validate(Optional<String> paymentMethodType, Optional<String> serviceType, Optional<String> startDateString, Optional<String> endDateString) {
+    public void validate(Optional<String> paymentMethodType, Optional<String> startDateString, Optional<String> endDateString) {
         ValidationErrorDTO dto = new ValidationErrorDTO();
 
         if (paymentMethodType.isPresent() && !EnumUtils.isValidEnum(PaymentMethodType.class, paymentMethodType.get().toUpperCase())) {
             dto.addFieldError("payment_method", "Invalid payment method requested");
-        }
-
-        if (serviceType.isPresent() && !EnumUtils.isValidEnum(Service.class, serviceType.get().toUpperCase())) {
-            dto.addFieldError("service_name", "Invalid service name requested");
         }
 
         Optional<LocalDateTime> startDate = parseAndValidateDate(startDateString, "start_date", dto);

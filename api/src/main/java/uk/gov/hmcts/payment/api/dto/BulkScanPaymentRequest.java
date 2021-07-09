@@ -9,7 +9,6 @@ import lombok.*;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.model.PaymentChannel;
 import uk.gov.hmcts.payment.api.model.PaymentStatus;
 import uk.gov.hmcts.payment.api.util.PaymentMethodType;
@@ -40,7 +39,7 @@ public class BulkScanPaymentRequest {
 
     @NotNull
     @JsonProperty("requestor")
-    private Service service;
+    private String service;
 
     private String ccdCaseNumber;
 
