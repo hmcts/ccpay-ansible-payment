@@ -14,6 +14,9 @@ def product = "payment"
 
 def app = "api"
 
+// Configure branches to sync with master branch
+def branchesToSync = ['demo', 'ithc', 'perftest']
+
 def vaultOverrides = [
     'preview': 'aat',
     'hmctsdemo': 'aat',
@@ -51,7 +54,6 @@ withPipeline(type, product, app) {
     //installCharts()
     enableSlackNotifications('#cc-payments-tech')
     disableLegacyDeployment()
-
     onMaster() {
         enablePactAs([
                 AppPipelineDsl.PactRoles.CONSUMER,
@@ -64,4 +66,7 @@ withPipeline(type, product, app) {
                 AppPipelineDsl.PactRoles.PROVIDER
         ])
     }
+
+    //Sync demo,ithc and perftest with master branch
+    syncBranchesWithMaster(branchesToSync)
 }

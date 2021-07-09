@@ -2,7 +2,7 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
 
     <!-- Below are the supressions added fpr False Positive CVEs -->
-    <suppress until="2021-07-07">
+    <suppress until="2021-09-07">
         <notes>The CVE-2018-1258 occurs from spring security libraries, despite the latest versions are used. This is
             confirmed as false positive
             and hence it is suppressed (https://github.com/jeremylong/DependencyCheck/issues/2952).
@@ -11,7 +11,7 @@
         <cve>CVE-2018-1258</cve>
     </suppress>
 
-    <suppress until="2021-07-07">
+    <suppress until="2021-09-07">
         <notes>These CVE's are coming from Dhowden tag library and it impacts only MP3/MP4/OGG/FLAC metadata parsing
             library. Also it is declared as false positive in (https://github.com/jeremylong/DependencyCheck/issues/3043)
         </notes>
@@ -22,7 +22,7 @@
     </suppress>
 
 
-    <suppress until="2021-07-07">
+    <suppress until="2021-09-07">
         <notes><![CDATA[False positive reported for Oauth2-oidc-sdk at (https://github.com/jeremylong/DependencyCheck/issues/1658) and
             (https://github.com/jeremylong/DependencyCheck/issues/2866)]]></notes>
         <cve>CVE-2007-1651</cve>
@@ -32,7 +32,7 @@
     <!-- False Positive CVE supressions ends here-->
 
     <!-- Below are the supressions that are made for the CVEs which occur in the latest version -->
-    <suppress until="2021-07-07">
+    <suppress until="2021-09-07">
         <notes>
             <![CDATA[This CVE appears in the latest version of wiremock, WireMock 2.27.2 JRE 8 embeds jquery-3.4.1.min.js. see(https://github.com/tomakehurst/wiremock/issues/1417)]]></notes>
         <cve>CVE-2020-11022</cve>
