@@ -27,7 +27,7 @@ public class CreditAccountPaymentRequestMapper {
             .ccdCaseNumber(creditAccountPaymentRequest.getCcdCaseNumber())
             .caseReference(creditAccountPaymentRequest.getCaseReference())
             .currency(creditAccountPaymentRequest.getCurrency().getCode())
-            .serviceType(creditAccountPaymentRequest.getService().getName())
+            .serviceType(creditAccountPaymentRequest.getService())
             .customerReference(creditAccountPaymentRequest.getCustomerReference())
             .organisationName(creditAccountPaymentRequest.getOrganisationName())
             .pbaNumber(creditAccountPaymentRequest.getAccountNumber())

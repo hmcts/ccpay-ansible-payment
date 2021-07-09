@@ -1,19 +1,17 @@
 package uk.gov.hmcts.payment.api.v1.contract;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Wither;
-import org.hibernate.validator.constraints.Email;
-import javax.validation.constraints.NotEmpty;
 import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;

@@ -14,12 +14,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.*;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.model.PaymentStatus;
 import uk.gov.hmcts.payment.api.service.ReplayCreditAccountPaymentService;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.PaymentException;
@@ -68,7 +68,8 @@ public class ReplayCreditAccountPaymentController {
     @ResponseBody
     @Transactional
     public ResponseEntity<String> replayCreditAccountPayment(@RequestParam("csvFile") MultipartFile replayPBAPaymentsFile,
-                                                             @RequestParam("isReplayPBAPayments") Boolean isReplayPBAPayments) {
+                                                             @RequestParam("isReplayPBAPayments") Boolean isReplayPBAPayments,
+                                                             @RequestHeader(required = false) MultiValueMap<String, String> headers) {
 
         LOG.info("REPLAY_CREDIT_ACCOUNT_PAYMENT: isReplayPBAPayments = " + isReplayPBAPayments);
 
@@ -109,7 +110,7 @@ public class ReplayCreditAccountPaymentController {
 
                         // 3. Replay New PBA Payment as Data Provided in CSV
                         if (isReplayPBAPayments) {
-                            createPBAPayments(replayCreditAccountPaymentDTO);
+                            createPBAPayments(replayCreditAccountPaymentDTO,headers);
                         }
                     } catch (Exception exception) {
                         LOG.info("REPLAY_CREDIT_ACCOUNT_PAYMENT ERROR: PBA Payment not found for reference =" + replayCreditAccountPaymentDTO.getExistingPaymentReference());
@@ -127,11 +128,11 @@ public class ReplayCreditAccountPaymentController {
         return new ResponseEntity<String>("Replay Payment Completed Successfully", HttpStatus.OK);
     }
 
-    private void createPBAPayments(ReplayCreditAccountPaymentDTO replayCreditAccountPaymentDTO) {
+    private void createPBAPayments(ReplayCreditAccountPaymentDTO replayCreditAccountPaymentDTO,MultiValueMap<String, String> headers) {
 
         try {
             // Call the Payment PBA API v1
-            ResponseEntity<PaymentDto> paymentDtoResponseEntity = creditAccountPaymentController.createCreditAccountPayment(replayCreditAccountPaymentDTO.getCreditAccountPaymentRequest());
+            ResponseEntity<PaymentDto> paymentDtoResponseEntity = creditAccountPaymentController.createCreditAccountPayment(replayCreditAccountPaymentDTO.getCreditAccountPaymentRequest(),headers);
             if (paymentDtoResponseEntity != null) {
                 PaymentDto paymentDto = paymentDtoResponseEntity.getBody();
                 if (paymentDto != null && paymentDto.getReference() != null) {
@@ -159,7 +160,7 @@ public class ReplayCreditAccountPaymentController {
                     .accountNumber(replayCreditAccountPaymentRequest.getPbaNumber().replace("\"", ""))
                     .description(replayCreditAccountPaymentRequest.getDescription())
                     .caseReference(replayCreditAccountPaymentRequest.getCaseReference().replace("\"", ""))
-                    .service(Service.valueOf(replayCreditAccountPaymentRequest.getService()))
+                    .service(replayCreditAccountPaymentRequest.getService())
                     .currency(CurrencyCode.valueOf(replayCreditAccountPaymentRequest.getCurrency()))
                     .customerReference(replayCreditAccountPaymentRequest.getCustomerReference())
                     .organisationName(replayCreditAccountPaymentRequest.getOrganisationName().replace("\"", ""))

@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import uk.gov.hmcts.payment.api.contract.PaymentDto;
-import uk.gov.hmcts.payment.api.contract.util.Service;
 import uk.gov.hmcts.payment.api.dto.PaymentSearchCriteria;
 import uk.gov.hmcts.payment.api.dto.mapper.PaymentDtoMapper;
 import uk.gov.hmcts.payment.api.email.Email;
@@ -56,7 +55,7 @@ public class PaymentsReportService {
         this.feesService = feesService;
     }
 
-    public void generateCsvAndSendEmail(Date startDate, Date endDate, PaymentMethodType paymentMethodType, Service serviceName,
+    public void generateCsvAndSendEmail(Date startDate, Date endDate, PaymentMethodType paymentMethodType, String serviceName,
                                         PaymentReportConfig reportConfig) {
 
         LOG.info("Start of payments csv report for method type :{} and service name :{}", paymentMethodType, serviceName);
@@ -67,8 +66,8 @@ public class PaymentsReportService {
         LOG.info("End of payments csv report for method type :{} and service name :{}", paymentMethodType, serviceName);
     }
 
-    private List<PaymentDto> findPaymentsBy(Date startDate, Date endDate, PaymentMethodType paymentMethodType, Service serviceName) {
-        String serviceType = Optional.ofNullable(serviceName).map(Service::getName).orElse(null);
+    private List<PaymentDto> findPaymentsBy(Date startDate, Date endDate, PaymentMethodType paymentMethodType, String serviceName) {
+        String serviceType = serviceName;
         String paymentMethodTypeString = Optional.ofNullable(paymentMethodType).map(PaymentMethodType::getType).orElse(null);
 
         return delegatingPaymentService

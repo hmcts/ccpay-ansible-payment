@@ -1,38 +1,20 @@
 package uk.gov.hmcts.payment.api.controllers.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.math.RandomUtils;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.stereotype.Component;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.payment.api.componenttests.util.CSVUtil;
-import uk.gov.hmcts.payment.api.configuration.LaunchDarklyFeatureToggler;
 import uk.gov.hmcts.payment.api.contract.CreditAccountPaymentRequest;
 import uk.gov.hmcts.payment.api.contract.FeeDto;
-import uk.gov.hmcts.payment.api.contract.PaymentDto;
 import uk.gov.hmcts.payment.api.contract.util.CurrencyCode;
-import uk.gov.hmcts.payment.api.contract.util.Service;
-import uk.gov.hmcts.payment.api.dto.AccountDto;
-import uk.gov.hmcts.payment.api.service.AccountService;
-import uk.gov.hmcts.payment.api.util.AccountStatus;
-import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.ServiceResolverBackdoor;
-import uk.gov.hmcts.payment.api.v1.componenttests.backdoors.UserResolverBackdoor;
-import uk.gov.hmcts.payment.api.v1.componenttests.sugar.RestActions;
 
 import javax.validation.constraints.NotNull;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
-
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class ReplayCreditAccountPaymentUtils {
@@ -44,7 +26,7 @@ public class ReplayCreditAccountPaymentUtils {
             .accountNumber("\"PBA0073" + RandomUtils.nextInt(999) + "\"")
             .description("Money Claim issue fee")
             .caseReference("\"9eb95270-7fee-48cf-afa2-e6c58ee" + RandomUtils.nextInt(999) + "ba\"")
-            .service(Service.CMC)
+            .service("CMC")
             .currency(CurrencyCode.GBP)
             .customerReference("DEA2682/1/SWG" + RandomUtils.nextInt(999))
             .organisationName("\"Slater & Gordon" + RandomUtils.nextInt(999) + "\"")

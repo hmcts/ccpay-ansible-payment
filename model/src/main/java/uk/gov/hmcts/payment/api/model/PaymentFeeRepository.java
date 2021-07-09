@@ -10,7 +10,7 @@ public interface PaymentFeeRepository extends CrudRepository<PaymentFee, Integer
 
     <S extends PaymentFee> S save(S entity);
 
-    Optional<PaymentFee> findByPaymentLinkId(Integer id);
+    Optional<List<PaymentFee>> findByPaymentLinkId(Integer id);
 
     Optional<List<PaymentFee>> findByCcdCaseNumber(String ccdCaseNumber);
 

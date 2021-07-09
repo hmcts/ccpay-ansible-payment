@@ -38,6 +38,15 @@
         <cve>CVE-2020-11022</cve>
         <cve>CVE-2020-11023</cve>
     </suppress>
+
+    <suppress until="2021-09-07">
+        <notes> The CVE-2021-22118 is due to webflux part of multiple request handing in spring framework. We need to
+            upgrade spring framework to remediate the CVE, Upgrade need separate checks and we be tracked
+            in different ticket.
+            https://tanzu.vmware.com/security/cve-2021-22118
+        </notes>
+        <cve>CVE-2021-22118</cve>
+    </suppress>
     <!-- Supression Group ends here -->
 
 
