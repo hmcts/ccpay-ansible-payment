@@ -80,7 +80,7 @@ public class BarPaymentFunctionalTest {
         // search payment and assert the result
 
         try {
-            Thread.sleep(10000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
