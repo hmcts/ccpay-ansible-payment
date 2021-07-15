@@ -45,6 +45,8 @@ public class RemissionRequest {
     @NotBlank
     private String caseType;
 
+    private boolean isRetroRemission;
+
     @AssertFalse(message = "Hwf amount cannot be greater than calculated amount.")
     private boolean isHwfAmountInvalid() {
         return (hwfAmount != null && fee != null) &&

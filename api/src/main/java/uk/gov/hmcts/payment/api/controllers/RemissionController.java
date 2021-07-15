@@ -92,6 +92,7 @@ public class RemissionController {
             .ccdCaseNumber(remissionRequest.getCcdCaseNumber())
             .caseReference(remissionRequest.getCaseReference())
             .siteId(organisationalServiceDto.getServiceCode())
+            .isRetroRemission(remissionRequest.isRetroRemission())
             .build();
     }
 

@@ -204,6 +204,7 @@ public class PaymentFixture {
             .accountNumber("PBAFUNC12345")
             .fees(Lists.newArrayList(
                 FeeDto.feeDtoWith()
+                    .amountDue(new BigDecimal(amountString))
                     .calculatedAmount(new BigDecimal(amountString))
                     .code("FEE0001")
                     .version("1")

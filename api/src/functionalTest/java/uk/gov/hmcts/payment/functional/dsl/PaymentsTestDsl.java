@@ -147,6 +147,12 @@ public class PaymentsTestDsl {
             return this;
         }
 
+        public PaymentWhenDsl getPaymentGroup( String paymentGroupReference) {
+            response = newRequest().contentType(ContentType.JSON)
+                .get("/payment-groups/{payment-group-reference}", paymentGroupReference);
+            return this;
+        }
+
         public PaymentWhenDsl addNewPaymentGroup(PaymentGroupDto paymentGroupFeeRequest) {
             response = newRequest().contentType(ContentType.JSON).body(paymentGroupFeeRequest)
                 .post("/payment-groups");

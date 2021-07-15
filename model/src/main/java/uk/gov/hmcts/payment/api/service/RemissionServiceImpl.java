@@ -5,10 +5,7 @@ import org.apache.commons.validator.routines.checkdigit.CheckDigitException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.payment.api.dto.RemissionServiceRequest;
-import uk.gov.hmcts.payment.api.model.PaymentFee;
-import uk.gov.hmcts.payment.api.model.PaymentFeeLink;
-import uk.gov.hmcts.payment.api.model.PaymentFeeLinkRepository;
-import uk.gov.hmcts.payment.api.model.Remission;
+import uk.gov.hmcts.payment.api.model.*;
 import uk.gov.hmcts.payment.api.util.OrderCaseUtil;
 import uk.gov.hmcts.payment.api.util.ReferenceUtil;
 import uk.gov.hmcts.payment.api.v1.model.exceptions.InvalidPaymentGroupReferenceException;
@@ -77,6 +74,16 @@ public class RemissionServiceImpl implements RemissionService {
         paymentFeeLink.setRemissions(Lists.newArrayList(remission));
 
         fee.setNetAmount(fee.getCalculatedAmount().subtract(remission.getHwfAmount()));
+
+        if(remissionServiceRequest.isRetroRemission()){
+            paymentFeeLink.getPayments().stream().forEach(p-> {
+                if(p.getPaymentStatus().getName().equalsIgnoreCase("success")){
+                    fee.setAmountDue(fee.getCalculatedAmount().subtract(remission.getHwfAmount()).subtract(p.getAmount()));
+                }else{
+                    fee.setAmountDue(fee.getCalculatedAmount().subtract(remission.getHwfAmount()));
+                }
+            });
+        }
 
         if (fee.getRemissions() == null) {
             fee.setRemissions(Lists.newArrayList(remission));
