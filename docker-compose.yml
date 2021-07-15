@@ -63,7 +63,7 @@ services:
       - REFORM_TEAM=cc
       - SPRING_DATASOURCE_URL=jdbc:postgresql://payments-database:5432/payment
       - SPRING_DATASOURCE_USERNAME=payment
-      - SPRING_DATASOURCE_PASSWORD=payment
+      - SPRING_DATASOURCE_PASSWORD=dummy_9
       - SPRING_LIQUIBASE_ENABLED=true
       - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
       - SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST=*
@@ -85,7 +85,7 @@ services:
     image: postgres:11-alpine
     environment:
       - POSTGRES_USER=payment
-      - POSTGRES_PASSWORD=payment
+      - POSTGRES_PASSWORD=dummy_8
       - POSTGRES_DB=payment
     ports:
       - 5430:5432
@@ -105,7 +105,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ccfr-fees-database:5432/fees_register
       - SPRING_DATASOURCE_USERNAME=fees_register
-      - SPRING_DATASOURCE_PASSWORD=fees_register
+      - SPRING_DATASOURCE_PASSWORD=dummy_7
       - AUTH_IDAM_CLIENT_BASEURL=https://idam-test.dev.ccidam.reform.hmcts.net
     ports:
       - 8182:8080
@@ -117,10 +117,10 @@ services:
     image: postgres:11-alpine
     environment:
       - POSTGRES_USER=fees_register
-      - POSTGRES_PASSWORD=fees_register
+      - POSTGRES_PASSWORD=dummy_6
       - POSTGRES_DB=fees_register
     ports:
-    - 5182:5432
+      - 5182:5432
   fr-am:
     image: hmctsprivate.azurecr.io/idam/idam-fr-am:latest
     hostname: localam
@@ -164,19 +164,19 @@ services:
       - SPRING_PROFILES_ACTIVE=local
       - SPRING_DATASOURCE_URL=jdbc:postgresql://shared-db:5432/openidm?currentSchema=fridam
       - SPRING_DATASOURCE_USERNAME=openidm
-      - SPRING_DATASOURCE_PASSWORD=openidm
-      - SECURITY_OAUTH2_CLIENT_CLIENTSECRET=password
+      - SPRING_DATASOURCE_PASSWORD=dummy_1
+      - SECURITY_OAUTH2_CLIENT_CLIENTSECRET=dummy_5
       - SECURITY_OAUTH2_CLIENT_PRE_ESTABLISHED_REDIRECT_URI=http://idam-web-public:9002/login
       - SECURITY_OAUTH2_CLIENT_REGISTERED_REDIRECT_URI=http://idam-web-public:9002/login
       - IDAM_SPI_FORGEROCK_AM_ROOT=http://fr-am:8080/openam
       - IDAM_SPI_FORGEROCK_AM_TOPLEVELHOST=fr-am
       - IDAM_SPI_FORGEROCK_AM_USERNAME=amadmin
-      - IDAM_SPI_FORGEROCK_AM_PASSWORD=Pa55word11
+      - IDAM_SPI_FORGEROCK_AM_PASSWORD=dummy_2
       - IDAM_SPI_FORGEROCK_AM_JWKSURIFOROAUTH2CLIENTS=http://fr-am:8080/openam/oauth2/hmcts/connect/jwk_uri
       - IDAM_SPI_FORGEROCK_IDM_ROOT=http://fr-idm:18080/openidm
       - IDAM_SPI_FORGEROCK_IDM_USERNAME=openidm-admin
-      - IDAM_SPI_FORGEROCK_IDM_PASSWORD=openidm-admin
-      - IDAM_SPI_FORGEROCK_IDM_PIN_DEFAULTPASSWORD=BlaBlaBlackSh33p
+      - IDAM_SPI_FORGEROCK_IDM_PASSWORD=dummy_3
+      - IDAM_SPI_FORGEROCK_IDM_PIN_DEFAULTPASSWORD=dummy_4
       - APPSETTING_NODE_PATH=/opt/app
   idam-web-public:
     image: hmctspublic.azurecr.io/idam/web-public:stable
