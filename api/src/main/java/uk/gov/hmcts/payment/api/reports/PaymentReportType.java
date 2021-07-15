@@ -34,22 +34,22 @@ public enum PaymentReportType {
     }
 
     private static String getServiceTypeEnum(String serviceType) {
-        if(serviceType != null && serviceType.equalsIgnoreCase("Specified Money Claims")) {
+        if (serviceType != null && (serviceType.equalsIgnoreCase("Specified Money Claims") || serviceType.equalsIgnoreCase("Civil Money Claims"))) {
             return "CMC";
         }
-        if(serviceType != null && serviceType.equalsIgnoreCase("Financial Remedy")) {
+        if (serviceType != null && (serviceType.equalsIgnoreCase("Financial Remedy") || serviceType.equalsIgnoreCase("Finrem"))) {
             return "FINREM";
         }
-        if(serviceType != null && (serviceType.equalsIgnoreCase("Family Public Law"))) {
+        if (serviceType != null && (serviceType.equalsIgnoreCase("Family Public Law"))) {
             return "FPL";
         }
-        if(serviceType != null && (serviceType.equalsIgnoreCase("Digital Bar"))) {
+        if (serviceType != null && (serviceType.equalsIgnoreCase("Digital Bar"))) {
             return "DIGITAL_BAR";
         }
-        if(serviceType != null && (serviceType.equalsIgnoreCase("Divorce"))) {
+        if (serviceType != null && (serviceType.equalsIgnoreCase("Divorce"))) {
             return "DIVORCE";
         }
-        if(serviceType != null && (serviceType.equalsIgnoreCase("Probate"))) {
+        if (serviceType != null && (serviceType.equalsIgnoreCase("Probate"))) {
             return "PROBATE";
         }
         return serviceType;

@@ -118,6 +118,5 @@ public class PaymentsReportService {
         }
         return paymentsCsvByteArray;
     }
-
 }
 
